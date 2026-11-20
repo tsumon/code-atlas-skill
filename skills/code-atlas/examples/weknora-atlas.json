@@ -1,0 +1,934 @@
+{
+  "project": {
+    "name": "WeKnora",
+    "monogram": "WK",
+    "version": "v0.9.0",
+    "commit": "1b3a1febf",
+    "repoUrl": "https://github.com/Tencent/WeKnora"
+  },
+  "tabs": [
+    {
+      "id": "tree",
+      "label": "0. 项目目录",
+      "mode": "tree",
+      "filePath": "WeKnora/",
+      "fileSubtitle": "v0.9.0 · 1b3a1febf 完整中文备注目录树（6,405 文件）",
+      "graphTitle": "WeKnora 完整项目目录树 · 9 大架构模块全景图",
+      "graphSubtitle": "基于 Tencent/WeKnora v0.9.0 真实源码扫描生成，点击任意目录行或右侧架构块双向定位",
+      "codeLines": [
+        "WeKnora/                              # Tencent/WeKnora 企业级知识库与智体框架 (v0.9.0 · 1b3a1febf)",
+        "├── VERSION                           # 当前产品版本号 (0.9.0)",
+        "├── go.mod / go.sum                   # Go 1.24 主服务依赖清单 (Gin/Dig/GORM/pgvector/Milvus/MCP)",
+        "├── Makefile                          # 开发、构建、迁移、Swagger 与单测快捷入口",
+        "├── config/",
+        "│   ├── config.yaml                   # 主服务运行时默认配置与开关矩阵",
+        "│   ├── builtin_agents.yaml           # 内置智体预设模板与能力声明",
+        "│   └── prompt_templates/             # 渐进式 RAG / Wiki / Agent 系统提示词模板",
+        "├── cmd/",
+        "│   ├── server/",
+        "│   │   ├── main.go                   # 标准版/Lite版同源启动、dotenv 加载与双阶段优雅停机",
+        "│   │   ├── bootstrap.go              # 首次启动幂等引导（超管提升等 Best-Effort Hook）",
+        "│   │   └── listen.go                 # 带退避重试的端口监听与信号处理 (Unix/Windows)",
+        "│   ├── desktop/                      # 跨平台桌面端入口（内置 Lite 运行时与本地沙箱）",
+        "│   └── milvus-migrate/               # 独立 Milvus 向量索引迁移命令行工具",
+        "├── internal/",
+        "│   ├── container/container.go        # Uber Dig 依赖注入容器：集中装配 DB/检索器/连接器/IM",
+        "│   ├── router/                       # /api/v1 路由分组注册与中间件编排",
+        "│   ├── handler/                      # HTTP/SSE 业务控制器层（会话/知识库/智体/MCP）",
+        "│   ├── middleware/",
+        "│   │   ├── auth.go                   # Bearer JWT / X-API-Key 双凭据鉴权与多租户上下文注入",
+        "│   │   ├── rbac.go                   # 工作空间角色门禁、灰度审计与 Fail-Closed 默认 Viewer",
+        "│   │   └── api_key_gate.go           # 空间/平台 API Key 权限范围与知识库白名单拦截",
+        "│   ├── application/service/",
+        "│   │   ├── retriever/composite.go    # 组合检索引擎：多后端并发召回与部分失败降级契约",
+        "│   │   ├── chat_pipeline/            # 对话流水线编排（Query 改写/召回/精排/流式生成）",
+        "│   │   ├── credential/               # 加密凭据管理与运行时按需注入",
+        "│   │   └── memory/                   # 跨轮次长期记忆存储与上下文组装",
+        "│   ├── reranking/",
+        "│   │   ├── rerank.go                 # 统一精排阶段：阈值自适应降级 + FAQ 加权 + 图文保留",
+        "│   │   └── mmr.go                    # 倒排索引加速的 MMR 多样性去重选择",
+        "│   ├── agent/",
+        "│   │   ├── engine.go                 # ReAct 核心状态机、Token 校准、溢出自愈与 Steer 注入",
+        "│   │   ├── act.go                    # 工具调度器：截断拦截、读写屏障并行执行与挂起恢复",
+        "│   │   ├── compaction/               # 上下文超限摘要压缩与 Checkpoint 持久化",
+        "│   │   └── approval/                 # 人机协同 (HITL) 高危操作审批挂起机制",
+        "│   ├── sandbox/",
+        "│   │   ├── command_approval.go       # 宿主机/沙箱命令审批协议与不可检视脚本拒审规则",
+        "│   │   ├── url_guard.go              # 双层 SSRF 护栏（Validate + DialControl 防 DNS 重绑定）",
+        "│   │   └── secret_fill.go            # 运行时密文填充（避免明文凭据进入模型上下文）",
+        "│   ├── datasource/                   # 10+ 外部知识连接器 (飞书/钉钉/Notion/Confluence/GitLab/语雀)",
+        "│   ├── im/                           # 8+ IM 机器人渠道适配器 (企微/微信/飞书/钉钉/Slack/TG)",
+        "│   ├── mcp/ & mcpserver/             # MCP 客户端工具桥接与对外 MCP Server 暴露",
+        "│   └── models/                       # 多厂商 Chat / Embedding / Rerank / VLM 统一抽象",
+        "├── docreader/                        # Python 独立文档解析微服务（PDF/表格/切片/OCR）",
+        "├── frontend/                         # Vue + TypeScript 控制台、知识库与智体交互前端",
+        "├── migrations/                       # PostgreSQL / SQLite 数据库与向量索引演进脚本",
+        "└── docker/ & helm/                   # 容器镜像构建、Sandbox 镜像与 K8s Helm 部署清单"
+      ],
+      "nodes": [
+        {
+          "id": "entry",
+          "badge": "1",
+          "title": "进程入口与 DI 装配",
+          "subtitle": "cmd/ · config/ · container/",
+          "loc": "目录 L1-L17",
+          "tag": "启动装配",
+          "category": "entry",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "router",
+          "badge": "2",
+          "title": "路由网关与控制器",
+          "subtitle": "internal/router/ · handler/",
+          "loc": "目录 L18-L19",
+          "tag": "HTTP/SSE",
+          "category": "entry",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "auth",
+          "badge": "3",
+          "title": "鉴权、RBAC 与 API Gate",
+          "subtitle": "internal/middleware/",
+          "loc": "目录 L20-L23",
+          "tag": "多租户",
+          "category": "security",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "rag",
+          "badge": "4",
+          "title": "混合检索与精排引擎",
+          "subtitle": "service/retriever/ · reranking/",
+          "loc": "目录 L24-L31",
+          "tag": "核心引擎",
+          "category": "core",
+          "col": 0,
+          "row": 1
+        },
+        {
+          "id": "agent",
+          "badge": "5",
+          "title": "ReAct 智体与工具编排",
+          "subtitle": "internal/agent/",
+          "loc": "目录 L32-L36",
+          "tag": "推理循环",
+          "category": "core",
+          "col": 1,
+          "row": 1
+        },
+        {
+          "id": "sandbox",
+          "badge": "6",
+          "title": "沙箱、SSRF 与凭据保护",
+          "subtitle": "internal/sandbox/",
+          "loc": "目录 L37-L40",
+          "tag": "零信任",
+          "category": "security",
+          "col": 2,
+          "row": 1
+        },
+        {
+          "id": "docreader",
+          "badge": "7",
+          "title": "文档解析与向量存储",
+          "subtitle": "docreader/ · migrations/",
+          "loc": "目录 L45, L47",
+          "tag": "10类检索",
+          "category": "storage",
+          "col": 0,
+          "row": 2
+        },
+        {
+          "id": "ecosystem",
+          "badge": "8",
+          "title": "模型、连接器、IM 与 MCP",
+          "subtitle": "datasource/ · im/ · mcp/ · models/",
+          "loc": "目录 L41-L44",
+          "tag": "生态集成",
+          "category": "queue",
+          "col": 1,
+          "row": 2
+        },
+        {
+          "id": "deploy",
+          "badge": "9",
+          "title": "前端、容器与 Helm 交付",
+          "subtitle": "frontend/ · docker/ · helm/",
+          "loc": "目录 L46-L48",
+          "tag": "全栈交付",
+          "category": "external",
+          "col": 2,
+          "row": 2
+        }
+      ],
+      "edges": [
+        { "from": "entry", "to": "router", "label": "Dig装配" },
+        { "from": "entry", "to": "rag", "label": "容器注入" },
+        { "from": "router", "to": "auth", "label": "鉴权门禁" },
+        { "from": "router", "to": "agent", "label": "智体调度" },
+        { "from": "auth", "to": "sandbox", "label": "策略边界", "dashed": true },
+        { "from": "agent", "to": "rag", "label": "知识召回" },
+        { "from": "agent", "to": "sandbox", "label": "隔离执行" },
+        { "from": "rag", "to": "docreader", "label": "切片/索引" },
+        { "from": "agent", "to": "ecosystem", "label": "模型/MCP" },
+        { "from": "docreader", "to": "ecosystem", "label": "外部同步", "dashed": true },
+        { "from": "ecosystem", "to": "deploy", "label": "多端交付", "dashed": true },
+        { "from": "sandbox", "to": "deploy", "label": "沙箱镜像", "dashed": true }
+      ],
+      "steps": [
+        {
+          "title": "进程入口与全局装配",
+          "shortTitle": "入口与配置",
+          "lines": [1, 17],
+          "nodeIds": ["entry"],
+          "insights": {
+            "mechanism": "`cmd/server/main.go` 通过 `envfile.Load(handler.Edition == \"lite\")` 区分标准集群版与 Lite 桌面版配置，再调用 `container.BuildContainer` 借助 `go.uber.org/dig` 集中装配 DB、10+ 检索引擎、数据源连接器与 IM 渠道。",
+            "pitfalls": "面对 6,400+ 文件的大型仓库，切忌盲目翻代码：先读 `cmd/server/main.go` + `internal/container/container.go` 就能 10 分钟摸清全栈依赖边界；注意 `main.go` 收到第二次停机信号会立即强关连接。",
+            "interview": "问：WeKnora 如何用同一套代码库同时支持标准集群版（PG/Redis/Milvus）和 Lite 单机桌面版？\n答：通过编译期注入的 `handler.Edition == \"lite\"` 区分配置发现路径，并在 Dig 容器里按配置条件装配不同底层驱动（如 SQLite/sqlite-vec 与内存队列替代 PG/Redis），上层业务面向 `interfaces` 零侵入。"
+          }
+        },
+        {
+          "title": "路由网关与控制器",
+          "shortTitle": "路由与接口",
+          "lines": [18, 19],
+          "nodeIds": ["router"],
+          "insights": {
+            "mechanism": "`internal/router/` 统一挂载 `/api/v1` 路由组并配合 `runtime.SilenceGinRouteSpam()` 折叠百余条启动路由日志；`internal/handler/` 拆分会话流式 SSE、知识库、智体协作与 MCP 端点控制器。",
+            "pitfalls": "流式 SSE 控制器若未及时监听 `c.Request.Context().Done()`，用户关闭浏览器后后台 LLM 与工具调用仍会持续空转烧 Token。",
+            "interview": "问：上百个 REST/SSE 接口怎么做到路由与权限策略不遗漏？\n答：在 `router` 层按资源组显式挂载 `Auth -> APIKeyGate -> RequireRole` 链式中间件，并辅以 `swagger_contract_test.go` 做契约自动化回归。"
+          }
+        },
+        {
+          "title": "鉴权、RBAC 与多租户门禁",
+          "shortTitle": "权限与访问",
+          "lines": [20, 23],
+          "nodeIds": ["auth"],
+          "insights": {
+            "mechanism": "`auth.go` 支持 `Bearer JWT`（人）与 `X-API-Key`（机器）双认证；`rbac.go` 实现 `RequireRole` 与 `CreatorLookup` 资源归属校验；`api_key_gate.go` 负责空间 Key 与平台 Key 的默认拒绝白名单。",
+            "pitfalls": "若资源不存在时中间件直接返回 `403` 而非放行给 Handler 返回 `404`，会掩盖真实 URL 拼写错误导致排障困难；WeKnora 特意约定 `ErrResourceNotFound` 放行由下游返回 `404`。",
+            "interview": "问：存量多租户系统上线 RBAC 时如何平滑灰度、避免一刀切把线上业务打挂？\n答：参考 `rbac.go` 的 `cfg.Tenant.EnableRBAC` 开关：关闭时只记告警日志不拦截（Shadow Mode），观测确认无误报后再一键开启强拦截，并对拒审审计加 1 分钟滑动窗口去重防刷爆审计表。"
+          }
+        },
+        {
+          "title": "组合检索与统一精排引擎",
+          "shortTitle": "RAG 与精排",
+          "lines": [24, 31],
+          "nodeIds": ["rag"],
+          "insights": {
+            "mechanism": "`composite.go` 将向量、关键词、图谱等异构检索后端包装为统一 `CompositeRetrieveEngine`；`internal/reranking/` 收敛所有聊天、Agent 与 API 的统一精排管线（Passage 构造 → 模型打分 → 阈值降级 → MMR 多样性选择）。",
+            "pitfalls": "把精排逻辑分散写在 Chat Pipeline 和 Agent Tool 里极易产生行为漂移；统一收敛到 `internal/reranking` 并产出 `RerankDiagnostics` 可同时服务排障与观测。",
+            "interview": "问：多路混合检索里，某一路（如 ES 或 Milvus）抖动超时了，系统应该整体报错还是返回部分结果？\n答：采用 `composite.go` 的部分成功契约：保留已成功分支的召回结果，同时通过 `errors.Join` 附带返回局部错误，让上层明确感知降级而非静默丢失数据。"
+          }
+        },
+        {
+          "title": "ReAct 智体状态机与工具编排",
+          "shortTitle": "Agent 与工具",
+          "lines": [32, 36],
+          "nodeIds": ["agent"],
+          "insights": {
+            "mechanism": "`engine.go` 设计为**跨轮次无状态**引擎（历史每轮由 DB 重建传入），内置 Token 校准器（`tokenCalibration`）、一次性溢出自愈压缩（`overflowRecovered`）与运行中 `steerSink` 消息插队；`act.go` 实现读写屏障并发工具执行。",
+            "pitfalls": "模型达到 `max_tokens` 输出上限时，最后一条 `ToolCall` JSON 参数可能被拦腰截断；直接执行 `write_file` 会写入半截坏文件！WeKnora 在 `act.go` 专门拦截 `isLengthFinishReason` 并整批拒执。",
+            "interview": "问：Agent 单轮并发吐出 5 个工具调用（3 个读 + 1 个写 + 1 个读），怎么安全并发？\n答：采用 `act.go` 的读并发 + 写屏障模式：用 `errgroup`（限流 8）并发跑前面 3 个只读工具，遇到非并发安全写工具先 `g.Wait()` 排空，再串行执行写操作，写完后开启下一组并发读，严格保证语义顺序。"
+          }
+        },
+        {
+          "title": "沙箱、SSRF 与凭据保险库",
+          "shortTitle": "沙箱与凭据",
+          "lines": [37, 40],
+          "nodeIds": ["sandbox"],
+          "insights": {
+            "mechanism": "`url_guard.go` 用 `Validate`（配置保存校验）+ `DialControl`（建连瞬间内核级 IP 校验）双层防御 SSRF 与 DNS Rebinding；`command_approval.go` 管控删除/越权/写文件审批；`secret_fill.go` 在边界层填充密文不暴露给 LLM。",
+            "pitfalls": "只做保存时 URL 校验挡不住 DNS Rebinding 攻击（校验时解析公网 IP，真正拨号时解析到 `169.254.169.254` 云元数据服务）；必须把策略挂进 `net.Dialer.Control`。",
+            "interview": "问：如果租户自托管部署需要连内网沙箱，开启 `AllowPrivate` 后云元数据地址还安全吗？\n答：必须像 `url_guard.go` 那样显式分层：`AllowPrivate` 只放行 RFC1918/回环地址，Link-Local (`169.254.0.0/16` 及其 IPv6 映射) 永远无条件封禁。"
+          }
+        },
+        {
+          "title": "文档解析微服务与向量存储",
+          "shortTitle": "解析与存储",
+          "lines": [45, 47],
+          "nodeIds": ["docreader"],
+          "insights": {
+            "mechanism": "`docreader/` 采用独立 Python 服务承接重 CPU/OCR 的 PDF、Office 与表格解析切片，与 Go 主服务解耦；`migrations/` 维护多数据库与向量索引 Schema 演进。",
+            "pitfalls": "把 PDF 解析和 OCR 塞进 Go 主进程不仅缺生态，还容易因坏文件导致 OOM 拖垮在线问答服务；拆独立 Worker/微服务配合资源上限隔离是生产刚需。",
+            "interview": "问：为什么 Go 后端项目普遍把文档解析单独拆成 Python `docreader` 服务？\n答：Python 在版面分析、OCR、公式/表格抽取生态成熟，且解析属于离线突发重负载，拆分后可独立扩缩容并与在线低延迟检索物理隔离。"
+          }
+        },
+        {
+          "title": "多模型、数据源、IM 与 MCP 生态",
+          "shortTitle": "生态集成",
+          "lines": [41, 44],
+          "nodeIds": ["ecosystem"],
+          "insights": {
+            "mechanism": "`datasource/` 覆盖飞书、钉钉、Notion、Confluence、GitLab、语雀等 10+ 知识连接器；`im/` 适配企微、飞书、Slack、Telegram 等 8+ 渠道；`mcp/` 与 `mcpserver/` 实现双向 MCP 生态互通。",
+            "pitfalls": "接入多厂商 LLM 和外部连接器时，不同供应商的报错码、限流策略与工具协议各异，必须在 `models/` 适配层统一错误分类与重试退避策略。",
+            "interview": "问：企业知识库如何同时支持“被其他 Agent 调用”和“自己调用外部工具”？\n答：双向实现 MCP 协议：`mcp/` 作为 Client 动态挂接外部工具，同时通过 `mcpserver/` 把自身知识检索与问答能力标准暴露给外部 IDE/Agent 客户端。"
+          }
+        },
+        {
+          "title": "前端控制台、容器与 Helm 部署",
+          "shortTitle": "前端与部署",
+          "lines": [46, 48],
+          "nodeIds": ["deploy"],
+          "insights": {
+            "mechanism": "`frontend/` 基于 Vue 3 + TypeScript 提供知识库管理、可视化召回调试与智体流式轨迹界面；`docker/` 与 `helm/` 覆盖本地 Docker Compose 到 K8s 生产集群的全链路交付。",
+            "pitfalls": "子路径部署（如 `/weknora/`）最容易出现静态资源与 SSE 接口 404，需结合 `docs/subpath-deployment.md` 统一透传 Nginx Base Path。",
+            "interview": "问：多模态/沙箱类 AI 系统在容器化部署时最大的安全隐患是什么？\n答：沙箱容器若共享宿主机网络或挂载高权限 Docker Socket，一旦 Agent 执行恶意代码即可逃逸；应使用独立 `Dockerfile.sandbox`、最小权限非 root 用户及严格出站网络策略。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rag-rerank",
+      "label": "1. RAG 与精排",
+      "mode": "code",
+      "graphTitle": "WeKnora 组合检索 → 统一精排 → 倒排 MMR 去重链路",
+      "graphSubtitle": "跨 3 个真实源文件联动：切换步骤自动切换左侧源码，点击「↗ GitHub 原文」直达真实行号",
+      "files": [
+        {
+          "id": "composite",
+          "label": "composite.go",
+          "path": "internal/application/service/retriever/composite.go",
+          "subtitle": "多引擎并发检索与部分失败降级契约",
+          "startLine": 40,
+          "codeLines": [
+            "func (c *CompositeRetrieveEngine) Retrieve(ctx context.Context,",
+            "    retrieveParams []types.RetrieveParams,",
+            ") ([]*types.RetrieveResult, error) {",
+            "    var partialMu sync.Mutex",
+            "    var partialErrs []error",
+            "    results, err := concurrentRetrieve(ctx, retrieveParams,",
+            "        func(ctx context.Context, param types.RetrieveParams, results *[]*types.RetrieveResult, mu *sync.Mutex) error {",
+            "            for _, engineInfo := range c.engineInfos {",
+            "                if slices.Contains(engineInfo.retrieverType, param.RetrieverType) {",
+            "                    result, err := engineInfo.retrieveEngine.Retrieve(ctx, param)",
+            "                    if err != nil { return err }",
+            "                    for _, one := range result {",
+            "                        if one != nil && one.Error != nil {",
+            "                            partialMu.Lock(); partialErrs = append(partialErrs, one.Error); partialMu.Unlock()",
+            "                        }",
+            "                    }",
+            "                    mu.Lock(); *results = append(*results, result...); mu.Unlock()",
+            "                    break",
+            "                }",
+            "            }",
+            "            return nil",
+            "        })",
+            "    if err != nil { return results, err } // 保留成功分支结果",
+            "    if len(partialErrs) > 0 { return results, fmt.Errorf(\"partial: %w\", errors.Join(partialErrs...)) }",
+            "    return results, nil",
+            "}"
+          ]
+        },
+        {
+          "id": "rerank",
+          "label": "rerank.go",
+          "path": "internal/reranking/rerank.go",
+          "subtitle": "统一精排参数、自适应阈值降级与图文保留策略",
+          "startLine": 21,
+          "codeLines": [
+            "const (",
+            "    DefaultThreshold        = 0.2   // 默认精排最低相关性阈值",
+            "    DefaultFallbackMinScore = 0.15  // 全部被过滤时的兜底保底线",
+            "    degradeFloor            = 0.3   // 阈值高于 0.3 且全空时触发自适应降级",
+            "    degradeFactor           = 0.7   // 降级系数：threshold * 0.7（不低于 0.3）",
+            "    DefaultMaxCandidates    = 200   // 限制送入精排模型的最大候选数，控延迟与成本",
+            ")",
+            "",
+            "func FallbackMinScore(explicitScope bool) float64 {",
+            "    if explicitScope {",
+            "        return math.Inf(-1)         // 显式指定文档/标签范围时保留最优候选（支持负分模型）",
+            "    }",
+            "    return DefaultFallbackMinScore",
+            "}",
+            "",
+            "// Rerank 失败时不返回 error：原样透传召回结果并标记 model_error，实现无感降级",
+            "func Rerank(ctx context.Context, model rerank.Reranker, query string,",
+            "    results []*types.SearchResult, opts Options) *Result { ... }"
+          ]
+        },
+        {
+          "id": "mmr",
+          "label": "mmr.go",
+          "path": "internal/reranking/mmr.go",
+          "subtitle": "基于扁平倒排表的 O(1) 增量 Jaccard MMR 多样性选择",
+          "startLine": 17,
+          "codeLines": [
+            "func SelectMMR(ctx context.Context, results []*types.SearchResult, k int, lambda float64) []int {",
+            "    if k <= 0 || len(results) == 0 { return nil }",
+            "    if k == 1 { /* 仅需 Top1 时跳过分词与倒排构建，零额外开销 */ }",
+            "",
+            "    tokens, offsets, postings := buildMMRPostings(ctx, results) // 扁平数组倒排表",
+            "    maxRedundancy := make([]float64, len(results))",
+            "    intersections := make([]int, len(results))",
+            "    for len(selected) < k && len(remaining) > 0 {",
+            "        // 1. 选出 lambda*Score - (1-lambda)*maxRedundancy[i] 最大的候选",
+            "        chosen := pickBestMMR(remaining, results, maxRedundancy, lambda)",
+            "        // 2. 仅遍历与 chosen 共享 Token 的候选，增量更新最大 Jaccard 冗余度",
+            "        for _, token := range tokens[chosen] {",
+            "            for _, i := range postings[offsets[token]:offsets[token+1]] {",
+            "                if !taken[i] { intersections[i]++ }",
+            "            }",
+            "        }",
+            "        for _, i := range touched {",
+            "            union := len(tokens[i]) + len(tokens[chosen]) - intersections[i]",
+            "            maxRedundancy[i] = math.Max(maxRedundancy[i], float64(intersections[i])/float64(union))",
+            "        }",
+            "    }",
+            "    return selected",
+            "}"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "id": "wk-comp",
+          "badge": "1",
+          "title": "并发多后端分发",
+          "subtitle": "CompositeRetrieveEngine",
+          "loc": "composite.go L40-L67",
+          "tag": "并发扇出",
+          "category": "core",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "wk-partial",
+          "badge": "2",
+          "title": "部分失败降级契约",
+          "subtitle": "errors.Join(partialErrs...)",
+          "loc": "composite.go L78-L85",
+          "tag": "高可用",
+          "category": "security",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "wk-cap",
+          "badge": "3",
+          "title": "候选截断与阈值降级",
+          "subtitle": "DefaultMaxCandidates=200",
+          "loc": "rerank.go L21-L52",
+          "tag": "成本护栏",
+          "category": "queue",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "wk-rerank",
+          "badge": "4",
+          "title": "统一精排与故障兜底",
+          "subtitle": "reranking.Rerank()",
+          "loc": "rerank.go L111-L120",
+          "tag": "零报错降级",
+          "category": "core",
+          "col": 1,
+          "row": 1
+        },
+        {
+          "id": "wk-mmr",
+          "badge": "5",
+          "title": "倒排加速 MMR 去重",
+          "subtitle": "SelectMMR + buildMMRPostings",
+          "loc": "mmr.go L17-L84",
+          "tag": "多样性",
+          "category": "storage",
+          "col": 2,
+          "row": 1
+        }
+      ],
+      "edges": [
+        { "from": "wk-comp", "to": "wk-partial", "label": "汇总多路" },
+        { "from": "wk-partial", "to": "wk-cap", "label": "粗排候选" },
+        { "from": "wk-cap", "to": "wk-rerank", "label": "≤200条" },
+        { "from": "wk-rerank", "to": "wk-mmr", "label": "精排打分" }
+      ],
+      "steps": [
+        {
+          "title": "多后端并发分发召回",
+          "shortTitle": "多后端并发",
+          "fileId": "composite",
+          "lines": [1, 22],
+          "realLines": [40, 77],
+          "nodeIds": ["wk-comp"],
+          "insights": {
+            "mechanism": "`CompositeRetrieveEngine.Retrieve` 通过 `concurrentRetrieve` 并发调度向量、关键词等不同 `RetrieverType` 的检索引擎，结果通过互斥锁安全合并。",
+            "pitfalls": "多检索后端混合查询时，如果某个后端未注册对应 `RetrieverType`，会直接返回 `retriever type not found`，启动期需在 `NewCompositeRetrieveEngine` 提前校验 `repo.Support()`。",
+            "interview": "问：WeKnora 支持 10 种检索后端（PG/ES/Milvus/Qdrant/Weaviate/Doris 等），业务层如何解耦？\n答：统一抽象 `RetrieveEngineService` 接口，由组合模式 `CompositeRetrieveEngine` 按 `RetrieverType` 路由分发，新增向量库只需实现接口并注册进 Registry。"
+          }
+        },
+        {
+          "title": "部分失败保留结果的降级契约",
+          "shortTitle": "部分失败契约",
+          "fileId": "composite",
+          "lines": [23, 26],
+          "realLines": [78, 86],
+          "nodeIds": ["wk-partial"],
+          "insights": {
+            "mechanism": "任何单条检索腿失败都不会丢弃其他成功腿的结果；函数同时返回 `results` 与 `errors.Join(partialErrs...)`，调用方既能继续回答又能记录降级诊断。",
+            "pitfalls": "传统 Go 习惯 `if err != nil { return nil, err }` 在多路召回里会把原本已经召回的高分结果一并扔掉，极大降低高并发下的问答可用性。",
+            "interview": "问：Go 里同时返回非空 `results` 和非空 `err` 有什么工程注意点？\n答：必须在函数注释和契约测试（如 `composite_partial_test.go`）里明示调用方“先检查 `len(results) > 0` 再决定是否降级继续”，而不是无脑 `if err != nil { abort }`。"
+          }
+        },
+        {
+          "title": "精排候选上限与显式作用域保底",
+          "shortTitle": "阈值与保底",
+          "fileId": "rerank",
+          "lines": [1, 14],
+          "realLines": [21, 52],
+          "nodeIds": ["wk-cap"],
+          "insights": {
+            "mechanism": "设 `DefaultMaxCandidates = 200` 封顶精排账单与延迟；当高阈值过滤掉全部结果时自动按 `degradeFactor = 0.7` 退让；若用户显式 `@` 指定了文档/标签，则 `FallbackMinScore` 返回 `-Inf` 避免把权威文档全滤空。",
+            "pitfalls": "BGE / Cohere 等不同 Rerank 模型打分区间不同，部分模型会输出负 Logits——因此“不过滤”的哨兵值必须是 `math.Inf(-1)` 而不是 `0`！",
+            "interview": "问：为什么用户 `@` 了具体文档提问时，不能直接套用全局精排阈值？\n答：用户已明确缩小权威范围，若全局阈值过高把该文档全滤空会导致“明明指定了文档却答不知道”；用 `-Inf` 保底可确保至少保留该文档内最相关片段。"
+          }
+        },
+        {
+          "title": "统一精排管线与无感降级",
+          "shortTitle": "统一精排",
+          "fileId": "rerank",
+          "lines": [16, 18],
+          "realLines": [107, 120],
+          "nodeIds": ["wk-rerank"],
+          "insights": {
+            "mechanism": "`reranking.Rerank` 不修改输入切片、不因模型故障抛错中断——模型超时或报错时原样返回粗排顺序，并在 `Diagnostics` 里标记 `model_error` 便于监控报警。",
+            "pitfalls": "纯文本 Reranker 无法评估图片内容，WeKnora 在 `Options` 中专门提供 `ImageKeepScore`，对被文本精排误杀但向量分极高的图片命中予以兜底保留。",
+            "interview": "问：多模态 RAG 里，图片切片经常被纯文本 Reranker 压低分数怎么解决？\n答：两条路：一是对支持图像的 VLM Reranker 通过 `LoadImage` 直接看图打分；二是对纯文本 Reranker 设 `ImageKeepScore`，高向量相似度图片绕过文本误杀并打上保留标记。"
+          }
+        },
+        {
+          "title": "倒排表加速的 MMR 多样性去重",
+          "shortTitle": "倒排 MMR",
+          "fileId": "mmr",
+          "lines": [1, 23],
+          "realLines": [17, 84],
+          "nodeIds": ["wk-mmr"],
+          "insights": {
+            "mechanism": "`SelectMMR` 每次选出 `lambda*Score - (1-lambda)*maxRedundancy` 最优项后，不两两重算全部候选相似度，而是通过扁平倒排数组 `postings[offsets[t]:offsets[t+1]]` 只增量更新与新选中项共享 Token 的候选 Jaccard 值。",
+            "pitfalls": "朴素 MMR 每次循环对全部剩余文档做两两集合求交，复杂度 `O(k * N * |T|)` 且产生大量 Map 分配；扁平倒排表不仅跳过无交集文档，还显著减少 GC 压力。",
+            "interview": "问：MMR 去重里，为什么 WeKnora 选 Token Jaccard + 倒排索引而不是直接用 Embedding 余弦相似度？\n答：粗排回来的切片未必都携带原始高维浮点向量（跨后端存储开销大），而 Token 倒排直接作用在文本上、无需额外算 Embedding 且能精准捕获同一文档相邻重叠切片的字面冗余。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "react-agent",
+      "label": "2. ReAct Agent",
+      "mode": "code",
+      "graphTitle": "WeKnora ReAct Agent 状态机与读写屏障并发执行",
+      "graphSubtitle": "跨 engine.go 与 act.go 真实源码：展示无状态引擎设计、截断拦截与并行读写屏障",
+      "files": [
+        {
+          "id": "engine",
+          "label": "engine.go",
+          "path": "internal/agent/engine.go",
+          "subtitle": "无状态 ReAct 引擎结构体与 Execute 入口初始化",
+          "startLine": 380,
+          "codeLines": [
+            "func (e *AgentEngine) Execute(",
+            "    ctx context.Context, sessionID, messageID, query string,",
+            "    llmContext []chat.Message, imageURLs ...[]string,",
+            ") (*types.AgentState, error) {",
+            "    defer e.toolRegistry.Cleanup(ctx)                       // 1. 保证退出时清理临时工具资源",
+            "    spanCtx, agentSpan := langfuse.GetManager().StartSpan(ctx, langfuse.SpanOptions{",
+            "        Name: \"agent.execute\",",
+            "        Input: map[string]interface{}{ \"query\": truncateRunes(query, langfuseQueryPreview) },",
+            "    })",
+            "    ctx = spanCtx",
+            "    state := &types.AgentState{                             // 2. 初始化本轮状态与历史 Token 校准比例",
+            "        RoundSteps: []types.AgentStep{},",
+            "        TurnUsage:  types.TokenUsage{ContextTokenScale: e.config.ContextTokenScale},",
+            "    }",
+            "    systemPrompt := e.buildSystemPrompt(ctx)                // 3. 渐进式披露 Skills 元信息",
+            "    e.beginTurn(query, imgs, state)",
+            "    messages := e.buildMessagesWithLLMContext(systemPrompt, query, sessionID, llmContext, imgs)",
+            "    if e.toolRegistry != nil {",
+            "        e.toolRegistry.RememberMCPHistory(messages)",
+            "        e.toolRegistry.RefreshMCPTools(ctx)                 // 4. 动态刷新 MCP 工具列表",
+            "    }",
+            "    tools := e.buildToolsForLLM()",
+            "}"
+          ]
+        },
+        {
+          "id": "act",
+          "label": "act.go",
+          "path": "internal/agent/act.go",
+          "subtitle": "截断 ToolCall 拦截与读写屏障并发调度器",
+          "startLine": 243,
+          "codeLines": [
+            "func (e *AgentEngine) executeToolCalls(",
+            "    ctx context.Context, response *types.ChatResponse,",
+            "    step *types.AgentStep, iteration int, sessionID, assistantMessageID string,",
+            ") *types.PromptSuspension {",
+            "    if len(response.ToolCalls) == 0 { return nil }",
+            "    // 1. 输出触达 max_tokens 截断时整批拒执，杜绝半截参数写入损坏文件",
+            "    if isLengthFinishReason(response.FinishReason) {",
+            "        e.failTruncatedToolCalls(ctx, response, step, iteration, sessionID)",
+            "        return nil",
+            "    }",
+            "    if e.config.ParallelToolCalls && len(response.ToolCalls) >= 2 {",
+            "        return e.executeToolCallsParallel(ctx, response, step, iteration, sessionID, assistantMessageID)",
+            "    }",
+            "    for i, tc := range response.ToolCalls {",
+            "        if s := e.executeSingleToolCall(ctx, tc, i, step, iteration, iteration+1, sessionID, assistantMessageID); s != nil {",
+            "            return s // 命中人工审批/追问时挂起运行",
+            "        }",
+            "    }",
+            "    return nil",
+            "}",
+            "// 2. 并行执行器：只读工具 errgroup 并发（限流 8），遇到写操作先排空屏障再串行",
+            "func (e *AgentEngine) executeToolCallsParallel(...) *types.PromptSuspension {",
+            "    g, gCtx := errgroup.WithContext(ctx); g.SetLimit(8)",
+            "    for i, tc := range response.ToolCalls {",
+            "        if !agenttools.CanRunConcurrently(tc.Function.Name) {",
+            "            _ = g.Wait() // 排空前置只读工具",
+            "            results[i] = e.runToolCall(ctx, tc, i, iteration, round, sessionID, assistantMessageID)",
+            "            if s := suspensionOf(results[i]); s != nil { return s }",
+            "            g, gCtx = errgroup.WithContext(ctx); g.SetLimit(8)",
+            "            continue",
+            "        }",
+            "        g.Go(func() error { /* 并发执行只读工具并安全恢复 panic */ return nil })",
+            "    }",
+            "}"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "id": "ag-init",
+          "badge": "1",
+          "title": "无状态初始化与 Trace",
+          "subtitle": "AgentEngine.Execute()",
+          "loc": "engine.go L380-L444",
+          "tag": "顶层Span",
+          "category": "entry",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "ag-ctx",
+          "badge": "2",
+          "title": "渐进式 Prompt 与 MCP",
+          "subtitle": "buildSystemPrompt + RefreshMCP",
+          "loc": "engine.go L448-L465",
+          "tag": "动态工具",
+          "category": "queue",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "ag-trunc",
+          "badge": "3",
+          "title": "截断 ToolCall 安全拦截",
+          "subtitle": "isLengthFinishReason()",
+          "loc": "act.go L258-L264",
+          "tag": "防脏写",
+          "category": "security",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "ag-par",
+          "badge": "4",
+          "title": "读写屏障并发调度",
+          "subtitle": "executeToolCallsParallel",
+          "loc": "act.go L312-L345",
+          "tag": "限流8/屏障",
+          "category": "core",
+          "col": 1,
+          "row": 1
+        },
+        {
+          "id": "ag-susp",
+          "badge": "5",
+          "title": "审批挂起与状态恢复",
+          "subtitle": "PromptSuspension",
+          "loc": "act.go L273-L277, L332",
+          "tag": "HITL挂起",
+          "category": "external",
+          "col": 2,
+          "row": 1
+        }
+      ],
+      "edges": [
+        { "from": "ag-init", "to": "ag-ctx", "label": "组装上下文" },
+        { "from": "ag-ctx", "to": "ag-trunc", "label": "LLM返回" },
+        { "from": "ag-trunc", "to": "ag-par", "label": "完整参数" },
+        { "from": "ag-par", "to": "ag-susp", "label": "需审批", "dashed": true }
+      ],
+      "steps": [
+        {
+          "title": "无状态初始化与 Langfuse 顶层 Span",
+          "shortTitle": "初始化/Trace",
+          "fileId": "engine",
+          "lines": [1, 14],
+          "realLines": [380, 444],
+          "nodeIds": ["ag-init"],
+          "insights": {
+            "mechanism": "`AgentEngine` 故意不保存跨轮次内存状态，每轮从 DB 传入 `llmContext`，入口开启统一 `agent.execute` Langfuse Span 并继承上一轮学到的 `ContextTokenScale` 校准系数。",
+            "pitfalls": "若把多轮对话状态缓存在单机 Go 进程内存里，K8s 多副本扩容或发版重启会直接丢会话；无状态设计天然支持水平扩展。",
+            "interview": "问：为什么 Agent 引擎需要 `ContextTokenScale` 动态校准？\n答：本地启发式 Tokenizer 估算和不同厂商服务端真实计费 Token 常有 15%~40% 偏差，用连续两轮真实 `usage` 动态校正比例，才能在真正触顶前精准触发上下文压缩。"
+          }
+        },
+        {
+          "title": "渐进式 Prompt 与动态 MCP 工具刷新",
+          "shortTitle": "Prompt/MCP",
+          "fileId": "engine",
+          "lines": [15, 23],
+          "realLines": [448, 465],
+          "nodeIds": ["ag-ctx"],
+          "insights": {
+            "mechanism": "`buildSystemPrompt` 仅注入 Skills 的 Level 1 名称与简介（渐进式披露）；随后 `RefreshMCPTools` 刷新当前会话可用的 MCP 工具定义，避免过时 Schema 导致调用失败。",
+            "pitfalls": "将所有 Skill 全文和全部 MCP 工具无差别塞入 System Prompt 会严重挤占推理窗口；按需渐进加载是现代 Agent 架构的标配。",
+            "interview": "问：Agent 里的 Progressive Disclosure（渐进式披露）怎么落地？\n答：第一层只给 Skill 的 `name + description` 索引，模型判断命中后再通过工具读取完整 `SKILL.md` 及引用的 `references/`，将空闲时的上下文占用压低一个数量级。"
+          }
+        },
+        {
+          "title": "输出截断 ToolCall 整批安全拦截",
+          "shortTitle": "截断防脏写",
+          "fileId": "act",
+          "lines": [1, 10],
+          "realLines": [243, 264],
+          "nodeIds": ["ag-trunc"],
+          "insights": {
+            "mechanism": "检查 `isLengthFinishReason(response.FinishReason)`：一旦模型因输出长度上限被截断，直接调用 `failTruncatedToolCalls` 拒绝执行整批调用，并把中立提示回传模型要求拆分小块重试。",
+            "pitfalls": "很多开源 Agent 只校验 JSON 能否 parse，却忽略模型在写大文件时被截断但恰好闭合了括号，导致静默落盘半截坏文件！检查 `finish_reason == length` 是极其老道的防线。",
+            "interview": "问：为什么拒绝截断调用时的错误提示要保持“工具中立（tool-neutral）”？\n答：同一轮可能有多个不同工具调用，如果在报错里硬编码某个工具的字段名，会误导模型去修改另一个无辜工具的参数。"
+          }
+        },
+        {
+          "title": "读写屏障并发执行器",
+          "shortTitle": "读写屏障并发",
+          "fileId": "act",
+          "lines": [21, 34],
+          "realLines": [312, 345],
+          "nodeIds": ["ag-par"],
+          "insights": {
+            "mechanism": "`executeToolCallsParallel` 用 `errgroup`（`SetLimit(8)`）并发跑只读工具；遇到 `!CanRunConcurrently` 的写操作时，先 `g.Wait()` 排空前置读、串行执行写，再重建 `errgroup` 继续后续并发。",
+            "pitfalls": "无脑把全部 ToolCall 丢进 goroutine 并发，会导致“先写文件再读文件”出现竞态条件；同时并发数不设上限容易瞬间打爆下游数据库连接池或 API 限流。",
+            "interview": "问：并发工具执行时，单个工具内部发生 `panic` 怎么办？\n答：在每个 goroutine 内层做好 `recover()` 封装为失败的 `ToolCall`（如 `panickedToolCall`），既不让整个服务端进程崩溃，也能把错误反馈给模型尝试替代路径。"
+          }
+        },
+        {
+          "title": "人机协同挂起与状态持久化",
+          "shortTitle": "审批挂起",
+          "fileId": "act",
+          "lines": [14, 19],
+          "realLines": [273, 278],
+          "nodeIds": ["ag-susp"],
+          "insights": {
+            "mechanism": "当工具触发高危命令审批或需用户补充信息时返回 `*types.PromptSuspension`；引擎保存前置已完成结果并优雅结束当前 HTTP 请求，待用户在前端点击批准后通过 `resume.go` 接续运行。",
+            "pitfalls": "在长 HTTP/SSE 连接里无限期阻塞等待用户点审批按钮，极易被网关 60s/300s 超时切断导致状态丢失；持久化挂起 + 恢复（Suspend/Resume）才是生产级解法。",
+            "interview": "问：并行批次执行到一半触发审批挂起，前面已经跑完的工具结果怎么处理？\n答：参考 `act.go` 第 334 行：写屏障保证了此前所有工具已全部执行完毕，立刻调用 `appendToolOutcomes` 落盘保留 `results[:i]`，恢复时直接从挂起点继续，不重复消耗已完成的工具调用。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "security-sandbox",
+      "label": "3. 安全与沙箱",
+      "mode": "code",
+      "graphTitle": "WeKnora 纵深防御：RBAC 门禁 → 双层 SSRF 护栏 → 命令审批",
+      "graphSubtitle": "跨 rbac.go / url_guard.go / command_approval.go 真实安全防线拆解",
+      "files": [
+        {
+          "id": "rbac",
+          "label": "rbac.go",
+          "path": "internal/middleware/rbac.go",
+          "subtitle": "Fail-Closed 角色门禁、API Key 短路与灰度开关",
+          "startLine": 68,
+          "codeLines": [
+            "func RequireRole(min types.TenantRole, cfg *config.Config) gin.HandlerFunc {",
+            "    return func(c *gin.Context) {",
+            "        ctx := c.Request.Context()",
+            "        // 1. 机器凭据 (API Key) 已由 APIKeyGate 默认拒绝校验，此处短路",
+            "        if _, ok := types.TenantAPIKeyScopeFromContext(ctx); ok { c.Next(); return }",
+            "        role := types.CallerFromContext(ctx).Role",
+            "        if role.HasPermission(min) || IsCrossTenantSuperuser(ctx, cfg) {",
+            "            c.Next(); return",
+            "        }",
+            "        // 2. 灰度期 EnableRBAC=false 时仅打告警日志不阻断",
+            "        if !rbacEnforcementEnabled(cfg) {",
+            "            logger.Warnf(ctx, \"[rbac] role insufficient (logged only): have=%s need=%s\", role, min)",
+            "            c.Next(); return",
+            "        }",
+            "        // 3. 落库防刷审计日志（1 分钟滑动窗口去重）并返回 403",
+            "        if svc := AuditServiceFromContext(c); svc != nil {",
+            "            _ = svc.LogDenied(ctx, c, types.CallerFromContext(ctx).TenantID, uid, string(role), min)",
+            "        }",
+            "        c.JSON(http.StatusForbidden, gin.H{\"error\": \"Forbidden: insufficient workspace role\"})",
+            "        c.Abort()",
+            "    }",
+            "}"
+          ]
+        },
+        {
+          "id": "urlguard",
+          "label": "url_guard.go",
+          "path": "internal/sandbox/url_guard.go",
+          "subtitle": "配置期 Validate + 拨号期 DialControl 双层防 SSRF/DNS 重绑定",
+          "startLine": 39,
+          "codeLines": [
+            "var ErrUnsafeOutboundURL = errors.New(\"sandbox: unsafe outbound URL\")",
+            "",
+            "type OutboundURLPolicy struct {",
+            "    // AllowPrivate 仅放行回环与 RFC1918 内网；永远封禁 Link-Local (169.254.0.0/16 云元数据)",
+            "    AllowPrivate bool",
+            "}",
+            "",
+            "// SafeDialControl 挂载到 net.Dialer.Control，在 TCP 真正建连瞬间校验解析后的真实 IP",
+            "func SafeDialControl(network, address string, conn syscall.RawConn) error {",
+            "    return DefaultOutboundURLPolicy().DialControl(network, address, conn)",
+            "}",
+            "",
+            "// Validate 在保存配置时先拦截非法 Scheme（仅允许 http/https）与禁用目标 IP",
+            "func (p OutboundURLPolicy) Validate(raw string) error {",
+            "    parsed, err := url.Parse(strings.TrimSpace(raw))",
+            "    if err != nil { return fmt.Errorf(\"%w: %v\", ErrUnsafeOutboundURL, err) }",
+            "    switch strings.ToLower(parsed.Scheme) {",
+            "    case \"http\", \"https\": /* 继续解析并校验所有目标 IP */",
+            "    }",
+            "}"
+          ]
+        },
+        {
+          "id": "approval",
+          "label": "command_approval.go",
+          "path": "internal/sandbox/command_approval.go",
+          "subtitle": "宿主机/沙箱高危命令审批与不可检视脚本 Fail-Closed 规则",
+          "startLine": 7,
+          "codeLines": [
+            "type CommandApprovalRequest struct {",
+            "    SessionID         string",
+            "    Tool, Command     string",
+            "    Reason            string        // \"delete\" | \"sandbox_denied\" | \"file_write\"",
+            "    GrantPath         string        // 提议授权的精确文件或目录路径",
+            "    GrantAccess       string        // \"read\" | \"write\"（决策只能收窄不可放大）",
+            "    Targets           []TargetFact  // 仅携带目标路径元数据（体积/条目数），绝不夹带文件内容",
+            "    Scripts           []ScriptFact  // 透出命令实际要执行的脚本源码供审校",
+            "    ScriptsIncomplete bool          // 若脚本为二进制或过大无法展示，自动审校必须拒批",
+            "}",
+            "",
+            "type CommandApprovalDecision struct {",
+            "    Approved  bool",
+            "    Session   bool   // 是否记住本会话同类规则",
+            "    Access    string // 仅允许从 write 收窄为 read",
+            "    RiskLevel string",
+            "}"
+          ]
+        }
+      ],
+      "nodes": [
+        {
+          "id": "sec-rbac",
+          "badge": "1",
+          "title": "RBAC 门禁与灰度审计",
+          "subtitle": "middleware/rbac.go",
+          "loc": "rbac.go L68-L110",
+          "tag": "身份门禁",
+          "category": "security",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "sec-val",
+          "badge": "2",
+          "title": "配置期 URL 协议校验",
+          "subtitle": "OutboundURLPolicy.Validate",
+          "loc": "url_guard.go L80-L90",
+          "tag": "第一道防线",
+          "category": "entry",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "sec-dial",
+          "badge": "3",
+          "title": "建连期防 DNS 重绑定",
+          "subtitle": "net.Dialer.Control Hook",
+          "loc": "url_guard.go L43-L73",
+          "tag": "内核级拦截",
+          "category": "security",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "sec-appr",
+          "badge": "4",
+          "title": "高危命令审校与收窄授权",
+          "subtitle": "CommandApprovalRequest",
+          "loc": "command_approval.go L7-L62",
+          "tag": "最小权限",
+          "category": "external",
+          "col": 1,
+          "row": 1
+        }
+      ],
+      "edges": [
+        { "from": "sec-rbac", "to": "sec-val", "label": "配置入库" },
+        { "from": "sec-val", "to": "sec-dial", "label": "运行拨号" },
+        { "from": "sec-rbac", "to": "sec-appr", "label": "工具执行", "dashed": true },
+        { "from": "sec-appr", "to": "sec-dial", "label": "网络出站", "dashed": true }
+      ],
+      "steps": [
+        {
+          "title": "RBAC 角色门禁、灰度开关与审计防刷",
+          "shortTitle": "RBAC 门禁",
+          "fileId": "rbac",
+          "lines": [1, 22],
+          "realLines": [68, 110],
+          "nodeIds": ["sec-rbac"],
+          "insights": {
+            "mechanism": "`RequireRole` 区分人类 JWT 与机器 API Key 两条授权通道；角色缺失默认降级为最低权限 `Viewer`（Fail-Closed）；拒审事件经 1 分钟滑动窗口去重后写入持久化审计表。",
+            "pitfalls": "若没有审计去重，恶意探测脚本每秒发几千个越权请求就能瞬间把数据库审计表撑爆引起级联故障。",
+            "interview": "问：为什么机器 API Key 要在 `RequireRole` 里短路，不复用人类用户的角色阶梯？\n答：机器 Token 往往需要绑定到特定知识库子集（KB Scope）和默认拒绝白名单，把人和机器的鉴权策略解耦到独立 `APIKeyGate`，能避免后续调整人员角色时意外扩大 API Key 权限。"
+          }
+        },
+        {
+          "title": "配置保存期的 URL 协议与目标校验",
+          "shortTitle": "URL 预校验",
+          "fileId": "urlguard",
+          "lines": [13, 20],
+          "realLines": [80, 90],
+          "nodeIds": ["sec-val"],
+          "insights": {
+            "mechanism": "租户配置自定义沙箱或外部端点时，`Validate` 先在配置入口拒绝 `file://`、`gopher://` 等非 `http/https` 协议及非法目标地址，第一时间给管理员可读报错。",
+            "pitfalls": "很多人以为做完 `Validate` 就防住了 SSRF，但 DNS 解析结果在 TTL 过期后可以随时变，配置期校验只是用户体验层防线，绝不能替代建连期校验。",
+            "interview": "问：SSRF 防御为什么一定要限制 Scheme？\n答：除了内网 HTTP 服务，若允许 `file://`、`dict://`、`gopher://`，攻击者可以直接读取宿主机本地文件或向内网 Redis/Memcached 注入原始 TCP 指令。"
+          }
+        },
+        {
+          "title": "TCP 建连期防 DNS Rebinding 护栏",
+          "shortTitle": "防DNS重绑定",
+          "fileId": "urlguard",
+          "lines": [1, 11],
+          "realLines": [39, 73],
+          "nodeIds": ["sec-dial"],
+          "insights": {
+            "mechanism": "`SafeDialControl` 注入到 Go 标准库 `net.Dialer.Control`，在内核真正建立 Socket 连接的最后毫秒拦截解析后的实际目标 IP，彻底封死 DNS Rebinding 与 IPv6 映射的 `169.254.169.254` 云元数据访问。",
+            "pitfalls": "不仅要拦 IPv4 的 `169.254.169.254`，还要用 `internal/ipclass` 识别 IPv4-mapped IPv6（如 `::ffff:169.254.169.254`），否则极易被绕过。",
+            "interview": "问：什么是 DNS Rebinding，Go 里最标准的防线是什么？\n答：攻击者域名第一次解析返回公网 IP 骗过前置检查，TTL=0 紧接着第二次解析返回 `169.254.169.254`；Go 里最稳的解法是在 `net.Dialer.Control` 钩子里直接审查已解析好的 `address` IP，检查与建连原子绑定。"
+          }
+        },
+        {
+          "title": "高危命令审校与最小权限收窄",
+          "shortTitle": "命令审批",
+          "fileId": "approval",
+          "lines": [1, 17],
+          "realLines": [7, 62],
+          "nodeIds": ["sec-appr"],
+          "insights": {
+            "mechanism": "`CommandApprovalRequest` 透出完整待执行命令、脚本源码与 `TargetFact` 元数据；若脚本是二进制或过大无法完整展示（`ScriptsIncomplete: true`），自动审校器强制拒批；用户决策只能将 `write` 收窄为 `read`。",
+            "pitfalls": "如果 Agent 先把恶意逻辑写进 `run.sh` 再执行 `bash run.sh`，光审查命令字符串完全看不出风险！WeKnora 专门提取 `Scripts []ScriptFact` 连同脚本正文一并呈交审校。",
+            "interview": "问：给 Coding Agent 做命令审批（HITL / Auto-Reviewer）时，怎么防“写脚本绕过命令检查”？\n答：一是解析命令引用到的工作区脚本并将其正文附带给审校者（`Scripts`）；二是当脚本不可读/二进制/超长导致 `ScriptsIncomplete` 时坚持 Fail-Closed，严禁自动放行。"
+          }
+        }
+      ]
+    }
+  ]
+}

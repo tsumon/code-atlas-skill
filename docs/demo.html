@@ -1,0 +1,2835 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiniRAG-Agent 源码 · 图谱</title>
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
+
+      /* Dark Theme (Default — Obsidian Atlas) */
+      --bg-app: #080d16;
+      --bg-topbar: #0b1220;
+      --bg-panel: #0c1422;
+      --bg-panel-alt: #0f1829;
+      --bg-code: #09101c;
+      --bg-canvas: #070c15;
+      --bg-card: #10192b;
+      --bg-card-hover: #142038;
+      --bg-input: #0a111e;
+      --bg-pill: #131f33;
+      --bg-pill-hover: #1a2a44;
+
+      --border-subtle: rgba(148, 163, 184, 0.14);
+      --border-strong: rgba(148, 163, 184, 0.26);
+
+      --text-primary: #e6edf7;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-code: #dbeafe;
+      --text-comment: #4ade80;
+      --text-dir: #38bdf8;
+      --text-tree: #475569;
+      --text-keyword: #c084fc;
+      --text-string: #fbbf24;
+      --text-number: #fb923c;
+
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #3b82f6;
+      --accent-cyan: #38bdf8;
+      --hl-line-bg: rgba(37, 99, 235, 0.16);
+      --hl-line-border: #38bdf8;
+      --dot-grid: rgba(148, 163, 184, 0.14);
+
+      /* Category Semantic Colors */
+      --cat-entry: #38bdf8;
+      --cat-entry-bg: rgba(14, 165, 233, 0.12);
+      --cat-core: #3b82f6;
+      --cat-core-bg: rgba(59, 130, 246, 0.13);
+      --cat-storage: #22c55e;
+      --cat-storage-bg: rgba(34, 197, 94, 0.12);
+      --cat-security: #f43f5e;
+      --cat-security-bg: rgba(244, 63, 94, 0.12);
+      --cat-queue: #a855f7;
+      --cat-queue-bg: rgba(168, 85, 247, 0.13);
+      --cat-external: #f59e0b;
+      --cat-external-bg: rgba(245, 158, 11, 0.12);
+
+      --edge-dim: rgba(100, 116, 139, 0.35);
+      --edge-normal: rgba(148, 163, 184, 0.55);
+      --edge-active: #38bdf8;
+      --edge-label-bg: #0c1526;
+      --edge-label-border: rgba(56, 189, 248, 0.45);
+
+      --insight-mech: #38bdf8;
+      --insight-pitfall: #f59e0b;
+      --insight-interview: #f43f5e;
+
+      --shadow-card: 0 8px 28px rgba(0, 0, 0, 0.45);
+      --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.65);
+    }
+
+    [data-theme="light"] {
+      --bg-app: #f1f5f9;
+      --bg-topbar: #ffffff;
+      --bg-panel: #ffffff;
+      --bg-panel-alt: #f8fafc;
+      --bg-code: #f8fafc;
+      --bg-canvas: #f3f6fb;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-input: #f1f5f9;
+      --bg-pill: #eef2f7;
+      --bg-pill-hover: #e2e8f0;
+
+      --border-subtle: rgba(15, 23, 42, 0.1);
+      --border-strong: rgba(15, 23, 42, 0.2);
+
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --text-code: #1e293b;
+      --text-comment: #15803d;
+      --text-dir: #0284c7;
+      --text-tree: #94a3b8;
+      --text-keyword: #7e22ce;
+      --text-string: #b45309;
+      --text-number: #c2410c;
+
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #1d4ed8;
+      --accent-cyan: #0284c7;
+      --hl-line-bg: rgba(37, 99, 235, 0.1);
+      --hl-line-border: #2563eb;
+      --dot-grid: rgba(15, 23, 42, 0.12);
+
+      --cat-entry: #0284c7;
+      --cat-entry-bg: rgba(2, 132, 199, 0.08);
+      --cat-core: #2563eb;
+      --cat-core-bg: rgba(37, 99, 235, 0.08);
+      --cat-storage: #16a34a;
+      --cat-storage-bg: rgba(22, 163, 74, 0.08);
+      --cat-security: #e11d48;
+      --cat-security-bg: rgba(225, 29, 72, 0.08);
+      --cat-queue: #9333ea;
+      --cat-queue-bg: rgba(147, 51, 234, 0.08);
+      --cat-external: #d97706;
+      --cat-external-bg: rgba(217, 119, 6, 0.08);
+
+      --edge-dim: rgba(100, 116, 139, 0.28);
+      --edge-normal: rgba(71, 85, 105, 0.55);
+      --edge-active: #0284c7;
+      --edge-label-bg: #ffffff;
+      --edge-label-border: rgba(2, 132, 199, 0.45);
+
+      --insight-mech: #0284c7;
+      --insight-pitfall: #d97706;
+      --insight-interview: #e11d48;
+
+      --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.08);
+      --shadow-modal: 0 20px 50px rgba(15, 23, 42, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg-app);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.45); }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* Top Header Bar */
+    .topbar {
+      height: 48px;
+      flex-shrink: 0;
+      background: var(--bg-topbar);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      gap: 10px;
+      z-index: 30;
+    }
+
+    .brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .brand-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: #fff;
+      font-weight: 800;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.02em;
+      box-shadow: 0 0 14px rgba(37, 99, 235, 0.45);
+    }
+
+    .brand-title { font-weight: 700; font-size: 13.5px; letter-spacing: 0.01em; white-space: nowrap; }
+    .brand-title .sep { color: var(--accent-cyan); margin: 0 3px; }
+
+    .commit-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 1px 7px;
+      border-radius: 99px;
+      text-decoration: none;
+    }
+    .commit-pill:hover { border-color: var(--accent-cyan); }
+
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9px;
+      padding: 3px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      max-width: 44vw;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover { color: var(--text-primary); background: var(--bg-pill); }
+    .tab-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+    }
+
+    .top-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+
+    .ctrl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 28px;
+      padding: 0 8px;
+      border-radius: 7px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-pill);
+      color: var(--text-primary);
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .ctrl-btn:hover:not(:disabled) { background: var(--bg-pill-hover); border-color: var(--border-strong); }
+    .ctrl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .ctrl-btn.primary { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+    .ctrl-btn.primary:hover:not(:disabled) { background: var(--accent-blue-hover); }
+    .ctrl-btn.active-toggle {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: var(--accent-cyan);
+    }
+
+    .step-counter {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      padding: 0 3px;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    /* Main Split Workspace */
+    .workspace {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .left-pane {
+      width: 48%;
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      min-height: 0;
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: col-resize;
+      background: transparent;
+      flex-shrink: 0;
+      z-index: 10;
+      transition: background 0.15s;
+      margin-left: -2px;
+      margin-right: -3px;
+    }
+    .resizer:hover, .resizer.dragging { background: rgba(56, 189, 248, 0.45); }
+
+    .right-pane {
+      flex: 1;
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-canvas);
+      min-height: 0;
+      position: relative;
+    }
+
+    /* Quick Pills */
+    .quick-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 10px;
+      height: 35px;
+      flex-shrink: 0;
+      background: var(--bg-panel-alt);
+      border-bottom: 1px solid var(--border-subtle);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .quick-pills::-webkit-scrollbar { display: none; }
+
+    .q-pill {
+      position: relative;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 6px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.15s;
+    }
+    .q-pill:hover { color: var(--text-primary); }
+    .q-pill.active { color: var(--text-primary); font-weight: 600; }
+    .q-pill.active::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      bottom: 0;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--accent-cyan);
+    }
+    .q-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Multi-file Tab Strip (shown when tab has >1 file) */
+    .file-tabs {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      background: var(--bg-code);
+      border-bottom: 1px solid var(--border-subtle);
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .file-tabs.visible { display: flex; }
+    .file-tabs::-webkit-scrollbar { display: none; }
+
+    .file-tab-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-panel-alt);
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .file-tab-btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+    .file-tab-btn.active {
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.45);
+      font-weight: 600;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-panel);
+    }
+
+    .filter-input {
+      flex: 1;
+      height: 28px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 7px;
+      padding: 0 10px;
+      color: var(--text-primary);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .filter-input:focus { border-color: var(--accent-cyan); }
+    .filter-input::placeholder { color: var(--text-muted); }
+
+    .meta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 5px 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-panel-alt);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .meta-left {
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+    #metaFile {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .meta-right {
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 42%;
+      flex-shrink: 1;
+    }
+    .gh-source-link {
+      font-family: var(--font-sans);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 1px 6px;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+    .gh-source-link:hover { background: rgba(56, 189, 248, 0.22); }
+
+    /* Code Viewport */
+    .code-viewport {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      background: var(--bg-code);
+      padding: 8px 0 18px;
+      font-family: var(--font-mono);
+      font-size: 12.2px;
+      line-height: 1.65;
+      position: relative;
+    }
+
+    .step-inline-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 12px 6px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.92), rgba(14, 165, 233, 0.85));
+      color: #ffffff;
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      box-shadow: 0 2px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    .code-line {
+      display: flex;
+      align-items: baseline;
+      padding: 0 14px 0 0;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: background 0.12s;
+      min-width: max-content;
+    }
+    .code-line:hover { background: rgba(148, 163, 184, 0.08); }
+    .code-line.active-line {
+      background: var(--hl-line-bg);
+      border-left-color: var(--hl-line-border);
+    }
+    .code-line.dimmed-line { opacity: 0.42; }
+    .code-line.filter-hidden { display: none; }
+
+    .line-num {
+      width: 48px;
+      flex-shrink: 0;
+      text-align: right;
+      padding-right: 12px;
+      color: var(--text-muted);
+      user-select: none;
+      font-size: 11px;
+    }
+    .code-line.active-line .line-num { color: var(--accent-cyan); font-weight: 600; }
+    .line-content { white-space: pre; color: var(--text-code); }
+
+    .tok-tree { color: var(--text-tree); }
+    .tok-dir { color: var(--text-dir); font-weight: 600; }
+    .tok-comment { color: var(--text-comment); }
+    .tok-kw { color: var(--text-keyword); font-weight: 600; }
+    .tok-str { color: var(--text-string); }
+    .tok-num { color: var(--text-number); }
+    .tok-match { background: rgba(250, 204, 21, 0.32); color: inherit; border-radius: 2px; padding: 0 1px; }
+
+    /* Right Pane */
+    .canvas-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      background: var(--bg-panel-alt);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .canvas-title-wrap { min-width: 0; }
+    .canvas-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .canvas-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .canvas-tools { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+
+    .canvas-stage {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--bg-canvas);
+      background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+      background-size: 20px 20px;
+      cursor: grab;
+      user-select: none;
+    }
+    .canvas-stage:active { cursor: grabbing; }
+    #atlasSvg { width: 100%; height: 100%; display: block; }
+
+    .atlas-node { cursor: pointer; transition: opacity 0.25s ease; }
+    .atlas-node.dimmed { opacity: 0.46; }
+    .atlas-node:hover { opacity: 1; }
+    .node-rect { transition: stroke-width 0.2s, fill 0.2s; }
+
+    .atlas-edge { transition: opacity 0.25s ease; }
+    .atlas-edge.dimmed { opacity: 0.34; }
+
+    @keyframes dashFlow {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+    .edge-animated { stroke-dasharray: 6 6; animation: dashFlow 0.9s linear infinite; }
+    .no-motion .edge-animated { animation: none; }
+    .no-motion .edge-pulse-dot { display: none; }
+
+    .canvas-footer {
+      height: 32px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      background: var(--bg-panel-alt);
+      border-top: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--text-muted);
+      gap: 10px;
+    }
+    .legend-list { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .legend-item { display: inline-flex; align-items: center; gap: 5px; color: var(--text-secondary); }
+    .legend-dot { width: 7px; height: 7px; border-radius: 2px; }
+    .canvas-hints { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Bottom Insight Drawer */
+    .insight-drawer {
+      flex-shrink: 0;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-strong);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .insight-header {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      background: var(--bg-panel-alt);
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      gap: 10px;
+    }
+    .insight-title-group { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .insight-step-title { font-weight: 700; font-size: 12.5px; color: var(--text-primary); white-space: nowrap; }
+    .insight-loc-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 1px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .insight-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    .insight-body {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 10px 14px 12px;
+      max-height: 210px;
+      overflow-y: auto;
+    }
+    .insight-drawer.collapsed .insight-body { display: none; }
+    .insight-drawer.collapsed .insight-header { border-bottom: none; }
+
+    .insight-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .insight-card.mech { border-top: 2px solid var(--insight-mech); }
+    .insight-card.pitfall { border-top: 2px solid var(--insight-pitfall); }
+    .insight-card.interview { border-top: 2px solid var(--insight-interview); }
+
+    .insight-card-title { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .insight-card.mech .insight-card-title { color: var(--insight-mech); }
+    .insight-card.pitfall .insight-card-title { color: var(--insight-pitfall); }
+    .insight-card.interview .insight-card-title { color: var(--insight-interview); }
+
+    .insight-card-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    .insight-card-text code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.11);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .insight-card-text strong { color: var(--text-primary); font-weight: 600; }
+
+    /* Search Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 10vh;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+    .search-modal {
+      width: min(660px, 92vw);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      box-shadow: var(--shadow-modal);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 70vh;
+    }
+    .search-modal-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .search-modal-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+    }
+    .search-results {
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .search-item {
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border: 1px solid transparent;
+    }
+    .search-item:hover { background: var(--bg-card-hover); border-color: var(--border-subtle); }
+    .search-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .search-item-title { font-weight: 600; font-size: 12.5px; color: var(--text-primary); }
+    .search-item-tag {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 1px 6px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .search-item-snippet {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .search-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: 12.5px; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent-blue);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: var(--shadow-card);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 200;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 960px) {
+      .workspace { flex-direction: column; }
+      .left-pane { width: 100% !important; height: 46%; border-right: none; border-bottom: 1px solid var(--border-subtle); }
+      .resizer { display: none; }
+      .right-pane { height: 54%; }
+      .insight-body { grid-template-columns: 1fr; max-height: 220px; }
+      .tab-bar { max-width: 34vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge" id="brandBadge">CA</div>
+        <div class="brand-title"><span id="brandName">CodeAtlas</span><span class="sep">·</span>源码图谱</div>
+        <a class="commit-pill" id="commitPill" target="_blank" rel="noopener noreferrer">main</a>
+      </div>
+
+      <nav class="tab-bar" id="tabBar" aria-label="专题切换"></nav>
+
+      <div class="top-controls">
+        <button class="ctrl-btn" id="btnPrev" title="上一步 (←)">◀ 上一步</button>
+        <span class="step-counter" id="stepCounter">1/1</span>
+        <button class="ctrl-btn primary" id="btnNext" title="下一步 (→)">下一步 ▶</button>
+        <button class="ctrl-btn" id="btnAutoplay" title="自动逐步演练">▶ 自动演练</button>
+        <button class="ctrl-btn" id="btnSearch" title="全局搜索 (⌘K / Ctrl+K)">🔍 搜索</button>
+        <button class="ctrl-btn" id="btnShare" title="复制当前步骤直达链接">🔗</button>
+        <button class="ctrl-btn" id="btnTheme" title="切换深浅色主题">☀️ 浅色</button>
+      </div>
+    </header>
+
+    <!-- Main Split Workspace -->
+    <main class="workspace" id="workspace">
+      <!-- Left Code / Tree Pane -->
+      <section class="left-pane" id="leftPane">
+        <div class="quick-pills" id="quickPills"></div>
+        <div class="file-tabs" id="fileTabs"></div>
+        <div class="filter-bar">
+          <input type="text" class="filter-input" id="filterInput" placeholder="过滤目录、文件名、接口或中文备注（如 rag / agent / POST）" />
+          <button class="ctrl-btn" id="btnCopy">📋 复制内容</button>
+        </div>
+        <div class="meta-bar">
+          <div class="meta-left">
+            <span id="metaFile"></span>
+            <a class="gh-source-link" id="ghSourceLink" target="_blank" rel="noopener noreferrer" style="display:none;">↗ GitHub 原文</a>
+          </div>
+          <span class="meta-right" id="metaSync"></span>
+        </div>
+        <div class="code-viewport" id="codeViewport"></div>
+      </section>
+
+      <div class="resizer" id="resizer" title="拖拽调整左右宽度"></div>
+
+      <!-- Right Interactive Architecture Graph Pane -->
+      <section class="right-pane" id="rightPane">
+        <div class="canvas-header">
+          <div class="canvas-title-wrap">
+            <div class="canvas-title" id="graphTitle"></div>
+            <div class="canvas-subtitle" id="graphSubtitle"></div>
+          </div>
+          <div class="canvas-tools">
+            <button class="ctrl-btn" id="btnZoomOut" title="缩小">−</button>
+            <button class="ctrl-btn" id="btnFit" title="一键适配画布">适配</button>
+            <button class="ctrl-btn" id="btnZoomIn" title="放大">+</button>
+            <button class="ctrl-btn active-toggle" id="btnMotion" title="开关连线动效">⚡ 动效</button>
+            <button class="ctrl-btn" id="btnShowAll" title="切换聚焦高亮 / 全部显示">全部显示</button>
+            <button class="ctrl-btn" id="btnExportSvg" title="导出当前架构图为 SVG">⬇ SVG</button>
+          </div>
+        </div>
+
+        <div class="canvas-stage" id="canvasStage">
+          <svg id="atlasSvg" xmlns="http://www.w3.org/2000/svg">
+            <defs id="svgDefs"></defs>
+            <g id="viewportGroup"></g>
+          </svg>
+        </div>
+
+        <div class="canvas-footer">
+          <div class="legend-list" id="legendList"></div>
+          <div class="canvas-hints">滚轮缩放 · 拖拽画布 · 双向点击定位 · ←/→ 步进</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Collapsible Deep-Dive Drawer -->
+    <section class="insight-drawer" id="insightDrawer">
+      <div class="insight-header" id="insightHeader">
+        <div class="insight-title-group">
+          <span class="insight-step-title" id="insightStepTitle"></span>
+          <span class="insight-loc-pill" id="insightLocPill"></span>
+        </div>
+        <div class="insight-actions">
+          <button class="ctrl-btn" id="btnExportNotes" title="导出全部专题精讲与面试题为 Markdown 笔记">📝 导出笔记</button>
+          <button class="ctrl-btn" id="btnToggleDrawer">收起精讲 ▾</button>
+        </div>
+      </div>
+      <div class="insight-body" id="insightBody">
+        <article class="insight-card mech">
+          <div class="insight-card-title">⚙ 核心源码机制</div>
+          <div class="insight-card-text" id="insightMech"></div>
+        </article>
+        <article class="insight-card pitfall">
+          <div class="insight-card-title">⚠ 线上避坑与边界</div>
+          <div class="insight-card-text" id="insightPitfall"></div>
+        </article>
+        <article class="insight-card interview">
+          <div class="insight-card-title">🎯 面试高频追问与答法</div>
+          <div class="insight-card-text" id="insightInterview"></div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- Global Search Modal -->
+  <div class="modal-backdrop" id="searchModal">
+    <div class="search-modal" role="dialog" aria-modal="true" aria-label="全局搜索">
+      <div class="search-modal-head">
+        <span>🔍</span>
+        <input type="text" class="search-modal-input" id="globalSearchInput" placeholder="搜索所有专题的目录、多文件源码、节点、避坑与面试题..." />
+        <button class="ctrl-btn" id="btnCloseSearch">ESC</button>
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Embedded Atlas Dataset -->
+  <script id="atlasData" type="application/json">{
+  "project": {
+    "name": "MiniRAG-Agent",
+    "monogram": "MR",
+    "version": "v1.2.0",
+    "commit": "demo8a2f1",
+    "repoUrl": "https://github.com/tsumon/code-atlas-skill"
+  },
+  "tabs": [
+    {
+      "id": "tree",
+      "label": "0. 项目目录",
+      "mode": "tree",
+      "filePath": "minirag-agent/",
+      "fileSubtitle": "v1.2.0 · 完整中文备注目录树",
+      "graphTitle": "MiniRAG-Agent 完整项目目录树 · 9 大架构模块全景图",
+      "graphSubtitle": "左侧为完整中文备注目录树（支持搜索与一键复制），点击任意目录/文件与右侧架构块双向定位",
+      "codeLines": [
+        "minirag-agent/                        # 企业级知识库与 ReAct 智能体示例骨架 (v1.2.0)",
+        "├── VERSION                           # 当前产品版本号 (1.2.0)",
+        "├── go.mod / go.sum                   # Go 1.24 依赖清单 (Gin / pgvector / Redis / MCP SDK)",
+        "├── Makefile                          # 开发、构建、迁移与单测快捷入口",
+        "├── .env.example                      # 标准集群环境变量模板 (PG / Redis / AES Key / OTEL)",
+        "├── cmd/",
+        "│   ├── server/",
+        "│   │   ├── main.go                   # HTTP/SSE 服务入口、dotenv 加载与双阶段优雅停机",
+        "│   │   └── container.go              # DI 依赖注入容器：集中装配 DB / 向量库 / LLM Router",
+        "│   └── worker/main.go                # 独立异步索引消费进程（文档解析与向量化）",
+        "├── internal/",
+        "│   ├── router/",
+        "│   │   ├── router.go                 # /api/v1 路由分组注册与 Swagger 元信息挂载",
+        "│   │   ├── chat_handler.go           # 流式 SSE 对话控制器与上下文参数校验",
+        "│   │   └── kb_handler.go             # 知识库 CRUD、文档上传与重建索引接口",
+        "│   ├── middleware/",
+        "│   │   ├── auth.go                   # JWT / API Key 鉴权与多租户 TenantID 强制注入",
+        "│   │   ├── rbac.go                   # 角色权限校验（Owner / Editor / Viewer）",
+        "│   │   └── ratelimit.go              # 分布式令牌桶限流与单租户 Token 预算门控",
+        "│   ├── rag/",
+        "│   │   ├── hybrid_retriever.go       # 向量 HNSW + BM25 并发双路召回与 RRF 融合",
+        "│   │   ├── reranker.go               # Cross-Encoder 精排与相关性阈值防幻觉截断",
+        "│   │   └── citation.go               # 原文片段溯源标注与页码高亮映射",
+        "│   ├── agent/",
+        "│   │   ├── loop.go                   # ReAct 思考-行动-观察主循环与步数/耗时熔断",
+        "│   │   ├── planner.go                # 复杂多跳问题拆解与子任务规划器",
+        "│   │   └── memory.go                 # 滑动窗口 + 摘要压缩上下文管理器",
+        "│   ├── sandbox/",
+        "│   │   ├── executor.go               # 隔离沙箱执行器（资源配额 / 断网策略 / 超时强杀）",
+        "│   │   ├── vault.go                  # AES-GCM 凭据保险库与运行时最小权限注入",
+        "│   │   └── guardrails.go             # Prompt 注入检测、PII 脱敏与高危工具审批门控",
+        "│   ├── ingestion/",
+        "│   │   ├── parser.go                 # PDF / DOCX / Markdown 版面解析与表格提取",
+        "│   │   ├── chunker.go                # 语义切片、重叠滑窗与父子文档块索引",
+        "│   │   └── pgvector_store.go         # PostgreSQL + pgvector 事务一致的向量持久化",
+        "│   └── llm/",
+        "│       ├── router.go                 # 多厂商模型路由（主备切换 / 熔断降级 / 成本统计）",
+        "│       ├── mcp_client.go             # Model Context Protocol 工具发现与 STDIO/SSE 桥接",
+        "│       └── stream_hub.go             # Redis Stream 对话事件缓冲与断线续传中心",
+        "├── frontend/                         # Next.js 控制台、知识库管理与流式推理轨迹 UI",
+        "├── migrations/                       # SQL Schema 与 HNSW 向量索引版本迁移脚本",
+        "└── deploy/docker-compose.yml         # 一键编排 App + Worker + Postgres(pgvector) + Redis"
+      ],
+      "nodes": [
+        {
+          "id": "entry",
+          "badge": "1",
+          "title": "进程入口与全局配置",
+          "subtitle": "cmd/ · Makefile · .env",
+          "loc": "目录 L1-L10",
+          "tag": "启动装配",
+          "category": "entry",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "router",
+          "badge": "2",
+          "title": "路由网关与控制器",
+          "subtitle": "internal/router/",
+          "loc": "目录 L11-L15",
+          "tag": "SSE接口",
+          "category": "entry",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "auth",
+          "badge": "3",
+          "title": "鉴权、RBAC 与限流",
+          "subtitle": "internal/middleware/",
+          "loc": "目录 L16-L19",
+          "tag": "多租户",
+          "category": "security",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "rag",
+          "badge": "4",
+          "title": "知识库与混合检索",
+          "subtitle": "internal/rag/",
+          "loc": "目录 L20-L23",
+          "tag": "核心引擎",
+          "category": "core",
+          "col": 0,
+          "row": 1
+        },
+        {
+          "id": "agent",
+          "badge": "5",
+          "title": "ReAct 智体与规划",
+          "subtitle": "internal/agent/",
+          "loc": "目录 L24-L27",
+          "tag": "推理循环",
+          "category": "core",
+          "col": 1,
+          "row": 1
+        },
+        {
+          "id": "sandbox",
+          "badge": "6",
+          "title": "沙箱与凭据保险库",
+          "subtitle": "internal/sandbox/",
+          "loc": "目录 L28-L31",
+          "tag": "零信任",
+          "category": "security",
+          "col": 2,
+          "row": 1
+        },
+        {
+          "id": "ingestion",
+          "badge": "7",
+          "title": "解析、分块与向量库",
+          "subtitle": "internal/ingestion/",
+          "loc": "目录 L32-L35",
+          "tag": "HNSW索引",
+          "category": "storage",
+          "col": 0,
+          "row": 2
+        },
+        {
+          "id": "llm",
+          "badge": "8",
+          "title": "模型路由与 MCP 生态",
+          "subtitle": "internal/llm/",
+          "loc": "目录 L36-L39",
+          "tag": "多模型/MCP",
+          "category": "queue",
+          "col": 1,
+          "row": 2
+        },
+        {
+          "id": "deploy",
+          "badge": "9",
+          "title": "前端、迁移与部署",
+          "subtitle": "frontend/ · migrations/ · deploy/",
+          "loc": "目录 L40-L42",
+          "tag": "全栈交付",
+          "category": "external",
+          "col": 2,
+          "row": 2
+        }
+      ],
+      "edges": [
+        {
+          "from": "entry",
+          "to": "router",
+          "label": "DI装配"
+        },
+        {
+          "from": "entry",
+          "to": "rag",
+          "label": "容器注入"
+        },
+        {
+          "from": "router",
+          "to": "auth",
+          "label": "鉴权拦截"
+        },
+        {
+          "from": "router",
+          "to": "agent",
+          "label": "Agent调度"
+        },
+        {
+          "from": "auth",
+          "to": "sandbox",
+          "label": "权限边界",
+          "dashed": true
+        },
+        {
+          "from": "agent",
+          "to": "rag",
+          "label": "检索/溯源"
+        },
+        {
+          "from": "agent",
+          "to": "sandbox",
+          "label": "隔离执行"
+        },
+        {
+          "from": "rag",
+          "to": "ingestion",
+          "label": "向量/BM25"
+        },
+        {
+          "from": "agent",
+          "to": "llm",
+          "label": "模型/MCP"
+        },
+        {
+          "from": "ingestion",
+          "to": "llm",
+          "label": "Embedding",
+          "dashed": true
+        },
+        {
+          "from": "llm",
+          "to": "deploy",
+          "label": "流式前端",
+          "dashed": true
+        },
+        {
+          "from": "sandbox",
+          "to": "deploy",
+          "label": "容器沙箱",
+          "dashed": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "进程入口与全局配置",
+          "shortTitle": "入口与配置",
+          "lines": [
+            1,
+            10
+          ],
+          "nodeIds": [
+            "entry"
+          ],
+          "insights": {
+            "mechanism": "`cmd/server/main.go` 负责加载配置、初始化日志与双阶段优雅停机；`cmd/server/container.go` 通过显式依赖注入集中装配数据库、向量索引、LLM Router 与 MCP 客户端。",
+            "pitfalls": "阅读大型仓库先抓 `main.go` + `container.go` 顺藤摸瓜，不要从首行盲翻几百个文件；优雅停机务必为长连接 SSE 预留 Drain 窗口，防止发版瞬间大面积断流。",
+            "interview": "问：刚接手一个陌生的中大型 AI 仓库，怎么快速理清项目骨架与运行边界？\n答：先抓三处锚点：`cmd/server/main.go` 看进程启停，`container.go` 看全部组件装配关系，`.env.example` 与 `docker-compose.yml` 看外部中间件与默认阈值。"
+          }
+        },
+        {
+          "title": "路由网关与 SSE 控制器",
+          "shortTitle": "路由与接口",
+          "lines": [
+            11,
+            15
+          ],
+          "nodeIds": [
+            "router"
+          ],
+          "insights": {
+            "mechanism": "`internal/router/router.go` 统一挂载 `/api/v1` 路由组，`chat_handler.go` 接收用户提问并建立 `text/event-stream` 长连接，实时下发思考轨迹、工具调用与引用锚点。",
+            "pitfalls": "反代网关默认开启缓冲会让前端卡住数十秒才吐出整段响应；生产必须透传 `X-Accel-Buffering: no` 并每 15 秒发送 `: ping` 心跳保活。",
+            "interview": "问：AI 对话为什么普遍选 SSE 而不是 WebSocket？\n答：请求-流式回复是天然单向推流模型，SSE 基于标准 HTTP，复用鉴权、限流与七层负载均衡零成本，且原生支持 `Last-Event-ID` 断线续传。"
+          }
+        },
+        {
+          "title": "鉴权、RBAC 与多租户限流",
+          "shortTitle": "权限与访问",
+          "lines": [
+            16,
+            19
+          ],
+          "nodeIds": [
+            "auth"
+          ],
+          "insights": {
+            "mechanism": "`auth.go` 解析 JWT/API Key 后将不可变的 `TenantID` 写入 `context.Context`；`rbac.go` 拦截越权写入；`ratelimit.go` 叠加 RPM 与每日 Token 预算双维度熔断。",
+            "pitfalls": "最危险的线上事故是向量检索层漏加 `tenant_id` 过滤导致跨租户串库——必须采用 Fail-Closed 设计，在存储入口强制校验 `ctx` 存在非空租户 ID。",
+            "interview": "问：多租户知识库怎样同时做到严格隔离与高召回率？\n答：中小租户用 pre-filter + 复合索引 + 数据库 RLS 双保险；超大租户拆独立分区/Collection，防止后过滤导致 Top-K 召回空洞。"
+          }
+        },
+        {
+          "title": "知识库与混合检索服务",
+          "shortTitle": "RAG 与知识",
+          "lines": [
+            20,
+            23
+          ],
+          "nodeIds": [
+            "rag"
+          ],
+          "insights": {
+            "mechanism": "`hybrid_retriever.go` 并发执行 HNSW 语义检索与 BM25 词法检索，用 RRF 融合去重；`reranker.go` 精排打分并按阈值截断；`citation.go` 将切片回映射到原文页码。",
+            "pitfalls": "纯向量检索对错误码、产品型号、缩写词极不敏感；而 Cross-Encoder 延迟高，必须先用 RRF 收敛至 Top 30 再送精排并配置超时降级。",
+            "interview": "问：RRF 融合为什么比直接把向量分与 BM25 分加权相加更稳？\n答：两路得分量纲和分布完全不同（余弦在 `[-1,1]`，BM25 无上界），RRF 只依赖排名 `1/(k+rank)`，免去了跨语料分数归一化的脆弱调参。"
+          }
+        },
+        {
+          "title": "ReAct 智体与规划循环",
+          "shortTitle": "Agent 与工具",
+          "lines": [
+            24,
+            27
+          ],
+          "nodeIds": [
+            "agent"
+          ],
+          "insights": {
+            "mechanism": "`loop.go` 驱动 `Thought -> ToolCall -> Observation` 状态机，配合 `planner.go` 拆解多跳查询，由 `memory.go` 在超预算前对历史轨迹做增量摘要压缩。",
+            "pitfalls": "未加约束的 ReAct 极易陷入重复调用同一工具的死循环；必须同时设 `maxSteps`、相同参数调用去重，以及大体积 Observation 截断防撑爆上下文窗口。",
+            "interview": "问：线上 Agent 循环最常见哪三类故障，怎么兜底？\n答：工具死循环、超长工具输出打爆上下文、写工具误触发。分别靠步数/耗时熔断、工具输出摘要落盘、高危工具审批门控兜底。"
+          }
+        },
+        {
+          "title": "沙箱与凭据保险库",
+          "shortTitle": "沙箱与凭据",
+          "lines": [
+            28,
+            31
+          ],
+          "nodeIds": [
+            "sandbox"
+          ],
+          "insights": {
+            "mechanism": "`executor.go` 在受限容器/隔离进程中执行代码与脚本工具；`vault.go` 用 AES-GCM 加密外部凭据并在执行瞬间注入；`guardrails.go` 负责防 Prompt 注入与敏感信息脱敏。",
+            "pitfalls": "切忌把原始 API Key 或数据库密码拼进 System Prompt 或工具回显——一旦触发间接 Prompt 注入，模型会直接把凭据原样吐给攻击者。",
+            "interview": "问：如何防止恶意文档里的间接 Prompt Injection 劫持 Agent 调用高危工具？\n答：坚持“数据与指令隔离”：文档片段包裹在明确边界标签内、工具按只读/写操作分级、涉及外发数据或修改状态的工具强制人工确认或策略引擎校验。"
+          }
+        },
+        {
+          "title": "文档解析、分块与向量库",
+          "shortTitle": "解析与检索",
+          "lines": [
+            32,
+            35
+          ],
+          "nodeIds": [
+            "ingestion"
+          ],
+          "insights": {
+            "mechanism": "`parser.go` 提取 PDF 版面与跨页表格；`chunker.go` 采用父子块策略（小块做精准召回、父块回填完整语义）；`pgvector_store.go` 在单事务内落库元数据与向量。",
+            "pitfalls": "关系库与向量库分离时，文档更新/删除极易残留“幽灵切片”；采用同库事务或 Outbox 异步对账才能确保删改幂等。",
+            "interview": "问：为什么父子块（Parent-Child Chunking）能明显提升 RAG 质量？\n答：切片太小会导致上下文残缺、切片太大又稀释向量语义；用 256 token 子块精准命中、召回后替换为 1024 token 父块给 LLM，正好兼得两者优势。"
+          }
+        },
+        {
+          "title": "模型路由与 MCP 生态",
+          "shortTitle": "模型与 MCP",
+          "lines": [
+            36,
+            39
+          ],
+          "nodeIds": [
+            "llm"
+          ],
+          "insights": {
+            "mechanism": "`router.go` 按延迟/配额动态路由多厂商模型并在 429/5xx 时自动切备；`mcp_client.go` 统一接入外部 MCP 工具服务器；`stream_hub.go` 借助 Redis Stream 缓冲流式事件。",
+            "pitfalls": "MCP 外部工具 schema 过多（超过 40+ 个）会严重吃掉输入 Token 并降低选工具准确率，需要按意图动态检索/筛选工具子集后再注入模型。",
+            "interview": "问：同时挂载几十个 MCP 工具时，怎么避免上下文爆炸和选错工具？\n答：做一层 Tool RAG / 渐进式披露：只把高频核心工具放进初始定义，其余工具按用户意图先语义召回 Top 5~8 个 schema 再动态挂载。"
+          }
+        },
+        {
+          "title": "前端、迁移与全栈部署",
+          "shortTitle": "前端与部署",
+          "lines": [
+            40,
+            42
+          ],
+          "nodeIds": [
+            "deploy"
+          ],
+          "insights": {
+            "mechanism": "`frontend/` 渲染流式推理步骤、引用原文高亮与知识库管理面板；`migrations/` 管控表结构与 HNSW 索引参数演进；`docker-compose.yml` 一键编排全套依赖。",
+            "pitfalls": "pgvector 线上给千万级大表建 HNSW 索引会锁写且极耗内存，务必使用 `CREATE INDEX CONCURRENTLY` 并提前调大 `maintenance_work_mem`。",
+            "interview": "问：RAG 系统上线后怎么持续度量效果，而不是凭感觉调参？\n答：拆分“检索指标（Recall@K / MRR）”与“生成指标（忠实度 / 相关性 / 拒答准确率）”，沉淀回归评测集，每次改分块或换模型自动跑对比。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rag-flow",
+      "label": "1. RAG 与 HNSW",
+      "mode": "code",
+      "filePath": "internal/rag/hybrid_retriever.go",
+      "fileSubtitle": "双路召回 + RRF 融合 + Cross-Encoder 精排核心链路",
+      "graphTitle": "RAG 混合检索与精排执行链路",
+      "graphSubtitle": "点击代码行或右侧阶段节点，逐步拆解 Query 到最终 Context 的完整变换",
+      "codeLines": [
+        "func (r *HybridRetriever) Search(ctx context.Context, req SearchReq) ([]Chunk, error) {",
+        "    tenantID, ok := TenantFromCtx(ctx)",
+        "    if !ok { return nil, ErrMissingTenant }        // 1. Fail-Closed 租户校验",
+        "",
+        "    vecCh, bm25Ch := make(chan []Scored, 1), make(chan []Scored, 1)",
+        "    go func() { vecCh <- r.vectorSearch(ctx, tenantID, req.Query, 40) }() // 2. HNSW",
+        "    go func() { bm25Ch <- r.bm25Search(ctx, tenantID, req.Query, 40) }()  // 3. BM25",
+        "",
+        "    fused := ReciprocalRankFusion(<-vecCh, <-bm25Ch, 60)  // 4. RRF 无量纲融合",
+        "    candidates := fused[:min(len(fused), 30)]",
+        "",
+        "    ranked, err := r.reranker.Rerank(ctx, req.Query, candidates) // 5. Cross-Encoder",
+        "    if err != nil { return candidates[:min(len(candidates), req.TopK)], nil }",
+        "    return filterByScore(ranked, req.MinScore, req.TopK), nil    // 6. 阈值截断",
+        "}"
+      ],
+      "nodes": [
+        {
+          "id": "r-tenant",
+          "badge": "1",
+          "title": "租户上下文门禁",
+          "subtitle": "TenantFromCtx(ctx)",
+          "loc": "L1-L3",
+          "tag": "安全校验",
+          "category": "security",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "r-vec",
+          "badge": "2",
+          "title": "向量 HNSW 召回",
+          "subtitle": "r.vectorSearch(..., 40)",
+          "loc": "L5-L6",
+          "tag": "语义召回",
+          "category": "storage",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "r-bm25",
+          "badge": "3",
+          "title": "BM25 词法召回",
+          "subtitle": "r.bm25Search(..., 40)",
+          "loc": "L5-L7",
+          "tag": "关键词",
+          "category": "storage",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "r-rrf",
+          "badge": "4",
+          "title": "RRF 排名融合",
+          "subtitle": "ReciprocalRankFusion(k=60)",
+          "loc": "L9-L10",
+          "tag": "融合去重",
+          "category": "core",
+          "col": 0,
+          "row": 1
+        },
+        {
+          "id": "r-rerank",
+          "badge": "5",
+          "title": "Cross-Encoder 精排",
+          "subtitle": "r.reranker.Rerank(...)",
+          "loc": "L12-L13",
+          "tag": "降级兜底",
+          "category": "queue",
+          "col": 1,
+          "row": 1
+        },
+        {
+          "id": "r-filter",
+          "badge": "6",
+          "title": "相关性阈值截断",
+          "subtitle": "filterByScore(MinScore)",
+          "loc": "L14-L15",
+          "tag": "最终上下文",
+          "category": "external",
+          "col": 2,
+          "row": 1
+        }
+      ],
+      "edges": [
+        {
+          "from": "r-tenant",
+          "to": "r-vec",
+          "label": "并发扇出"
+        },
+        {
+          "from": "r-tenant",
+          "to": "r-bm25",
+          "label": "并发扇出"
+        },
+        {
+          "from": "r-vec",
+          "to": "r-rrf",
+          "label": "Top 40"
+        },
+        {
+          "from": "r-bm25",
+          "to": "r-rrf",
+          "label": "Top 40"
+        },
+        {
+          "from": "r-rrf",
+          "to": "r-rerank",
+          "label": "Top 30"
+        },
+        {
+          "from": "r-rerank",
+          "to": "r-filter",
+          "label": "精排打分"
+        }
+      ],
+      "steps": [
+        {
+          "title": "租户上下文强校验",
+          "shortTitle": "租户门禁",
+          "lines": [
+            1,
+            3
+          ],
+          "nodeIds": [
+            "r-tenant"
+          ],
+          "insights": {
+            "mechanism": "进入检索前直接从 `ctx` 强制提取 `tenantID`，缺失即返回 `ErrMissingTenant`，从代码契约层面杜绝无条件全库扫描。",
+            "pitfalls": "切忌把 `tenantID` 设计为可选空字符串（空串查全库），一旦上游中间件漏挂就会酿成跨租户数据泄露。",
+            "interview": "问：如何从架构上防止新人写漏 `WHERE tenant_id = ?`？\n答：底层 DAO/Retriever 强制从 `ctx` 取租户 ID 并 Fail-Closed，再叠加数据库行级安全策略（RLS）做双保险。"
+          }
+        },
+        {
+          "title": "双路并发召回（HNSW + BM25）",
+          "shortTitle": "双路并发",
+          "lines": [
+            5,
+            7
+          ],
+          "nodeIds": [
+            "r-vec",
+            "r-bm25"
+          ],
+          "insights": {
+            "mechanism": "并行发起向量近邻搜索与 BM25 词法匹配，总耗时由 `max(t_vec, t_bm25)` 决定，兼顾语义泛化与精确字面命中。",
+            "pitfalls": "线上应使用 `errgroup.WithContext` 搭配独立子超时，避免单路慢查询拖垮整条链路或泄漏 goroutine。",
+            "interview": "问：粗排 Top-K 设 40 是怎么定的？\n答：在离线标注集上测 Recall@K 拐点，通常 30~50 进入收益平台期，既保召回又控制下游 Reranker 延迟。"
+          }
+        },
+        {
+          "title": "RRF 排名融合与截断",
+          "shortTitle": "RRF 融合",
+          "lines": [
+            9,
+            10
+          ],
+          "nodeIds": [
+            "r-rrf"
+          ],
+          "insights": {
+            "mechanism": "按 `sum(1 / (60 + rank_i))` 合并两路候选，同时在语义和关键词均排前列的片段会显著抬升，随后截断 Top 30。",
+            "pitfalls": "同一长文档的相邻切片容易扎堆占满名额，可叠加按 `doc_id` 限流或 MMR 去重保障信息多样性。",
+            "interview": "问：RRF 常数 `k=60` 调大调小有什么影响？\n答：`k` 越小越偏重头部极高排名结果，`k` 越大则多路共同命中的中段候选权重提升。"
+          }
+        },
+        {
+          "title": "Cross-Encoder 精排与降级",
+          "shortTitle": "精排降级",
+          "lines": [
+            12,
+            13
+          ],
+          "nodeIds": [
+            "r-rerank"
+          ],
+          "insights": {
+            "mechanism": "将 Query 与 30 条候选拼接送入交叉编码器深层交互打分；若精排节点超时或故障，自动回退 RRF Top-K 保证问答可用。",
+            "pitfalls": "Reranker 通常是整条链路 P99 延迟大头，务必设置独立短超时（400~800ms）与熔断降级开关。",
+            "interview": "问：为什么不直接拿 Cross-Encoder 扫全库？\n答：双塔可离线建向量索引毫秒检索；Cross-Encoder 需在线拼接 Query 与文档前向推理，复杂度 `O(N)`，只适合对几十条粗排候选精排。"
+          }
+        },
+        {
+          "title": "阈值过滤与防幻觉兜底",
+          "shortTitle": "阈值截断",
+          "lines": [
+            14,
+            15
+          ],
+          "nodeIds": [
+            "r-filter"
+          ],
+          "insights": {
+            "mechanism": "`filterByScore` 过滤掉低于 `MinScore` 的弱相关片段，避免向 LLM 喂入噪音诱发强行胡编。",
+            "pitfalls": "不同精排模型分数分布差异巨大，`MinScore` 需基于业务负样本 ROC 曲线校准而非拍脑袋写死。",
+            "interview": "问：候选全部被阈值滤空时应该怎么处理？\n答：走明确的“知识库未命中”分支——直接诚实拒答或按策略提示切换联网检索，切忌把低分噪音硬塞给模型。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "react-agent",
+      "label": "2. ReAct Agent",
+      "mode": "code",
+      "filePath": "internal/agent/loop.go",
+      "fileSubtitle": "ReAct 推理循环、工具安全门控与上下文压缩",
+      "graphTitle": "ReAct Agent 推理与工具执行闭环",
+      "graphSubtitle": "从用户意图出发，展示模型决策、沙箱门控、观察回填到收敛输出的完整状态机",
+      "codeLines": [
+        "func (a *ReActAgent) Run(ctx context.Context, query string, emit StreamFn) error {",
+        "    msgs := a.memory.BuildPrompt(ctx, query)                  // 1. 组装系统提示与历史摘要",
+        "    for step := 1; step <= a.cfg.MaxSteps; step++ {           // 2. 最大步数熔断边界",
+        "        resp, err := a.llm.StreamStep(ctx, msgs, a.tools, emit)",
+        "        if err != nil { return err }",
+        "        if len(resp.ToolCalls) == 0 { return nil }            // 3. 无工具调用即收敛结束",
+        "",
+        "        for _, tc := range resp.ToolCalls {",
+        "            if err := a.guard.Verify(ctx, tc); err != nil {   // 4. 高危工具审批与安全门控",
+        "                msgs = append(msgs, ToolBlockedMsg(tc, err))",
+        "                continue",
+        "            }",
+        "            obs := a.sandbox.Execute(ctx, tc)                 // 5. 沙箱隔离执行与超时强杀",
+        "            msgs = append(msgs, a.memory.CompactObs(tc, obs)) // 6. 超长输出摘要截断回填",
+        "        }",
+        "    }",
+        "    return ErrMaxStepsExceeded",
+        "}"
+      ],
+      "nodes": [
+        {
+          "id": "a-prompt",
+          "badge": "1",
+          "title": "上下文与记忆组装",
+          "subtitle": "memory.BuildPrompt()",
+          "loc": "L1-L2",
+          "tag": "状态初始化",
+          "category": "entry",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "a-llm",
+          "badge": "2",
+          "title": "LLM 流式规划决策",
+          "subtitle": "llm.StreamStep()",
+          "loc": "L3-L6",
+          "tag": "核心循环",
+          "category": "core",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "a-guard",
+          "badge": "3",
+          "title": "安全与审批门控",
+          "subtitle": "guard.Verify(tc)",
+          "loc": "L8-L12",
+          "tag": "护栏校验",
+          "category": "security",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "a-exec",
+          "badge": "4",
+          "title": "沙箱隔离执行",
+          "subtitle": "sandbox.Execute(tc)",
+          "loc": "L13",
+          "tag": "隔离运行",
+          "category": "queue",
+          "col": 1,
+          "row": 1
+        },
+        {
+          "id": "a-compact",
+          "badge": "5",
+          "title": "观察压缩与回填",
+          "subtitle": "memory.CompactObs()",
+          "loc": "L14-L17",
+          "tag": "防爆上下文",
+          "category": "storage",
+          "col": 0,
+          "row": 1
+        }
+      ],
+      "edges": [
+        {
+          "from": "a-prompt",
+          "to": "a-llm",
+          "label": "初始上下文"
+        },
+        {
+          "from": "a-llm",
+          "to": "a-guard",
+          "label": "ToolCall"
+        },
+        {
+          "from": "a-guard",
+          "to": "a-exec",
+          "label": "放行执行"
+        },
+        {
+          "from": "a-exec",
+          "to": "a-compact",
+          "label": "原始输出"
+        },
+        {
+          "from": "a-compact",
+          "to": "a-llm",
+          "label": "下一轮推理",
+          "dashed": true
+        }
+      ],
+      "steps": [
+        {
+          "title": "上下文与历史记忆组装",
+          "shortTitle": "记忆组装",
+          "lines": [
+            1,
+            2
+          ],
+          "nodeIds": [
+            "a-prompt"
+          ],
+          "insights": {
+            "mechanism": "`memory.BuildPrompt` 将 System Prompt、历史对话压缩摘要与最近原样轮次按 Token 预算拼装，保证输入稳定在模型最佳注意力区间。",
+            "pitfalls": "无脑把全部多轮历史拼进上下文会导致成本飙升和“中间遗忘”（Lost in the Middle），必须区分近期完整轮次与远期摘要。",
+            "interview": "问：多轮 Agent 对话怎么做好 Prompt Cache 命中率？\n答：把静态 System Prompt、工具定义与固定前缀放最前面且保持字节稳定，只把动态时间戳与当前轮用户消息追加在末尾。"
+          }
+        },
+        {
+          "title": "LLM 流式决策与收敛判断",
+          "shortTitle": "流式决策",
+          "lines": [
+            3,
+            6
+          ],
+          "nodeIds": [
+            "a-llm"
+          ],
+          "insights": {
+            "mechanism": "在 `MaxSteps` 保护下流式请求模型：若返回纯文本无 `ToolCalls`，说明已完成推理直接结束；否则进入工具执行分支。",
+            "pitfalls": "部分模型会在单轮同时输出自然语言解释与多个并行 `ToolCalls`，解析层切勿假设二者互斥。",
+            "interview": "问：达到 `MaxSteps` 还没收敛时，怎么给用户最好的体验？\n答：不要直接抛冷冰冰的 500 错误，而是追加一条“请基于目前已收集到的全部信息总结回答并指出未完成项”的收尾调用。"
+          }
+        },
+        {
+          "title": "高危工具审批与安全门控",
+          "shortTitle": "安全门控",
+          "lines": [
+            8,
+            12
+          ],
+          "nodeIds": [
+            "a-guard"
+          ],
+          "insights": {
+            "mechanism": "`guard.Verify` 在工具真正执行前校验权限范围、参数合法性及写操作审批状态；被拦截时将原因封装为 `ToolBlockedMsg` 回传给模型自我修正。",
+            "pitfalls": "拦截后直接中断整个 Agent 往往体验很差，把清晰可读的拒绝原因作为 Observation 返回给模型，反而能让它换用合法只读方案。",
+            "interview": "问：Agent 的工具权限应该由 Prompt 约束还是由代码门控？\n答：Prompt 只能作为软引导，所有安全边界（租户隔离、路径白名单、写操作审批）必须落在确定性的代码拦截层。"
+          }
+        },
+        {
+          "title": "沙箱隔离执行",
+          "shortTitle": "沙箱执行",
+          "lines": [
+            13,
+            13
+          ],
+          "nodeIds": [
+            "a-exec"
+          ],
+          "insights": {
+            "mechanism": "`sandbox.Execute` 在受控环境内运行工具调用，强制施加 CPU/内存配额、网络出站白名单与单步执行超时。",
+            "pitfalls": "多个只读 `ToolCalls` 可以并发执行以压低总延迟，但存在依赖或写副作用的工具必须串行执行。",
+            "interview": "问：沙箱执行超时或崩溃后，Agent 状态如何保持一致？\n答：工具执行设计为幂等或可回滚，超时强杀后向模型返回结构化超时 Observation，让模型决定缩小范围重试或放弃。"
+          }
+        },
+        {
+          "title": "观察输出压缩与循环回填",
+          "shortTitle": "压缩回填",
+          "lines": [
+            14,
+            17
+          ],
+          "nodeIds": [
+            "a-compact"
+          ],
+          "insights": {
+            "mechanism": "`memory.CompactObs` 检测工具返回体积，超阈值时截断并保留头尾关键行或落盘引用，再回填进 `msgs` 进入下一轮 ReAct 推理。",
+            "pitfalls": "一条 SQL 或网页抓取返回几万字符会瞬间把上下文打爆甚至触发 400 超长报错，必须在写入消息列表前做硬性长度上限兜底。",
+            "interview": "问：截断工具输出时，直接砍掉后半段为什么不够好？\n答：编译报错和堆栈尾部往往才是根因；更好做法是保留头尾摘要 + 完整内容存临时文件并告知路径，必要时让 Agent 按行定向读取。"
+          }
+        }
+      ]
+    }
+  ]
+}</script>
+
+  <script>
+    (() => {
+      const DATA = JSON.parse(document.getElementById("atlasData").textContent);
+
+      const CATEGORIES = {
+        entry:    { label: "入口",      color: "var(--cat-entry)",    hex: "#38bdf8", bg: "var(--cat-entry-bg)" },
+        core:     { label: "核心引擎",   color: "var(--cat-core)",     hex: "#3b82f6", bg: "var(--cat-core-bg)" },
+        storage:  { label: "存储/索引",  color: "var(--cat-storage)",  hex: "#22c55e", bg: "var(--cat-storage-bg)" },
+        security: { label: "安全/门禁",  color: "var(--cat-security)", hex: "#f43f5e", bg: "var(--cat-security-bg)" },
+        queue:    { label: "队列/流",    color: "var(--cat-queue)",    hex: "#a855f7", bg: "var(--cat-queue-bg)" },
+        external: { label: "外部/护栏",  color: "var(--cat-external)", hex: "#f59e0b", bg: "var(--cat-external-bg)" }
+      };
+
+      const NODE_W = 248;
+      const NODE_H = 104;
+      const GRID_GAP_X = 82;
+      const GRID_GAP_Y = 78;
+
+      const state = {
+        tabIdx: 0,
+        stepIdx: 0,
+        activeFileId: null,
+        filterText: "",
+        motion: true,
+        showAll: false,
+        theme: "dark",
+        drawerCollapsed: false,
+        autoplayTimer: null,
+        syncSource: "init",
+        panX: 0,
+        panY: 0,
+        scale: 1,
+        dragging: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        dragOriginX: 0,
+        dragOriginY: 0
+      };
+
+      // DOM refs
+      const $ = (id) => document.getElementById(id);
+      const elBrandBadge = $("brandBadge");
+      const elBrandName = $("brandName");
+      const elCommitPill = $("commitPill");
+      const elTabBar = $("tabBar");
+      const elQuickPills = $("quickPills");
+      const elFileTabs = $("fileTabs");
+      const elFilterInput = $("filterInput");
+      const elBtnCopy = $("btnCopy");
+      const elMetaFile = $("metaFile");
+      const elGhSourceLink = $("ghSourceLink");
+      const elMetaSync = $("metaSync");
+      const elCodeViewport = $("codeViewport");
+      const elGraphTitle = $("graphTitle");
+      const elGraphSubtitle = $("graphSubtitle");
+      const elCanvasStage = $("canvasStage");
+      const elSvg = $("atlasSvg");
+      const elSvgDefs = $("svgDefs");
+      const elViewportGroup = $("viewportGroup");
+      const elLegendList = $("legendList");
+      const elStepCounter = $("stepCounter");
+      const elBtnPrev = $("btnPrev");
+      const elBtnNext = $("btnNext");
+      const elBtnAutoplay = $("btnAutoplay");
+      const elBtnShare = $("btnShare");
+      const elBtnTheme = $("btnTheme");
+      const elBtnMotion = $("btnMotion");
+      const elBtnShowAll = $("btnShowAll");
+      const elBtnExportSvg = $("btnExportSvg");
+      const elBtnExportNotes = $("btnExportNotes");
+      const elInsightDrawer = $("insightDrawer");
+      const elInsightHeader = $("insightHeader");
+      const elBtnToggleDrawer = $("btnToggleDrawer");
+      const elInsightStepTitle = $("insightStepTitle");
+      const elInsightLocPill = $("insightLocPill");
+      const elInsightMech = $("insightMech");
+      const elInsightPitfall = $("insightPitfall");
+      const elInsightInterview = $("insightInterview");
+      const elSearchModal = $("searchModal");
+      const elGlobalSearchInput = $("globalSearchInput");
+      const elSearchResults = $("searchResults");
+      const elToast = $("toast");
+
+      function showToast(msg) {
+        elToast.textContent = msg;
+        elToast.classList.add("show");
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => elToast.classList.remove("show"), 2000);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function formatRichText(text) {
+        if (!text) return "";
+        let html = escapeHtml(text);
+        html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+        html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        return html;
+      }
+
+      function getCurrentTab() {
+        return DATA.tabs[state.tabIdx];
+      }
+
+      function getCurrentStep() {
+        const tab = getCurrentTab();
+        return tab.steps[state.stepIdx] || tab.steps[0];
+      }
+
+      // Normalize single-file or multi-file tabs into a uniform array of file descriptors
+      function getTabFiles(tab) {
+        if (Array.isArray(tab.files) && tab.files.length > 0) {
+          return tab.files;
+        }
+        return [{
+          id: "__default__",
+          path: tab.filePath || tab.label,
+          subtitle: tab.fileSubtitle || "",
+          startLine: tab.startLine || 1,
+          codeLines: tab.codeLines || []
+        }];
+      }
+
+      function getStepFile(tab, step) {
+        const files = getTabFiles(tab);
+        if (step && step.fileId) {
+          const found = files.find((f) => f.id === step.fileId);
+          if (found) return found;
+        }
+        return files[0];
+      }
+
+      function getActiveFile(tab, step) {
+        const files = getTabFiles(tab);
+        if (state.activeFileId) {
+          const found = files.find((f) => f.id === state.activeFileId);
+          if (found) return found;
+        }
+        return getStepFile(tab, step);
+      }
+
+      function buildGitHubSourceUrl(tab, fileObj, step) {
+        const repoUrl = (DATA.project.repoUrl || "").replace(/\/+$/, "");
+        if (!repoUrl.includes("github.com") || tab.mode === "tree") return null;
+        if (!fileObj || !fileObj.path || fileObj.path.endsWith("/")) return null;
+        const ref = DATA.project.commit || "main";
+        let realStart = null, realEnd = null;
+        if (step && Array.isArray(step.realLines) && step.realLines.length === 2) {
+          [realStart, realEnd] = step.realLines;
+        } else if (step && Array.isArray(step.lines) && step.lines.length === 2) {
+          const base = (fileObj.startLine || 1) - 1;
+          realStart = base + step.lines[0];
+          realEnd = base + step.lines[1];
+        }
+        const hash = realStart ? `#L${realStart}${realEnd && realEnd !== realStart ? "-L" + realEnd : ""}` : "";
+        return `${repoUrl}/blob/${encodeURIComponent(ref)}/${fileObj.path}${hash}`;
+      }
+
+      function syncUrlHash() {
+        try {
+          const params = new URLSearchParams();
+          params.set("tab", String(state.tabIdx));
+          params.set("step", String(state.stepIdx + 1));
+          if (state.theme !== "dark") params.set("theme", state.theme);
+          history.replaceState(null, "", "#" + params.toString());
+        } catch (_) {}
+      }
+
+      function loadStateFromHash() {
+        try {
+          const raw = (window.location.hash || "").replace(/^#/, "");
+          if (!raw) return;
+          const params = new URLSearchParams(raw);
+          const t = parseInt(params.get("tab"), 10);
+          const s = parseInt(params.get("step"), 10);
+          const th = params.get("theme");
+          if (!Number.isNaN(t) && t >= 0 && t < DATA.tabs.length) {
+            state.tabIdx = t;
+          }
+          const maxSteps = DATA.tabs[state.tabIdx].steps.length;
+          if (!Number.isNaN(s) && s >= 1 && s <= maxSteps) {
+            state.stepIdx = s - 1;
+          }
+          if (th === "light" || th === "dark") {
+            state.theme = th;
+            document.documentElement.setAttribute("data-theme", state.theme);
+            elBtnTheme.textContent = state.theme === "dark" ? "☀️ 浅色" : "🌙 深色";
+          }
+        } catch (_) {}
+      }
+
+      function highlightLineContent(raw, mode, filterQuery) {
+        let html = "";
+        if (mode === "tree") {
+          const hashIdx = raw.indexOf("#");
+          const left = hashIdx >= 0 ? raw.slice(0, hashIdx) : raw;
+          const comment = hashIdx >= 0 ? raw.slice(hashIdx) : "";
+          const leftEsc = escapeHtml(left)
+            .replace(/([│├└─]+)/g, '<span class="tok-tree">$1</span>')
+            .replace(/([A-Za-z0-9_.-]+\/)/g, '<span class="tok-dir">$1</span>');
+          const commentEsc = comment ? `<span class="tok-comment">${escapeHtml(comment)}</span>` : "";
+          html = leftEsc + commentEsc;
+        } else {
+          const commentMatch = raw.match(/(^|[\s])(\/\/.*|#.*)$/);
+          let codePart = raw;
+          let commentPart = "";
+          if (commentMatch && !raw.trim().startsWith("#include") && !raw.trim().startsWith("#define")) {
+            const idx = raw.indexOf(commentMatch[2]);
+            codePart = raw.slice(0, idx);
+            commentPart = raw.slice(idx);
+          }
+          let esc = escapeHtml(codePart);
+          esc = esc.replace(/(&quot;[^&]*?&quot;|'[^']*?')/g, '<span class="tok-str">$1</span>');
+          esc = esc.replace(/\b(func|type|struct|interface|return|if|else|for|range|defer|go|select|case|switch|package|import|const|var|def|class|async|await|try|except|from|with|yield|function|export|default|let|new|public|private|fn|pub|impl|match|enum)\b/g, '<span class="tok-kw">$1</span>');
+          esc = esc.replace(/\b(\d+(\.\d+)?)\b/g, '<span class="tok-num">$1</span>');
+          const cEsc = commentPart ? `<span class="tok-comment">${escapeHtml(commentPart)}</span>` : "";
+          html = esc + cEsc;
+        }
+
+        if (filterQuery) {
+          const q = filterQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          try {
+            const re = new RegExp(`(${q})`, "gi");
+            html = html.replace(/(<[^>]+>)|([^<]+)/g, (_, tag, txt) => {
+              if (tag) return tag;
+              return txt.replace(re, '<mark class="tok-match">$1</mark>');
+            });
+          } catch (_) {}
+        }
+        return html;
+      }
+
+      // Compute node positions
+      function computeNodeLayout(tab) {
+        const map = {};
+        const nodes = tab.nodes || [];
+        nodes.forEach((n, idx) => {
+          const col = typeof n.col === "number" ? n.col : (idx % 3);
+          const row = typeof n.row === "number" ? n.row : Math.floor(idx / 3);
+          const x = typeof n.x === "number" ? n.x : 44 + col * (NODE_W + GRID_GAP_X);
+          const y = typeof n.y === "number" ? n.y : 52 + row * (NODE_H + GRID_GAP_Y);
+          map[n.id] = { ...n, x, y, w: NODE_W, h: NODE_H };
+        });
+        return map;
+      }
+
+      // Decide natural sides + apply port spreading for multi-edge nodes
+      function computeAllEdgeGeometry(tab, layout) {
+        const rawEdges = (tab.edges || [])
+          .map((edge, idx) => {
+            const src = layout[edge.from];
+            const dst = layout[edge.to];
+            if (!src || !dst) return null;
+
+            const sx = src.x + src.w / 2;
+            const sy = src.y + src.h / 2;
+            const dx = dst.x + dst.w / 2;
+            const dy = dst.y + dst.h / 2;
+            const vx = dx - sx;
+            const vy = dy - sy;
+
+            const sameRowSkip = !edge.fromSide && !edge.toSide &&
+              Math.abs(vy) < NODE_H * 0.4 && Math.abs(vx) > (NODE_W + GRID_GAP_X) * 1.35;
+            const sameColSkip = !edge.fromSide && !edge.toSide &&
+              Math.abs(vx) < NODE_W * 0.4 && Math.abs(vy) > (NODE_H + GRID_GAP_Y) * 1.35;
+
+            let fromSide = edge.fromSide;
+            let toSide = edge.toSide;
+            if (!fromSide || !toSide) {
+              if (sameRowSkip) {
+                fromSide = fromSide || "top";
+                toSide = toSide || "top";
+              } else if (sameColSkip) {
+                fromSide = fromSide || "right";
+                toSide = toSide || "right";
+              } else if (Math.abs(vx) >= Math.abs(vy)) {
+                fromSide = fromSide || (vx >= 0 ? "right" : "left");
+                toSide = toSide || (vx >= 0 ? "left" : "right");
+              } else {
+                fromSide = fromSide || (vy >= 0 ? "bottom" : "top");
+                toSide = toSide || (vy >= 0 ? "top" : "bottom");
+              }
+            }
+
+            return { edge, idx, src, dst, fromSide, toSide, sameRowSkip, sameColSkip };
+          })
+          .filter(Boolean);
+
+        // Group ports per (nodeId, side) for port spreading
+        const portBuckets = {};
+        const registerPort = (nodeId, side, ref, sortVal) => {
+          const key = `${nodeId}:${side}`;
+          if (!portBuckets[key]) portBuckets[key] = [];
+          portBuckets[key].push({ ref, sortVal });
+        };
+
+        rawEdges.forEach((item) => {
+          const dstCenter = (item.fromSide === "top" || item.fromSide === "bottom")
+            ? item.dst.x + item.dst.w / 2 : item.dst.y + item.dst.h / 2;
+          const srcCenter = (item.toSide === "top" || item.toSide === "bottom")
+            ? item.src.x + item.src.w / 2 : item.src.y + item.src.h / 2;
+          registerPort(item.src.id, item.fromSide, { item, end: "from" }, dstCenter);
+          registerPort(item.dst.id, item.toSide, { item, end: "to" }, srcCenter);
+        });
+
+        Object.values(portBuckets).forEach((bucket) => {
+          bucket.sort((a, b) => a.sortVal - b.sortVal);
+          const n = bucket.length;
+          bucket.forEach((entry, i) => {
+            const offset = n === 1 ? 0 : (i - (n - 1) / 2) * Math.min(28, 120 / n);
+            if (entry.ref.end === "from") entry.ref.item.fromOffset = offset;
+            else entry.ref.item.toOffset = offset;
+          });
+        });
+
+        const anchorPoint = (node, side, offset = 0) => {
+          switch (side) {
+            case "top":    return [node.x + node.w / 2 + offset, node.y];
+            case "bottom": return [node.x + node.w / 2 + offset, node.y + node.h];
+            case "left":   return [node.x, node.y + node.h / 2 + offset];
+            case "right":
+            default:       return [node.x + node.w, node.y + node.h / 2 + offset];
+          }
+        };
+
+        const controlVec = (side, dist) => {
+          switch (side) {
+            case "top":    return [0, -dist];
+            case "bottom": return [0, dist];
+            case "left":   return [-dist, 0];
+            case "right":
+            default:       return [dist, 0];
+          }
+        };
+
+        return rawEdges.map((item) => {
+          const [x1, y1] = anchorPoint(item.src, item.fromSide, item.fromOffset || 0);
+          const [x2, y2] = anchorPoint(item.dst, item.toSide, item.toOffset || 0);
+          const dist = Math.hypot(x2 - x1, y2 - y1);
+          const bend = typeof item.edge.curveOffset === "number"
+            ? item.edge.curveOffset
+            : (item.sameRowSkip || item.sameColSkip ? 68 : Math.max(36, Math.min(110, dist * 0.42)));
+
+          const [vx1, vy1] = controlVec(item.fromSide, bend);
+          const [vx2, vy2] = controlVec(item.toSide, bend);
+          const cx1 = x1 + vx1, cy1 = y1 + vy1;
+          const cx2 = x2 + vx2, cy2 = y2 + vy2;
+
+          const d = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+          const lo = Array.isArray(item.edge.labelOffset) ? item.edge.labelOffset : [0, 0];
+          const mx = 0.125 * x1 + 0.375 * cx1 + 0.375 * cx2 + 0.125 * x2 + (lo[0] || 0);
+          const my = 0.125 * y1 + 0.375 * cy1 + 0.375 * cy2 + 0.125 * y2 + (lo[1] || 0);
+          return { ...item, d, mx, my };
+        });
+      }
+
+      function renderHeader() {
+        const p = DATA.project;
+        elBrandBadge.textContent = p.monogram || p.name.slice(0, 2).toUpperCase();
+        elBrandName.textContent = p.name;
+        elCommitPill.textContent = p.commit || p.version || "main";
+        if (p.repoUrl) {
+          elCommitPill.href = p.repoUrl;
+        } else {
+          elCommitPill.removeAttribute("href");
+        }
+        document.title = `${p.name} 源码 · 图谱`;
+
+        elTabBar.innerHTML = "";
+        DATA.tabs.forEach((tab, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "tab-btn" + (idx === state.tabIdx ? " active" : "");
+          btn.textContent = tab.label;
+          btn.onclick = () => selectTab(idx);
+          elTabBar.appendChild(btn);
+        });
+      }
+
+      function renderLegend() {
+        elLegendList.innerHTML = "";
+        Object.entries(CATEGORIES).forEach(([key, cfg]) => {
+          const item = document.createElement("span");
+          item.className = "legend-item";
+          item.innerHTML = `<span class="legend-dot" style="background:${cfg.color}"></span>${cfg.label}`;
+          elLegendList.appendChild(item);
+        });
+      }
+
+      function renderQuickPills() {
+        const tab = getCurrentTab();
+        elQuickPills.innerHTML = "";
+        tab.steps.forEach((step, idx) => {
+          const primaryNodeId = (step.nodeIds && step.nodeIds[0]) || "";
+          const node = (tab.nodes || []).find((n) => n.id === primaryNodeId);
+          const cat = CATEGORIES[(node && node.category) || "core"] || CATEGORIES.core;
+
+          const btn = document.createElement("button");
+          btn.className = "q-pill" + (idx === state.stepIdx ? " active" : "");
+          btn.innerHTML = `<span class="q-dot" style="background:${cat.color}"></span>${escapeHtml(step.shortTitle || step.title)}`;
+          btn.onclick = () => {
+            state.syncSource = "pill";
+            selectStep(idx);
+          };
+          elQuickPills.appendChild(btn);
+        });
+      }
+
+      function renderFileTabs() {
+        const tab = getCurrentTab();
+        const step = getCurrentStep();
+        const files = getTabFiles(tab);
+        const activeFile = getActiveFile(tab, step);
+
+        if (files.length <= 1) {
+          elFileTabs.classList.remove("visible");
+          elFileTabs.innerHTML = "";
+          return;
+        }
+
+        elFileTabs.classList.add("visible");
+        elFileTabs.innerHTML = "";
+        files.forEach((f) => {
+          const btn = document.createElement("button");
+          btn.className = "file-tab-btn" + (f.id === activeFile.id ? " active" : "");
+          const shortName = f.label || f.path.split("/").pop();
+          btn.textContent = shortName;
+          btn.title = f.path;
+          btn.onclick = () => {
+            state.activeFileId = f.id;
+            const matchingStepIdx = tab.steps.findIndex((s) => (s.fileId || files[0].id) === f.id);
+            if (matchingStepIdx >= 0 && getStepFile(tab, getCurrentStep()).id !== f.id) {
+              state.syncSource = "file";
+              selectStep(matchingStepIdx);
+            } else {
+              renderFileTabs();
+              renderCodePane(true);
+            }
+          };
+          elFileTabs.appendChild(btn);
+        });
+      }
+
+      function renderCodePane(shouldScroll = true) {
+        const tab = getCurrentTab();
+        const step = getCurrentStep();
+        const fileObj = getActiveFile(tab, step);
+        const stepFileObj = getStepFile(tab, step);
+        const isStepFileVisible = fileObj.id === stepFileObj.id;
+
+        const [startL, endL] = step.lines || [1, 1];
+        const lines = fileObj.codeLines || [];
+        const baseOffset = (fileObj.startLine || 1) - 1;
+        const q = state.filterText.trim().toLowerCase();
+
+        elBtnCopy.textContent = tab.mode === "tree" ? "📋 复制目录树" : "📋 复制源码";
+        const displayEnd = baseOffset + lines.length;
+        elMetaFile.textContent = `${fileObj.path}${fileObj.subtitle ? " · " + fileObj.subtitle : ""} (L${baseOffset + 1}-L${displayEnd})`;
+
+        const ghUrl = buildGitHubSourceUrl(tab, fileObj, isStepFileVisible ? step : null);
+        if (ghUrl) {
+          elGhSourceLink.href = ghUrl;
+          elGhSourceLink.style.display = "inline-flex";
+        } else {
+          elGhSourceLink.style.display = "none";
+        }
+
+        const displayRange = Array.isArray(step.realLines) && step.realLines.length === 2
+          ? `L${step.realLines[0]}-L${step.realLines[1]}`
+          : `L${baseOffset + startL}-L${baseOffset + endL}`;
+
+        elMetaSync.textContent = state.syncSource === "node"
+          ? `已从右侧节点「${step.title}」定位到 ${displayRange}`
+          : `当前步骤「${step.title}」定位到 ${displayRange}`;
+
+        const lineToStep = {};
+        const files = getTabFiles(tab);
+        tab.steps.forEach((s, sIdx) => {
+          const sf = s.fileId || files[0].id;
+          if (sf !== fileObj.id || !s.lines) return;
+          for (let ln = s.lines[0]; ln <= s.lines[1]; ln++) {
+            if (lineToStep[ln] === undefined) lineToStep[ln] = sIdx;
+          }
+        });
+
+        const frag = document.createDocumentFragment();
+        let activeAnchorEl = null;
+
+        lines.forEach((raw, idx) => {
+          const ln = idx + 1;
+          const shownNum = baseOffset + ln;
+          const isActive = isStepFileVisible && ln >= startL && ln <= endL;
+          const matchesFilter = !q || raw.toLowerCase().includes(q);
+
+          if (isStepFileVisible && ln === startL && !q) {
+            const banner = document.createElement("div");
+            banner.className = "step-inline-banner";
+            banner.textContent = `↔ Step ${state.stepIdx + 1} · ${step.title} (${displayRange})`;
+            frag.appendChild(banner);
+            activeAnchorEl = banner;
+          }
+
+          const row = document.createElement("div");
+          row.className = "code-line"
+            + (isActive ? " active-line" : (!q && !state.showAll && isStepFileVisible ? " dimmed-line" : ""))
+            + (!matchesFilter ? " filter-hidden" : "");
+          row.dataset.line = ln;
+
+          row.innerHTML = `<span class="line-num">${shownNum}</span><span class="line-content">${highlightLineContent(raw, tab.mode || "code", state.filterText.trim())}</span>`;
+
+          row.onclick = () => {
+            const mapped = lineToStep[ln];
+            if (mapped !== undefined && mapped !== state.stepIdx) {
+              state.syncSource = "code";
+              selectStep(mapped, { scrollCode: false });
+            }
+          };
+
+          if (isActive && !activeAnchorEl) activeAnchorEl = row;
+          frag.appendChild(row);
+        });
+
+        elCodeViewport.innerHTML = "";
+        elCodeViewport.appendChild(frag);
+
+        if (shouldScroll && activeAnchorEl && !q) {
+          const top = Math.max(0, activeAnchorEl.offsetTop - 22);
+          elCodeViewport.scrollTo({ top, behavior: "smooth" });
+        }
+      }
+
+      function buildSvgDefs() {
+        let defsHtml = `
+          <marker id="arrow-normal" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M 0 1.2 L 9 5 L 0 8.8 z" fill="var(--edge-normal)" />
+          </marker>
+          <marker id="arrow-active" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 1.2 L 9 5 L 0 8.8 z" fill="var(--edge-active)" />
+          </marker>
+        `;
+        Object.entries(CATEGORIES).forEach(([key, cfg]) => {
+          defsHtml += `
+            <filter id="glow-${key}" x="-35%" y="-35%" width="170%" height="170%">
+              <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="${cfg.hex}" flood-opacity="0.55" />
+            </filter>
+          `;
+        });
+        elSvgDefs.innerHTML = defsHtml;
+      }
+
+      function renderGraph() {
+        const tab = getCurrentTab();
+        const step = getCurrentStep();
+        const activeNodes = new Set(step.nodeIds || []);
+        const activeEdges = new Set(step.edgeIds || []);
+        const layout = computeNodeLayout(tab);
+        const edgeGeoms = computeAllEdgeGeometry(tab, layout);
+
+        elGraphTitle.textContent = tab.graphTitle || tab.label;
+        elGraphSubtitle.textContent = tab.graphSubtitle || "点击任意架构节点与左侧代码行双向定位";
+
+        const nodeToStep = {};
+        tab.steps.forEach((s, idx) => {
+          (s.nodeIds || []).forEach((nid) => {
+            if (nodeToStep[nid] === undefined) nodeToStep[nid] = idx;
+          });
+        });
+
+        const edgesLayer = [];
+        const nodesLayer = [];
+
+        edgeGeoms.forEach(({ edge, d, mx, my }) => {
+          const edgeKey = edge.id || `${edge.from}->${edge.to}`;
+          const isExplicitActive = activeEdges.has(edgeKey);
+          const isIncidentActive = activeNodes.has(edge.from) || activeNodes.has(edge.to);
+          const isActive = isExplicitActive || (activeEdges.size === 0 && isIncidentActive);
+          const isDimmed = !state.showAll && !isActive;
+
+          const stroke = isActive ? "var(--edge-active)" : "var(--edge-normal)";
+          const strokeWidth = isActive ? 2.1 : 1.3;
+          const marker = isActive ? "url(#arrow-active)" : "url(#arrow-normal)";
+          const animClass = (isActive || state.showAll) && state.motion ? "edge-animated" : "";
+
+          const labelText = edge.label || "";
+          const labelW = Math.max(46, labelText.length * 10 + 18);
+
+          const pulseHtml = isActive && state.motion ? `
+            <circle r="3.2" fill="var(--edge-active)" class="edge-pulse-dot">
+              <animateMotion dur="2.1s" repeatCount="indefinite" path="${d}" />
+            </circle>
+          ` : "";
+
+          const labelHtml = labelText ? `
+            <g transform="translate(${mx}, ${my})">
+              <rect x="${-labelW / 2}" y="-10.5" width="${labelW}" height="21" rx="6"
+                fill="var(--edge-label-bg)"
+                stroke="${isActive ? "var(--edge-label-border)" : "var(--border-subtle)"}"
+                stroke-width="1" />
+              <text x="0" y="3.5" text-anchor="middle"
+                fill="${isActive ? "var(--accent-cyan)" : "var(--text-secondary)"}"
+                font-size="10.5" font-weight="${isActive ? "600" : "500"}"
+                font-family="var(--font-sans)">${escapeHtml(labelText)}</text>
+            </g>
+          ` : "";
+
+          edgesLayer.push(`
+            <g class="atlas-edge ${isDimmed ? "dimmed" : ""}" data-edge="${escapeHtml(edgeKey)}">
+              <path d="${d}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"
+                stroke-dasharray="${edge.dashed ? "5 5" : (animClass ? "6 6" : "none")}"
+                class="${animClass}" marker-end="${marker}" />
+              ${pulseHtml}
+              ${labelHtml}
+            </g>
+          `);
+        });
+
+        Object.values(layout).forEach((node, idx) => {
+          const catKey = CATEGORIES[node.category] ? node.category : "core";
+          const cat = CATEGORIES[catKey];
+          const isActive = activeNodes.has(node.id);
+          const isDimmed = !state.showAll && !isActive;
+          const badgeNum = node.badge || String(idx + 1);
+          const tagText = node.tag || cat.label;
+          const tagW = Math.max(46, tagText.length * 10 + 16);
+
+          const titleTrunc = node.title.length > 15 ? node.title.slice(0, 14) + "…" : node.title;
+          const subTrunc = (node.subtitle || "").length > 30 ? node.subtitle.slice(0, 29) + "…" : (node.subtitle || "");
+          const locTrunc = (node.loc || "").length > 20 ? node.loc.slice(0, 19) + "…" : (node.loc || "");
+
+          nodesLayer.push(`
+            <g class="atlas-node ${isDimmed ? "dimmed" : ""}" data-node="${escapeHtml(node.id)}"
+               transform="translate(${node.x}, ${node.y})">
+              <rect class="node-rect" x="0" y="0" width="${node.w}" height="${node.h}" rx="12"
+                fill="var(--bg-card)"
+                stroke="${cat.color}"
+                stroke-width="${isActive ? 2.2 : 1.15}"
+                filter="${isActive ? `url(#glow-${catKey})` : "none"}" />
+              <rect x="0" y="0" width="${node.w}" height="${node.h}" rx="12"
+                fill="${cat.bg}" opacity="${isActive ? 0.95 : 0.45}" />
+
+              <circle cx="22" cy="24" r="10.5" fill="${cat.color}" />
+              <text x="22" y="28" text-anchor="middle" fill="#06101f" font-size="11" font-weight="800"
+                font-family="var(--font-mono)">${escapeHtml(badgeNum)}</text>
+
+              <text x="40" y="28" fill="var(--text-primary)" font-size="13" font-weight="700"
+                font-family="var(--font-sans)">${escapeHtml(titleTrunc)}</text>
+
+              <text x="16" y="51" fill="var(--text-secondary)" font-size="11"
+                font-family="var(--font-mono)">${escapeHtml(subTrunc)}</text>
+
+              <line x1="14" y1="65" x2="${node.w - 14}" y2="65"
+                stroke="var(--border-subtle)" stroke-dasharray="3 3" stroke-width="1" />
+
+              <circle cx="20" cy="83" r="3" fill="${cat.color}" />
+              <text x="29" y="87" fill="var(--text-muted)" font-size="10.5"
+                font-family="var(--font-mono)">${escapeHtml(locTrunc)}</text>
+
+              <rect x="${node.w - tagW - 12}" y="73" width="${tagW}" height="20" rx="6"
+                fill="${cat.bg}" stroke="${cat.color}" stroke-opacity="0.45" stroke-width="0.9" />
+              <text x="${node.w - tagW / 2 - 12}" y="86.5" text-anchor="middle"
+                fill="${cat.color}" font-size="10.5" font-weight="600"
+                font-family="var(--font-sans)">${escapeHtml(tagText)}</text>
+            </g>
+          `);
+        });
+
+        elViewportGroup.innerHTML = edgesLayer.join("") + nodesLayer.join("");
+
+        elViewportGroup.querySelectorAll(".atlas-node").forEach((g) => {
+          g.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            const nid = g.getAttribute("data-node");
+            const targetStep = nodeToStep[nid];
+            if (targetStep !== undefined) {
+              state.syncSource = "node";
+              selectStep(targetStep);
+            }
+          });
+        });
+      }
+
+      function applyTransform() {
+        elViewportGroup.setAttribute("transform", `translate(${state.panX}, ${state.panY}) scale(${state.scale})`);
+      }
+
+      function fitGraphToView() {
+        const tab = getCurrentTab();
+        const layout = computeNodeLayout(tab);
+        const nodes = Object.values(layout);
+        if (!nodes.length) return;
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        nodes.forEach((n) => {
+          minX = Math.min(minX, n.x);
+          minY = Math.min(minY, n.y - 36);
+          maxX = Math.max(maxX, n.x + n.w);
+          maxY = Math.max(maxY, n.y + n.h);
+        });
+
+        const rect = elCanvasStage.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const pad = 38;
+        const graphW = Math.max(100, maxX - minX);
+        const graphH = Math.max(100, maxY - minY);
+        const scaleX = (rect.width - pad * 2) / graphW;
+        const scaleY = (rect.height - pad * 2) / graphH;
+        const s = Math.max(0.35, Math.min(1.16, Math.min(scaleX, scaleY)));
+
+        state.scale = s;
+        state.panX = (rect.width - graphW * s) / 2 - minX * s;
+        state.panY = (rect.height - graphH * s) / 2 - minY * s;
+        applyTransform();
+      }
+
+      function renderInsights() {
+        const tab = getCurrentTab();
+        const step = getCurrentStep();
+        const fileObj = getStepFile(tab, step);
+        const [sL, eL] = step.lines || [1, 1];
+        const base = (fileObj.startLine || 1) - 1;
+        const rangeTxt = Array.isArray(step.realLines) && step.realLines.length === 2
+          ? `L${step.realLines[0]}-L${step.realLines[1]}`
+          : `L${base + sL}-L${base + eL}`;
+
+        elInsightStepTitle.textContent = `Step ${state.stepIdx + 1} · ${step.title}`;
+        elInsightLocPill.textContent = `${fileObj.path} : ${rangeTxt}`;
+
+        const ins = step.insights || {};
+        elInsightMech.innerHTML = formatRichText(ins.mechanism || "暂无说明。");
+        elInsightPitfall.innerHTML = formatRichText(ins.pitfalls || "暂无说明。");
+        elInsightInterview.innerHTML = formatRichText(ins.interview || "暂无说明。");
+      }
+
+      function renderStepper() {
+        const total = getCurrentTab().steps.length;
+        elStepCounter.textContent = `${state.stepIdx + 1}/${total}`;
+        elBtnPrev.disabled = state.stepIdx <= 0;
+        elBtnNext.disabled = state.stepIdx >= total - 1;
+      }
+
+      function selectTab(idx, initialStep = 0) {
+        stopAutoplay();
+        state.tabIdx = idx;
+        state.stepIdx = Math.max(0, Math.min(DATA.tabs[idx].steps.length - 1, initialStep));
+        state.activeFileId = getStepFile(DATA.tabs[idx], DATA.tabs[idx].steps[state.stepIdx]).id;
+        state.filterText = "";
+        elFilterInput.value = "";
+        state.syncSource = "tab";
+
+        renderHeader();
+        renderQuickPills();
+        renderFileTabs();
+        renderStepper();
+        renderCodePane(true);
+        renderGraph();
+        renderInsights();
+        syncUrlHash();
+        requestAnimationFrame(fitGraphToView);
+      }
+
+      function selectStep(idx, opts = { scrollCode: true }) {
+        const tab = getCurrentTab();
+        const total = tab.steps.length;
+        state.stepIdx = Math.max(0, Math.min(total - 1, idx));
+        state.activeFileId = getStepFile(tab, tab.steps[state.stepIdx]).id;
+
+        renderQuickPills();
+        renderFileTabs();
+        renderStepper();
+        renderCodePane(opts.scrollCode !== false);
+        renderGraph();
+        renderInsights();
+        syncUrlHash();
+      }
+
+      function stopAutoplay() {
+        if (state.autoplayTimer) {
+          clearInterval(state.autoplayTimer);
+          state.autoplayTimer = null;
+        }
+        elBtnAutoplay.textContent = "▶ 自动演练";
+        elBtnAutoplay.classList.remove("active-toggle");
+      }
+
+      function toggleAutoplay() {
+        if (state.autoplayTimer) { stopAutoplay(); return; }
+        elBtnAutoplay.textContent = "⏸ 暂停演练";
+        elBtnAutoplay.classList.add("active-toggle");
+        state.autoplayTimer = setInterval(() => {
+          const total = getCurrentTab().steps.length;
+          state.syncSource = "autoplay";
+          selectStep(state.stepIdx < total - 1 ? state.stepIdx + 1 : 0);
+        }, 4200);
+      }
+
+      // Export current SVG diagram with resolved CSS variables
+      function exportCurrentSvg() {
+        const tab = getCurrentTab();
+        const layout = computeNodeLayout(tab);
+        const nodes = Object.values(layout);
+        if (!nodes.length) return;
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        nodes.forEach((n) => {
+          minX = Math.min(minX, n.x);
+          minY = Math.min(minY, n.y - 68);
+          maxX = Math.max(maxX, n.x + n.w);
+          maxY = Math.max(maxY, n.y + n.h);
+        });
+        const pad = 36;
+        const vbX = Math.floor(minX - pad);
+        const vbY = Math.floor(minY - pad);
+        const vbW = Math.ceil(maxX - minX + pad * 2);
+        const vbH = Math.ceil(maxY - minY + pad * 2);
+
+        const cs = getComputedStyle(document.documentElement);
+        const resolveVars = (raw) =>
+          raw.replace(/var\((--[a-zA-Z0-9-]+)\)/g, (_, name) => cs.getPropertyValue(name).trim() || "#38bdf8");
+
+        const bg = cs.getPropertyValue("--bg-canvas").trim() || "#070c15";
+        const defs = resolveVars(elSvgDefs.innerHTML);
+        const body = resolveVars(elViewportGroup.innerHTML);
+
+        const svgDoc = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${vbW}" height="${vbH}" viewBox="${vbX} ${vbY} ${vbW} ${vbH}">
+  <rect x="${vbX}" y="${vbY}" width="${vbW}" height="${vbH}" fill="${bg}" />
+  <defs>${defs}</defs>
+  <g>${body}</g>
+</svg>`;
+
+        const blob = new Blob([svgDoc], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const slug = `${DATA.project.name}-${tab.id || state.tabIdx}`.toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
+        a.href = url;
+        a.download = `${slug}.svg`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast(`已导出 ${slug}.svg`);
+      }
+
+      // Export all 3-column insights as Markdown notes
+      function exportMarkdownNotes() {
+        const p = DATA.project;
+        const out = [
+          `# ${p.name} 源码架构精讲与面试笔记`,
+          "",
+          `> 版本：\`${p.version || "N/A"}\` · Commit：\`${p.commit || "main"}\`${p.repoUrl ? ` · 仓库：${p.repoUrl}` : ""}`,
+          ""
+        ];
+
+        DATA.tabs.forEach((tab, tIdx) => {
+          out.push(`---`, "", `## ${tab.label} — ${tab.graphTitle || ""}`, "");
+          tab.steps.forEach((step, sIdx) => {
+            const fileObj = getStepFile(tab, step);
+            const [sL, eL] = step.lines || [1, 1];
+            const base = (fileObj.startLine || 1) - 1;
+            const rangeTxt = Array.isArray(step.realLines) && step.realLines.length === 2
+              ? `L${step.realLines[0]}-L${step.realLines[1]}`
+              : `L${base + sL}-L${base + eL}`;
+            const ghUrl = buildGitHubSourceUrl(tab, fileObj, step);
+            const locStr = ghUrl ? `[${fileObj.path}:${rangeTxt}](${ghUrl})` : `\`${fileObj.path}:${rangeTxt}\``;
+            const ins = step.insights || {};
+
+            out.push(`### Step ${sIdx + 1} · ${step.title}（${locStr}）`, "");
+            out.push(`- **⚙ 核心源码机制**：${ins.mechanism || ""}`);
+            out.push(`- **⚠ 线上避坑与边界**：${ins.pitfalls || ""}`);
+            out.push(`- **🎯 面试高频追问与答法**：\n  ${(ins.interview || "").replace(/\n/g, "\n  ")}`, "");
+          });
+        });
+
+        const blob = new Blob([out.join("\n")], { type: "text/markdown;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const slug = `${p.name}-atlas-notes`.toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
+        a.href = url;
+        a.download = `${slug}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast(`已导出 ${slug}.md`);
+      }
+
+      // Global search across all tabs & files
+      function runGlobalSearch(query) {
+        const q = query.trim().toLowerCase();
+        const results = [];
+
+        DATA.tabs.forEach((tab, tIdx) => {
+          tab.steps.forEach((step, sIdx) => {
+            const ins = step.insights || {};
+            const haystack = [step.title, step.shortTitle, ins.mechanism, ins.pitfalls, ins.interview]
+              .filter(Boolean).join(" ").toLowerCase();
+            if (!q || haystack.includes(q)) {
+              results.push({
+                tIdx,
+                sIdx,
+                tabLabel: tab.label,
+                title: `Step ${sIdx + 1} · ${step.title}`,
+                snippet: ins.mechanism || step.title
+              });
+            }
+          });
+
+          if (q) {
+            const files = getTabFiles(tab);
+            files.forEach((f) => {
+              const base = (f.startLine || 1) - 1;
+              (f.codeLines || []).forEach((line, lIdx) => {
+                if (line.toLowerCase().includes(q) && results.length < 40) {
+                  const ln = lIdx + 1;
+                  const matchedStep = tab.steps.findIndex((s) =>
+                    (s.fileId || files[0].id) === f.id && s.lines && ln >= s.lines[0] && ln <= s.lines[1]
+                  );
+                  results.push({
+                    tIdx,
+                    sIdx: matchedStep >= 0 ? matchedStep : 0,
+                    tabLabel: `${tab.label} · L${base + ln}`,
+                    title: f.path,
+                    snippet: line.trim()
+                  });
+                }
+              });
+            });
+          }
+        });
+
+        if (!results.length) {
+          elSearchResults.innerHTML = `<div class="search-empty">未找到匹配「${escapeHtml(query)}」的内容</div>`;
+          return;
+        }
+
+        elSearchResults.innerHTML = "";
+        results.slice(0, 30).forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "search-item";
+          div.innerHTML = `
+            <div class="search-item-top">
+              <span class="search-item-title">${escapeHtml(item.title)}</span>
+              <span class="search-item-tag">${escapeHtml(item.tabLabel)}</span>
+            </div>
+            <div class="search-item-snippet">${escapeHtml(item.snippet)}</div>
+          `;
+          div.onclick = () => {
+            closeSearchModal();
+            if (item.tIdx !== state.tabIdx) {
+              selectTab(item.tIdx, item.sIdx);
+            } else {
+              state.syncSource = "search";
+              selectStep(item.sIdx);
+            }
+          };
+          elSearchResults.appendChild(div);
+        });
+      }
+
+      function openSearchModal() {
+        elSearchModal.classList.add("open");
+        elGlobalSearchInput.value = "";
+        runGlobalSearch("");
+        setTimeout(() => elGlobalSearchInput.focus(), 30);
+      }
+      function closeSearchModal() { elSearchModal.classList.remove("open"); }
+
+      async function copyTextToClipboard(text, toastMsg) {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast(toastMsg);
+        } catch (_) {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          showToast(toastMsg);
+        }
+      }
+
+      // Bind Controls
+      elBtnPrev.onclick = () => { stopAutoplay(); state.syncSource = "stepper"; selectStep(state.stepIdx - 1); };
+      elBtnNext.onclick = () => { stopAutoplay(); state.syncSource = "stepper"; selectStep(state.stepIdx + 1); };
+      elBtnAutoplay.onclick = toggleAutoplay;
+
+      elBtnShare.onclick = () => {
+        syncUrlHash();
+        copyTextToClipboard(window.location.href, "已复制当前步骤直达链接");
+      };
+
+      elBtnTheme.onclick = () => {
+        state.theme = state.theme === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", state.theme);
+        elBtnTheme.textContent = state.theme === "dark" ? "☀️ 浅色" : "🌙 深色";
+        syncUrlHash();
+      };
+
+      elBtnMotion.onclick = () => {
+        state.motion = !state.motion;
+        elBtnMotion.classList.toggle("active-toggle", state.motion);
+        elCanvasStage.classList.toggle("no-motion", !state.motion);
+        renderGraph();
+      };
+
+      elBtnShowAll.onclick = () => {
+        state.showAll = !state.showAll;
+        elBtnShowAll.classList.toggle("active-toggle", state.showAll);
+        elBtnShowAll.textContent = state.showAll ? "聚焦当前" : "全部显示";
+        renderCodePane(false);
+        renderGraph();
+      };
+
+      elBtnExportSvg.onclick = exportCurrentSvg;
+      elBtnExportNotes.onclick = (e) => { e.stopPropagation(); exportMarkdownNotes(); };
+
+      elFilterInput.addEventListener("input", (e) => {
+        state.filterText = e.target.value;
+        renderCodePane(false);
+      });
+
+      elBtnCopy.onclick = () => {
+        const fileObj = getActiveFile(getCurrentTab(), getCurrentStep());
+        copyTextToClipboard((fileObj.codeLines || []).join("\n"), "已复制到剪贴板");
+      };
+
+      elInsightHeader.onclick = () => {
+        state.drawerCollapsed = !state.drawerCollapsed;
+        elInsightDrawer.classList.toggle("collapsed", state.drawerCollapsed);
+        elBtnToggleDrawer.textContent = state.drawerCollapsed ? "展开精讲 ▴" : "收起精讲 ▾";
+        requestAnimationFrame(fitGraphToView);
+      };
+
+      $("btnSearch").onclick = openSearchModal;
+      $("btnCloseSearch").onclick = closeSearchModal;
+      elSearchModal.addEventListener("click", (e) => { if (e.target === elSearchModal) closeSearchModal(); });
+      elGlobalSearchInput.addEventListener("input", (e) => runGlobalSearch(e.target.value));
+
+      // Zoom & Pan
+      $("btnZoomIn").onclick = () => { state.scale = Math.min(2.2, state.scale * 1.18); applyTransform(); };
+      $("btnZoomOut").onclick = () => { state.scale = Math.max(0.3, state.scale / 1.18); applyTransform(); };
+      $("btnFit").onclick = fitGraphToView;
+
+      elCanvasStage.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const rect = elCanvasStage.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.1 : 0.91;
+        const nextScale = Math.max(0.3, Math.min(2.4, state.scale * factor));
+        const ratio = nextScale / state.scale;
+        state.panX = cx - (cx - state.panX) * ratio;
+        state.panY = cy - (cy - state.panY) * ratio;
+        state.scale = nextScale;
+        applyTransform();
+      }, { passive: false });
+
+      elCanvasStage.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        state.dragging = true;
+        state.dragStartX = e.clientX;
+        state.dragStartY = e.clientY;
+        state.dragOriginX = state.panX;
+        state.dragOriginY = state.panY;
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (!state.dragging) return;
+        state.panX = state.dragOriginX + (e.clientX - state.dragStartX);
+        state.panY = state.dragOriginY + (e.clientY - state.dragStartY);
+        applyTransform();
+      });
+      window.addEventListener("mouseup", () => { state.dragging = false; });
+      elCanvasStage.addEventListener("dblclick", fitGraphToView);
+
+      // Resizable split pane
+      const resizer = $("resizer");
+      const leftPane = $("leftPane");
+      const workspace = $("workspace");
+      let resizing = false;
+      resizer.addEventListener("mousedown", () => { resizing = true; resizer.classList.add("dragging"); });
+      window.addEventListener("mousemove", (e) => {
+        if (!resizing) return;
+        const rect = workspace.getBoundingClientRect();
+        const pct = Math.max(25, Math.min(72, ((e.clientX - rect.left) / rect.width) * 100));
+        leftPane.style.width = `${pct}%`;
+      });
+      window.addEventListener("mouseup", () => {
+        if (!resizing) return;
+        resizing = false;
+        resizer.classList.remove("dragging");
+        fitGraphToView();
+      });
+
+      // Keyboard shortcuts
+      window.addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+          e.preventDefault();
+          openSearchModal();
+          return;
+        }
+        if (e.key === "Escape") { closeSearchModal(); return; }
+        if (document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          stopAutoplay();
+          state.syncSource = "keyboard";
+          selectStep(state.stepIdx - 1);
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          stopAutoplay();
+          state.syncSource = "keyboard";
+          selectStep(state.stepIdx + 1);
+        }
+      });
+
+      window.addEventListener("resize", () => requestAnimationFrame(fitGraphToView));
+
+      // Init
+      buildSvgDefs();
+      renderLegend();
+      loadStateFromHash();
+      selectTab(state.tabIdx, state.stepIdx);
+    })();
+  </script>
+</body>
+</html>
