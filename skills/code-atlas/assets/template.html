@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>__ATLAS_TITLE__</title>
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
+
+      /* Dark Theme (Default — Obsidian Atlas) */
+      --bg-app: #080d16;
+      --bg-topbar: #0b1220;
+      --bg-panel: #0c1422;
+      --bg-panel-alt: #0f1829;
+      --bg-code: #09101c;
+      --bg-canvas: #070c15;
+      --bg-card: #10192b;
+      --bg-card-hover: #142038;
+      --bg-input: #0a111e;
+      --bg-pill: #131f33;
+      --bg-pill-hover: #1a2a44;
+
+      --border-subtle: rgba(148, 163, 184, 0.14);
+      --border-strong: rgba(148, 163, 184, 0.26);
+
+      --text-primary: #e6edf7;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-code: #dbeafe;
+      --text-comment: #4ade80;
+      --text-dir: #38bdf8;
+      --text-tree: #475569;
+      --text-keyword: #c084fc;
+      --text-string: #fbbf24;
+      --text-number: #fb923c;
+
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #3b82f6;
+      --accent-cyan: #38bdf8;
+      --hl-line-bg: rgba(37, 99, 235, 0.16);
+      --hl-line-border: #38bdf8;
+      --dot-grid: rgba(148, 163, 184, 0.14);
+
+      /* Category Semantic Colors */
+      --cat-entry: #38bdf8;
+      --cat-entry-bg: rgba(14, 165, 233, 0.12);
+      --cat-core: #3b82f6;
+      --cat-core-bg: rgba(59, 130, 246, 0.13);
+      --cat-storage: #22c55e;
+      --cat-storage-bg: rgba(34, 197, 94, 0.12);
+      --cat-security: #f43f5e;
+      --cat-security-bg: rgba(244, 63, 94, 0.12);
+      --cat-queue: #a855f7;
+      --cat-queue-bg: rgba(168, 85, 247, 0.13);
+      --cat-external: #f59e0b;
+      --cat-external-bg: rgba(245, 158, 11, 0.12);
+
+      --edge-dim: rgba(100, 116, 139, 0.35);
+      --edge-normal: rgba(148, 163, 184, 0.55);
+      --edge-active: #38bdf8;
+      --edge-label-bg: #0c1526;
+      --edge-label-border: rgba(56, 189, 248, 0.45);
+
+      --insight-mech: #38bdf8;
+      --insight-pitfall: #f59e0b;
+      --insight-interview: #f43f5e;
+
+      --shadow-card: 0 8px 28px rgba(0, 0, 0, 0.45);
+      --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.65);
+    }
+
+    [data-theme="light"] {
+      --bg-app: #f1f5f9;
+      --bg-topbar: #ffffff;
+      --bg-panel: #ffffff;
+      --bg-panel-alt: #f8fafc;
+      --bg-code: #f8fafc;
+      --bg-canvas: #f3f6fb;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-input: #f1f5f9;
+      --bg-pill: #eef2f7;
+      --bg-pill-hover: #e2e8f0;
+
+      --border-subtle: rgba(15, 23, 42, 0.1);
+      --border-strong: rgba(15, 23, 42, 0.2);
+
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --text-code: #1e293b;
+      --text-comment: #15803d;
+      --text-dir: #0284c7;
+      --text-tree: #94a3b8;
+      --text-keyword: #7e22ce;
+      --text-string: #b45309;
+      --text-number: #c2410c;
+
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #1d4ed8;
+      --accent-cyan: #0284c7;
+      --hl-line-bg: rgba(37, 99, 235, 0.1);
+      --hl-line-border: #2563eb;
+      --dot-grid: rgba(15, 23, 42, 0.12);
+
+      --cat-entry: #0284c7;
+      --cat-entry-bg: rgba(2, 132, 199, 0.08);
+      --cat-core: #2563eb;
+      --cat-core-bg: rgba(37, 99, 235, 0.08);
+      --cat-storage: #16a34a;
+      --cat-storage-bg: rgba(22, 163, 74, 0.08);
+      --cat-security: #e11d48;
+      --cat-security-bg: rgba(225, 29, 72, 0.08);
+      --cat-queue: #9333ea;
+      --cat-queue-bg: rgba(147, 51, 234, 0.08);
+      --cat-external: #d97706;
+      --cat-external-bg: rgba(217, 119, 6, 0.08);
+
+      --edge-dim: rgba(100, 116, 139, 0.28);
+      --edge-normal: rgba(71, 85, 105, 0.55);
+      --edge-active: #0284c7;
+      --edge-label-bg: #ffffff;
+      --edge-label-border: rgba(2, 132, 199, 0.45);
+
+      --insight-mech: #0284c7;
+      --insight-pitfall: #d97706;
+      --insight-interview: #e11d48;
+
+      --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.08);
+      --shadow-modal: 0 20px 50px rgba(15, 23, 42, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg-app);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.25);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.45);
+    }
+
+    /* Layout Shell */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* Top Header Bar */
+    .topbar {
+      height: 48px;
+      flex-shrink: 0;
+      background: var(--bg-topbar);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      gap: 10px;
+      z-index: 30;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .brand-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: #fff;
+      font-weight: 800;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.02em;
+      box-shadow: 0 0 14px rgba(37, 99, 235, 0.45);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 13.5px;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+
+    .brand-title .sep {
+      color: var(--accent-cyan);
+      margin: 0 3px;
+    }
+
+    .commit-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 1px 7px;
+      border-radius: 99px;
+      text-decoration: none;
+    }
+
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9px;
+      padding: 3px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      max-width: 48vw;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: var(--bg-pill);
+    }
+    .tab-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .ctrl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 28px;
+      padding: 0 9px;
+      border-radius: 7px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-pill);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .ctrl-btn:hover:not(:disabled) {
+      background: var(--bg-pill-hover);
+      border-color: var(--border-strong);
+    }
+    .ctrl-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .ctrl-btn.primary {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #fff;
+    }
+    .ctrl-btn.primary:hover:not(:disabled) {
+      background: var(--accent-blue-hover);
+    }
+    .ctrl-btn.active-toggle {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: var(--accent-cyan);
+    }
+
+    .step-counter {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      padding: 0 4px;
+      min-width: 34px;
+      text-align: center;
+    }
+
+    /* Main Split Workspace */
+    .workspace {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .left-pane {
+      width: 48%;
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      min-height: 0;
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: col-resize;
+      background: transparent;
+      flex-shrink: 0;
+      z-index: 10;
+      transition: background 0.15s;
+      margin-left: -2px;
+      margin-right: -3px;
+    }
+    .resizer:hover, .resizer.dragging {
+      background: rgba(56, 189, 248, 0.45);
+    }
+
+    .right-pane {
+      flex: 1;
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-canvas);
+      min-height: 0;
+      position: relative;
+    }
+
+    /* Left Pane Subheader — Quick Pills */
+    .quick-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 10px;
+      height: 36px;
+      flex-shrink: 0;
+      background: var(--bg-panel-alt);
+      border-bottom: 1px solid var(--border-subtle);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .quick-pills::-webkit-scrollbar { display: none; }
+
+    .q-pill {
+      position: relative;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 6px 9px;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.15s;
+    }
+    .q-pill:hover {
+      color: var(--text-primary);
+    }
+    .q-pill.active {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .q-pill.active::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      bottom: 0;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--accent-cyan);
+    }
+    .q-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Left Pane Filter Bar */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-panel);
+    }
+
+    .filter-input {
+      flex: 1;
+      height: 30px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 7px;
+      padding: 0 10px;
+      color: var(--text-primary);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .filter-input:focus {
+      border-color: var(--accent-cyan);
+    }
+    .filter-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .meta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 5px 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-panel-alt);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .meta-left {
+      font-family: var(--font-mono);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .meta-right {
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Code / Tree Viewport */
+    .code-viewport {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      background: var(--bg-code);
+      padding: 8px 0 18px;
+      font-family: var(--font-mono);
+      font-size: 12.2px;
+      line-height: 1.65;
+      position: relative;
+    }
+
+    .step-inline-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 12px 6px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.92), rgba(14, 165, 233, 0.85));
+      color: #ffffff;
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      box-shadow: 0 2px 12px rgba(37, 99, 235, 0.35);
+    }
+
+    .code-line {
+      display: flex;
+      align-items: baseline;
+      padding: 0 14px 0 0;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: background 0.12s;
+      min-width: max-content;
+    }
+    .code-line:hover {
+      background: rgba(148, 163, 184, 0.08);
+    }
+    .code-line.active-line {
+      background: var(--hl-line-bg);
+      border-left-color: var(--hl-line-border);
+    }
+    .code-line.dimmed-line {
+      opacity: 0.42;
+    }
+    .code-line.filter-hidden {
+      display: none;
+    }
+
+    .line-num {
+      width: 44px;
+      flex-shrink: 0;
+      text-align: right;
+      padding-right: 12px;
+      color: var(--text-muted);
+      user-select: none;
+      font-size: 11px;
+    }
+    .code-line.active-line .line-num {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .line-content {
+      white-space: pre;
+      color: var(--text-code);
+    }
+
+    .tok-tree { color: var(--text-tree); }
+    .tok-dir { color: var(--text-dir); font-weight: 600; }
+    .tok-comment { color: var(--text-comment); }
+    .tok-kw { color: var(--text-keyword); font-weight: 600; }
+    .tok-str { color: var(--text-string); }
+    .tok-num { color: var(--text-number); }
+    .tok-match {
+      background: rgba(250, 204, 21, 0.32);
+      color: inherit;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    /* Right Pane Header & Canvas */
+    .canvas-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      background: var(--bg-panel-alt);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .canvas-title-wrap {
+      min-width: 0;
+    }
+    .canvas-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .canvas-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .canvas-tools {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .canvas-stage {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--bg-canvas);
+      background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+      background-size: 20px 20px;
+      cursor: grab;
+      user-select: none;
+    }
+    .canvas-stage:active {
+      cursor: grabbing;
+    }
+
+    #atlasSvg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* SVG Nodes & Edges */
+    .atlas-node {
+      cursor: pointer;
+      transition: opacity 0.25s ease;
+    }
+    .atlas-node.dimmed {
+      opacity: 0.28;
+    }
+    .atlas-node:hover {
+      opacity: 1;
+    }
+
+    .node-rect {
+      transition: stroke-width 0.2s, fill 0.2s;
+    }
+
+    .atlas-edge {
+      transition: opacity 0.25s ease;
+    }
+    .atlas-edge.dimmed {
+      opacity: 0.2;
+    }
+
+    @keyframes dashFlow {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .edge-animated {
+      stroke-dasharray: 6 6;
+      animation: dashFlow 0.9s linear infinite;
+    }
+
+    .no-motion .edge-animated {
+      animation: none;
+    }
+    .no-motion .edge-pulse-dot {
+      display: none;
+    }
+
+    /* Canvas Legend Footer */
+    .canvas-footer {
+      height: 32px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      background: var(--bg-panel-alt);
+      border-top: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--text-muted);
+      gap: 10px;
+    }
+    .legend-list {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-secondary);
+    }
+    .legend-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 2px;
+    }
+    .canvas-hints {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Bottom Insight Drawer */
+    .insight-drawer {
+      flex-shrink: 0;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border-strong);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .insight-header {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      background: var(--bg-panel-alt);
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+    }
+    .insight-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .insight-step-title {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .insight-loc-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 1px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .insight-body {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 10px 14px 12px;
+      max-height: 210px;
+      overflow-y: auto;
+    }
+    .insight-drawer.collapsed .insight-body {
+      display: none;
+    }
+    .insight-drawer.collapsed .insight-header {
+      border-bottom: none;
+    }
+
+    .insight-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .insight-card.mech { border-top: 2px solid var(--insight-mech); }
+    .insight-card.pitfall { border-top: 2px solid var(--insight-pitfall); }
+    .insight-card.interview { border-top: 2px solid var(--insight-interview); }
+
+    .insight-card-title {
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .insight-card.mech .insight-card-title { color: var(--insight-mech); }
+    .insight-card.pitfall .insight-card-title { color: var(--insight-pitfall); }
+    .insight-card.interview .insight-card-title { color: var(--insight-interview); }
+
+    .insight-card-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    .insight-card-text code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.11);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .insight-card-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Search Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 10vh;
+      z-index: 100;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .search-modal {
+      width: min(640px, 92vw);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      box-shadow: var(--shadow-modal);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 70vh;
+    }
+    .search-modal-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .search-modal-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+    }
+    .search-results {
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .search-item {
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border: 1px solid transparent;
+    }
+    .search-item:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-subtle);
+    }
+    .search-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .search-item-title {
+      font-weight: 600;
+      font-size: 12.5px;
+      color: var(--text-primary);
+    }
+    .search-item-tag {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 1px 6px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .search-item-snippet {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .search-empty {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12.5px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent-blue);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: var(--shadow-card);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 200;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 960px) {
+      .workspace { flex-direction: column; }
+      .left-pane { width: 100% !important; height: 46%; border-right: none; border-bottom: 1px solid var(--border-subtle); }
+      .resizer { display: none; }
+      .right-pane { height: 54%; }
+      .insight-body { grid-template-columns: 1fr; max-height: 220px; }
+      .tab-bar { max-width: 38vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge" id="brandBadge">CA</div>
+        <div class="brand-title"><span id="brandName">CodeAtlas</span><span class="sep">·</span>源码图谱</div>
+        <a class="commit-pill" id="commitPill" target="_blank" rel="noopener noreferrer">main</a>
+      </div>
+
+      <nav class="tab-bar" id="tabBar" aria-label="专题切换"></nav>
+
+      <div class="top-controls">
+        <button class="ctrl-btn" id="btnPrev" title="上一步 (←)">◀ 上一步</button>
+        <span class="step-counter" id="stepCounter">1/1</span>
+        <button class="ctrl-btn primary" id="btnNext" title="下一步 (→)">下一步 ▶</button>
+        <button class="ctrl-btn" id="btnAutoplay" title="自动逐步演练">▶ 自动演练</button>
+        <button class="ctrl-btn" id="btnSearch" title="全局搜索 (⌘K / Ctrl+K)">🔍 搜索</button>
+        <button class="ctrl-btn" id="btnTheme" title="切换深浅色主题">☀️ 浅色</button>
+      </div>
+    </header>
+
+    <!-- Main Split Workspace -->
+    <main class="workspace" id="workspace">
+      <!-- Left Code / Tree Pane -->
+      <section class="left-pane" id="leftPane">
+        <div class="quick-pills" id="quickPills"></div>
+        <div class="filter-bar">
+          <input type="text" class="filter-input" id="filterInput" placeholder="过滤目录、文件名、接口或中文备注（如 rag / agent / POST）" />
+          <button class="ctrl-btn" id="btnCopy">📋 复制内容</button>
+        </div>
+        <div class="meta-bar">
+          <span class="meta-left" id="metaFile"></span>
+          <span class="meta-right" id="metaSync"></span>
+        </div>
+        <div class="code-viewport" id="codeViewport"></div>
+      </section>
+
+      <div class="resizer" id="resizer" title="拖拽调整左右宽度"></div>
+
+      <!-- Right Interactive Architecture Graph Pane -->
+      <section class="right-pane" id="rightPane">
+        <div class="canvas-header">
+          <div class="canvas-title-wrap">
+            <div class="canvas-title" id="graphTitle"></div>
+            <div class="canvas-subtitle" id="graphSubtitle"></div>
+          </div>
+          <div class="canvas-tools">
+            <button class="ctrl-btn" id="btnZoomOut" title="缩小">−</button>
+            <button class="ctrl-btn" id="btnFit" title="一键适配画布">适配</button>
+            <button class="ctrl-btn" id="btnZoomIn" title="放大">+</button>
+            <button class="ctrl-btn active-toggle" id="btnMotion" title="开关连线动效">⚡ 动效</button>
+            <button class="ctrl-btn" id="btnShowAll" title="切换聚焦高亮 / 全部显示">全部显示</button>
+          </div>
+        </div>
+
+        <div class="canvas-stage" id="canvasStage">
+          <svg id="atlasSvg" xmlns="http://www.w3.org/2000/svg">
+            <defs id="svgDefs"></defs>
+            <g id="viewportGroup"></g>
+          </svg>
+        </div>
+
+        <div class="canvas-footer">
+          <div class="legend-list" id="legendList"></div>
+          <div class="canvas-hints">滚轮缩放 · 拖拽画布 · 双向点击定位 · ←/→ 步进</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Collapsible Deep-Dive Drawer -->
+    <section class="insight-drawer" id="insightDrawer">
+      <div class="insight-header" id="insightHeader">
+        <div class="insight-title-group">
+          <span class="insight-step-title" id="insightStepTitle"></span>
+          <span class="insight-loc-pill" id="insightLocPill"></span>
+        </div>
+        <button class="ctrl-btn" id="btnToggleDrawer">收起精讲 ▾</button>
+      </div>
+      <div class="insight-body" id="insightBody">
+        <article class="insight-card mech">
+          <div class="insight-card-title">⚙ 核心源码机制</div>
+          <div class="insight-card-text" id="insightMech"></div>
+        </article>
+        <article class="insight-card pitfall">
+          <div class="insight-card-title">⚠ 线上避坑与边界</div>
+          <div class="insight-card-text" id="insightPitfall"></div>
+        </article>
+        <article class="insight-card interview">
+          <div class="insight-card-title">🎯 面试高频追问与答法</div>
+          <div class="insight-card-text" id="insightInterview"></div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- Global Search Modal -->
+  <div class="modal-backdrop" id="searchModal">
+    <div class="search-modal" role="dialog" aria-modal="true" aria-label="全局搜索">
+      <div class="search-modal-head">
+        <span>🔍</span>
+        <input type="text" class="search-modal-input" id="globalSearchInput" placeholder="搜索所有专题的目录、源码行、节点、避坑与面试题..." />
+        <button class="ctrl-btn" id="btnCloseSearch">ESC</button>
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Embedded Atlas Dataset -->
+  <script id="atlasData" type="application/json">__ATLAS_DATA__</script>
+
+  <script>
+    (() => {
+      const DATA = JSON.parse(document.getElementById("atlasData").textContent);
+
+      const CATEGORIES = {
+        entry:    { label: "入口",      color: "var(--cat-entry)",    hex: "#38bdf8", bg: "var(--cat-entry-bg)" },
+        core:     { label: "核心引擎",   color: "var(--cat-core)",     hex: "#3b82f6", bg: "var(--cat-core-bg)" },
+        storage:  { label: "存储/索引",  color: "var(--cat-storage)",  hex: "#22c55e", bg: "var(--cat-storage-bg)" },
+        security: { label: "安全/门禁",  color: "var(--cat-security)", hex: "#f43f5e", bg: "var(--cat-security-bg)" },
+        queue:    { label: "队列/流",    color: "var(--cat-queue)",    hex: "#a855f7", bg: "var(--cat-queue-bg)" },
+        external: { label: "外部/护栏",  color: "var(--cat-external)", hex: "#f59e0b", bg: "var(--cat-external-bg)" }
+      };
+
+      const NODE_W = 248;
+      const NODE_H = 104;
+      const GRID_GAP_X = 78;
+      const GRID_GAP_Y = 74;
+
+      const state = {
+        tabIdx: 0,
+        stepIdx: 0,
+        filterText: "",
+        motion: true,
+        showAll: false,
+        theme: "dark",
+        drawerCollapsed: false,
+        autoplayTimer: null,
+        syncSource: "init",
+        panX: 0,
+        panY: 0,
+        scale: 1,
+        dragging: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        dragOriginX: 0,
+        dragOriginY: 0
+      };
+
+      // DOM refs
+      const $ = (id) => document.getElementById(id);
+      const elBrandBadge = $("brandBadge");
+      const elBrandName = $("brandName");
+      const elCommitPill = $("commitPill");
+      const elTabBar = $("tabBar");
+      const elQuickPills = $("quickPills");
+      const elFilterInput = $("filterInput");
+      const elBtnCopy = $("btnCopy");
+      const elMetaFile = $("metaFile");
+      const elMetaSync = $("metaSync");
+      const elCodeViewport = $("codeViewport");
+      const elGraphTitle = $("graphTitle");
+      const elGraphSubtitle = $("graphSubtitle");
+      const elCanvasStage = $("canvasStage");
+      const elSvg = $("atlasSvg");
+      const elSvgDefs = $("svgDefs");
+      const elViewportGroup = $("viewportGroup");
+      const elLegendList = $("legendList");
+      const elStepCounter = $("stepCounter");
+      const elBtnPrev = $("btnPrev");
+      const elBtnNext = $("btnNext");
+      const elBtnAutoplay = $("btnAutoplay");
+      const elBtnTheme = $("btnTheme");
+      const elBtnMotion = $("btnMotion");
+      const elBtnShowAll = $("btnShowAll");
+      const elInsightDrawer = $("insightDrawer");
+      const elInsightHeader = $("insightHeader");
+      const elBtnToggleDrawer = $("btnToggleDrawer");
+      const elInsightStepTitle = $("insightStepTitle");
+      const elInsightLocPill = $("insightLocPill");
+      const elInsightMech = $("insightMech");
+      const elInsightPitfall = $("insightPitfall");
+      const elInsightInterview = $("insightInterview");
+      const elSearchModal = $("searchModal");
+      const elGlobalSearchInput = $("globalSearchInput");
+      const elSearchResults = $("searchResults");
+      const elToast = $("toast");
+
+      function showToast(msg) {
+        elToast.textContent = msg;
+        elToast.classList.add("show");
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => elToast.classList.remove("show"), 1800);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function formatRichText(text) {
+        if (!text) return "";
+        let html = escapeHtml(text);
+        html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+        html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        return html;
+      }
+
+      function getCurrentTab() {
+        return DATA.tabs[state.tabIdx];
+      }
+
+      function getCurrentStep() {
+        const tab = getCurrentTab();
+        return tab.steps[state.stepIdx] || tab.steps[0];
+      }
+
+      function highlightLineContent(raw, mode, filterQuery) {
+        let html = "";
+        if (mode === "tree") {
+          const hashIdx = raw.indexOf("#");
+          let left = hashIdx >= 0 ? raw.slice(0, hashIdx) : raw;
+          let comment = hashIdx >= 0 ? raw.slice(hashIdx) : "";
+
+          // Highlight tree glyphs and directories on left side
+          let leftEsc = escapeHtml(left)
+            .replace(/([│├└─]+)/g, '<span class="tok-tree">$1</span>')
+            .replace(/([A-Za-z0-9_.-]+\/)/g, '<span class="tok-dir">$1</span>');
+          let commentEsc = comment ? `<span class="tok-comment">${escapeHtml(comment)}</span>` : "";
+          html = leftEsc + commentEsc;
+        } else {
+          // Lightweight multi-language syntax highlighting
+          const commentMatch = raw.match(/(^|[\s])(\/\/.*|#.*)$/);
+          let codePart = raw;
+          let commentPart = "";
+          if (commentMatch && !raw.trim().startsWith("#include") && !raw.trim().startsWith("#define")) {
+            const idx = raw.indexOf(commentMatch[2]);
+            codePart = raw.slice(0, idx);
+            commentPart = raw.slice(idx);
+          }
+          let esc = escapeHtml(codePart);
+          esc = esc.replace(/(&quot;[^&]*?&quot;|'[^']*?')/g, '<span class="tok-str">$1</span>');
+          esc = esc.replace(/\b(func|type|struct|interface|return|if|else|for|range|defer|go|select|case|switch|package|import|const|var|def|class|async|await|try|except|from|with|yield|function|export|default|let|new|public|private|fn|pub|impl|match|enum)\b/g, '<span class="tok-kw">$1</span>');
+          esc = esc.replace(/\b(\d+(\.\d+)?)\b/g, '<span class="tok-num">$1</span>');
+          const cEsc = commentPart ? `<span class="tok-comment">${escapeHtml(commentPart)}</span>` : "";
+          html = esc + cEsc;
+        }
+
+        if (filterQuery) {
+          const q = filterQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          try {
+            const re = new RegExp(`(${q})`, "gi");
+            // Only highlight inside text nodes, not HTML tags
+            html = html.replace(/(<[^>]+>)|([^<]+)/g, (_, tag, txt) => {
+              if (tag) return tag;
+              return txt.replace(re, '<mark class="tok-match">$1</mark>');
+            });
+          } catch (_) {}
+        }
+        return html;
+      }
+
+      // Compute layout positions for nodes in a tab
+      function computeNodeLayout(tab) {
+        const map = {};
+        const nodes = tab.nodes || [];
+        nodes.forEach((n, idx) => {
+          const col = typeof n.col === "number" ? n.col : (idx % 3);
+          const row = typeof n.row === "number" ? n.row : Math.floor(idx / 3);
+          const x = typeof n.x === "number" ? n.x : 40 + col * (NODE_W + GRID_GAP_X);
+          const y = typeof n.y === "number" ? n.y : 36 + row * (NODE_H + GRID_GAP_Y);
+          map[n.id] = { ...n, x, y, w: NODE_W, h: NODE_H };
+        });
+        return map;
+      }
+
+      function computeEdgePath(src, dst) {
+        const sx = src.x + src.w / 2;
+        const sy = src.y + src.h / 2;
+        const dx = dst.x + dst.w / 2;
+        const dy = dst.y + dst.h / 2;
+        const vx = dx - sx;
+        const vy = dy - sy;
+
+        let x1, y1, x2, y2, cx1, cy1, cx2, cy2;
+
+        if (Math.abs(vx) >= Math.abs(vy)) {
+          // Primarily horizontal
+          if (vx >= 0) {
+            x1 = src.x + src.w; y1 = sy;
+            x2 = dst.x;         y2 = dy;
+          } else {
+            x1 = src.x;         y1 = sy;
+            x2 = dst.x + dst.w; y2 = dy;
+          }
+          const bend = Math.max(36, Math.abs(x2 - x1) * 0.45);
+          cx1 = x1 + (vx >= 0 ? bend : -bend); cy1 = y1;
+          cx2 = x2 - (vx >= 0 ? bend : -bend); cy2 = y2;
+        } else {
+          // Primarily vertical
+          if (vy >= 0) {
+            x1 = sx; y1 = src.y + src.h;
+            x2 = dx; y2 = dst.y;
+          } else {
+            x1 = sx; y1 = src.y;
+            x2 = dx; y2 = dst.y + dst.h;
+          }
+          const bend = Math.max(32, Math.abs(y2 - y1) * 0.45);
+          cx1 = x1; cy1 = y1 + (vy >= 0 ? bend : -bend);
+          cx2 = x2; cy2 = y2 - (vy >= 0 ? bend : -bend);
+        }
+
+        const d = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+        // Bezier midpoint at t=0.5
+        const mx = 0.125 * x1 + 0.375 * cx1 + 0.375 * cx2 + 0.125 * x2;
+        const my = 0.125 * y1 + 0.375 * cy1 + 0.375 * cy2 + 0.125 * y2;
+        return { d, mx, my };
+      }
+
+      function renderHeader() {
+        const p = DATA.project;
+        elBrandBadge.textContent = p.monogram || p.name.slice(0, 2).toUpperCase();
+        elBrandName.textContent = p.name;
+        elCommitPill.textContent = p.commit || p.version || "main";
+        if (p.repoUrl) {
+          elCommitPill.href = p.repoUrl;
+        } else {
+          elCommitPill.removeAttribute("href");
+        }
+        document.title = `${p.name} 源码 · 图谱`;
+
+        elTabBar.innerHTML = "";
+        DATA.tabs.forEach((tab, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "tab-btn" + (idx === state.tabIdx ? " active" : "");
+          btn.textContent = tab.label;
+          btn.onclick = () => selectTab(idx);
+          elTabBar.appendChild(btn);
+        });
+      }
+
+      function renderLegend() {
+        elLegendList.innerHTML = "";
+        Object.entries(CATEGORIES).forEach(([key, cfg]) => {
+          const item = document.createElement("span");
+          item.className = "legend-item";
+          item.innerHTML = `<span class="legend-dot" style="background:${cfg.color}"></span>${cfg.label}`;
+          elLegendList.appendChild(item);
+        });
+      }
+
+      function renderQuickPills() {
+        const tab = getCurrentTab();
+        elQuickPills.innerHTML = "";
+        tab.steps.forEach((step, idx) => {
+          const primaryNodeId = (step.nodeIds && step.nodeIds[0]) || "";
+          const node = (tab.nodes || []).find((n) => n.id === primaryNodeId);
+          const cat = CATEGORIES[(node && node.category) || "core"] || CATEGORIES.core;
+
+          const btn = document.createElement("button");
+          btn.className = "q-pill" + (idx === state.stepIdx ? " active" : "");
+          btn.innerHTML = `<span class="q-dot" style="background:${cat.color}"></span>${escapeHtml(step.shortTitle || step.title)}`;
+          btn.onclick = () => {
+            state.syncSource = "pill";
+            selectStep(idx);
+          };
+          elQuickPills.appendChild(btn);
+        });
+      }
+
+      function renderCodePane(shouldScroll = true) {
+        const tab = getCurrentTab();
+        const step = getCurrentStep();
+        const [startL, endL] = step.lines || [1, 1];
+        const lines = tab.codeLines || [];
+        const q = state.filterText.trim().toLowerCase();
+
+        elBtnCopy.textContent = tab.mode === "tree" ? "📋 复制目录树" : "📋 复制源码";
+        elMetaFile.textContent = `${tab.filePath || ""} ${tab.fileSubtitle ? "· " + tab.fileSubtitle : ""} (L1-L${lines.length})`;
+
+        const syncLabel = state.syncSource === "node"
+          ? `已从右侧节点「${step.title}」定位到 L${startL}-L${endL}`
+          : `当前步骤「${step.title}」定位到 L${startL}-L${endL}`;
+        elMetaSync.textContent = syncLabel;
+
+        // Build map from line -> step index
+        const lineToStep = {};
+        tab.steps.forEach((s, sIdx) => {
+          if (!s.lines) return;
+          for (let ln = s.lines[0]; ln <= s.lines[1]; ln++) {
+            if (lineToStep[ln] === undefined) lineToStep[ln] = sIdx;
+          }
+        });
+
+        const frag = document.createDocumentFragment();
+        let activeAnchorEl = null;
+
+        lines.forEach((raw, idx) => {
+          const ln = idx + 1;
+          const isActive = ln >= startL && ln <= endL;
+          const matchesFilter = !q || raw.toLowerCase().includes(q);
+
+          if (ln === startL && !q) {
+            const banner = document.createElement("div");
+            banner.className = "step-inline-banner";
+            banner.textContent = `↔ Step ${state.stepIdx + 1} · ${step.title} (L${startL}-L${endL})`;
+            frag.appendChild(banner);
+            activeAnchorEl = banner;
+          }
+
+          const row = document.createElement("div");
+          row.className = "code-line"
+            + (isActive ? " active-line" : (!q && !state.showAll ? " dimmed-line" : ""))
+            + (!matchesFilter ? " filter-hidden" : "");
+          row.dataset.line = ln;
+
+          row.innerHTML = `<span class="line-num">${ln}</span><span class="line-content">${highlightLineContent(raw, tab.mode || "code", state.filterText.trim())}</span>`;
+
+          row.onclick = () => {
+            const mapped = lineToStep[ln];
+            if (mapped !== undefined && mapped !== state.stepIdx) {
+              state.syncSource = "code";
+              selectStep(mapped, { scrollCode: false });
+            }
+          };
+
+          if (isActive && !activeAnchorEl) activeAnchorEl = row;
+          frag.appendChild(row);
+        });
+
+        elCodeViewport.innerHTML = "";
+        elCodeViewport.appendChild(frag);
+
+        if (shouldScroll && activeAnchorEl && !q) {
+          const top = Math.max(0, activeAnchorEl.offsetTop - 22);
+          elCodeViewport.scrollTo({ top, behavior: "smooth" });
+        }
+      }
+
+      function buildSvgDefs() {
+        let defsHtml = `
+          <marker id="arrow-normal" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M 0 1.2 L 9 5 L 0 8.8 z" fill="var(--edge-normal)" />
+          </marker>
+          <marker id="arrow-active" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 1.2 L 9 5 L 0 8.8 z" fill="var(--edge-active)" />
+          </marker>
+        `;
+        Object.entries(CATEGORIES).forEach(([key, cfg]) => {
+          defsHtml += `
+            <filter id="glow-${key}" x="-35%" y="-35%" width="170%" height="170%">
+              <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="${cfg.hex}" flood-opacity="0.55" />
+            </filter>
+          `;
+        });
+        elSvgDefs.innerHTML = defsHtml;
+      }
+
+      function renderGraph() {
+        const tab = getCurrentTab();
+        const step = getCurrentStep();
+        const activeNodes = new Set(step.nodeIds || []);
+        const activeEdges = new Set(step.edgeIds || []);
+        const layout = computeNodeLayout(tab);
+
+        elGraphTitle.textContent = tab.graphTitle || tab.label;
+        elGraphSubtitle.textContent = tab.graphSubtitle || "点击任意架构节点与左侧代码行双向定位";
+
+        // Map node -> step index for clicking
+        const nodeToStep = {};
+        tab.steps.forEach((s, idx) => {
+          (s.nodeIds || []).forEach((nid) => {
+            if (nodeToStep[nid] === undefined) nodeToStep[nid] = idx;
+          });
+        });
+
+        const edgesLayer = [];
+        const nodesLayer = [];
+
+        // Render edges first
+        (tab.edges || []).forEach((edge, idx) => {
+          const src = layout[edge.from];
+          const dst = layout[edge.to];
+          if (!src || !dst) return;
+
+          const edgeKey = edge.id || `${edge.from}->${edge.to}`;
+          const isExplicitActive = activeEdges.has(edgeKey);
+          const isIncidentActive = activeNodes.has(edge.from) || activeNodes.has(edge.to);
+          const isActive = isExplicitActive || (activeEdges.size === 0 && isIncidentActive);
+          const isDimmed = !state.showAll && !isActive;
+
+          const { d, mx, my } = computeEdgePath(src, dst);
+          const stroke = isActive ? "var(--edge-active)" : "var(--edge-normal)";
+          const strokeWidth = isActive ? 2.1 : 1.3;
+          const marker = isActive ? "url(#arrow-active)" : "url(#arrow-normal)";
+          const animClass = (isActive || state.showAll) && state.motion ? "edge-animated" : "";
+
+          const labelText = edge.label || "";
+          const labelW = Math.max(46, labelText.length * 10 + 18);
+
+          const pulseHtml = isActive && state.motion ? `
+            <circle r="3.2" fill="var(--edge-active)" class="edge-pulse-dot">
+              <animateMotion dur="2.1s" repeatCount="indefinite" path="${d}" />
+            </circle>
+          ` : "";
+
+          const labelHtml = labelText ? `
+            <g transform="translate(${mx}, ${my})">
+              <rect x="${-labelW / 2}" y="-10.5" width="${labelW}" height="21" rx="6"
+                fill="var(--edge-label-bg)"
+                stroke="${isActive ? "var(--edge-label-border)" : "var(--border-subtle)"}"
+                stroke-width="1" />
+              <text x="0" y="3.5" text-anchor="middle"
+                fill="${isActive ? "var(--accent-cyan)" : "var(--text-secondary)"}"
+                font-size="10.5" font-weight="${isActive ? "600" : "500"}"
+                font-family="var(--font-sans)">${escapeHtml(labelText)}</text>
+            </g>
+          ` : "";
+
+          edgesLayer.push(`
+            <g class="atlas-edge ${isDimmed ? "dimmed" : ""}" data-edge="${escapeHtml(edgeKey)}">
+              <path d="${d}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"
+                stroke-dasharray="${edge.dashed ? "5 5" : (animClass ? "6 6" : "none")}"
+                class="${animClass}" marker-end="${marker}" />
+              ${pulseHtml}
+              ${labelHtml}
+            </g>
+          `);
+        });
+
+        // Render nodes
+        Object.values(layout).forEach((node, idx) => {
+          const catKey = CATEGORIES[node.category] ? node.category : "core";
+          const cat = CATEGORIES[catKey];
+          const isActive = activeNodes.has(node.id);
+          const isDimmed = !state.showAll && !isActive;
+          const badgeNum = node.badge || String(idx + 1);
+          const tagText = node.tag || cat.label;
+          const tagW = Math.max(46, tagText.length * 10 + 16);
+
+          const titleTrunc = node.title.length > 15 ? node.title.slice(0, 14) + "…" : node.title;
+          const subTrunc = (node.subtitle || "").length > 30 ? node.subtitle.slice(0, 29) + "…" : (node.subtitle || "");
+          const locTrunc = (node.loc || "").length > 18 ? node.loc.slice(0, 17) + "…" : (node.loc || "");
+
+          nodesLayer.push(`
+            <g class="atlas-node ${isDimmed ? "dimmed" : ""}" data-node="${escapeHtml(node.id)}"
+               transform="translate(${node.x}, ${node.y})">
+              <rect class="node-rect" x="0" y="0" width="${node.w}" height="${node.h}" rx="12"
+                fill="var(--bg-card)"
+                stroke="${cat.color}"
+                stroke-width="${isActive ? 2.2 : 1.15}"
+                filter="${isActive ? `url(#glow-${catKey})` : "none"}" />
+              <rect x="0" y="0" width="${node.w}" height="${node.h}" rx="12"
+                fill="${cat.bg}" opacity="${isActive ? 0.95 : 0.45}" />
+
+              <!-- Badge Circle -->
+              <circle cx="22" cy="24" r="10.5" fill="${cat.color}" />
+              <text x="22" y="28" text-anchor="middle" fill="#06101f" font-size="11" font-weight="800"
+                font-family="var(--font-mono)">${escapeHtml(badgeNum)}</text>
+
+              <!-- Title -->
+              <text x="40" y="28" fill="var(--text-primary)" font-size="13" font-weight="700"
+                font-family="var(--font-sans)">${escapeHtml(titleTrunc)}</text>
+
+              <!-- Subtitle / Path -->
+              <text x="16" y="51" fill="var(--text-secondary)" font-size="11"
+                font-family="var(--font-mono)">${escapeHtml(subTrunc)}</text>
+
+              <!-- Divider -->
+              <line x1="14" y1="65" x2="${node.w - 14}" y2="65"
+                stroke="var(--border-subtle)" stroke-dasharray="3 3" stroke-width="1" />
+
+              <!-- Bottom Left Loc -->
+              <circle cx="20" cy="83" r="3" fill="${cat.color}" />
+              <text x="29" y="87" fill="var(--text-muted)" font-size="10.5"
+                font-family="var(--font-mono)">${escapeHtml(locTrunc)}</text>
+
+              <!-- Bottom Right Tag Pill -->
+              <rect x="${node.w - tagW - 12}" y="73" width="${tagW}" height="20" rx="6"
+                fill="${cat.bg}" stroke="${cat.color}" stroke-opacity="0.45" stroke-width="0.9" />
+              <text x="${node.w - tagW / 2 - 12}" y="86.5" text-anchor="middle"
+                fill="${cat.color}" font-size="10.5" font-weight="600"
+                font-family="var(--font-sans)">${escapeHtml(tagText)}</text>
+            </g>
+          `);
+        });
+
+        elViewportGroup.innerHTML = edgesLayer.join("") + nodesLayer.join("");
+
+        // Bind node clicks
+        elViewportGroup.querySelectorAll(".atlas-node").forEach((g) => {
+          g.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            const nid = g.getAttribute("data-node");
+            const targetStep = nodeToStep[nid];
+            if (targetStep !== undefined) {
+              state.syncSource = "node";
+              selectStep(targetStep);
+            }
+          });
+        });
+      }
+
+      function applyTransform() {
+        elViewportGroup.setAttribute("transform", `translate(${state.panX}, ${state.panY}) scale(${state.scale})`);
+      }
+
+      function fitGraphToView() {
+        const tab = getCurrentTab();
+        const layout = computeNodeLayout(tab);
+        const nodes = Object.values(layout);
+        if (!nodes.length) return;
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        nodes.forEach((n) => {
+          minX = Math.min(minX, n.x);
+          minY = Math.min(minY, n.y);
+          maxX = Math.max(maxX, n.x + n.w);
+          maxY = Math.max(maxY, n.y + n.h);
+        });
+
+        const rect = elCanvasStage.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const pad = 42;
+        const graphW = Math.max(100, maxX - minX);
+        const graphH = Math.max(100, maxY - minY);
+        const scaleX = (rect.width - pad * 2) / graphW;
+        const scaleY = (rect.height - pad * 2) / graphH;
+        const s = Math.max(0.35, Math.min(1.18, Math.min(scaleX, scaleY)));
+
+        state.scale = s;
+        state.panX = (rect.width - graphW * s) / 2 - minX * s;
+        state.panY = (rect.height - graphH * s) / 2 - minY * s;
+        applyTransform();
+      }
+
+      function renderInsights() {
+        const tab = getCurrentTab();
+        const step = getCurrentStep();
+        const [sL, eL] = step.lines || [1, 1];
+
+        elInsightStepTitle.textContent = `Step ${state.stepIdx + 1} · ${step.title}`;
+        elInsightLocPill.textContent = `${tab.filePath || tab.label} : L${sL}-L${eL}`;
+
+        const ins = step.insights || {};
+        elInsightMech.innerHTML = formatRichText(ins.mechanism || "暂无说明。");
+        elInsightPitfall.innerHTML = formatRichText(ins.pitfalls || "暂无说明。");
+        elInsightInterview.innerHTML = formatRichText(ins.interview || "暂无说明。");
+      }
+
+      function renderStepper() {
+        const total = getCurrentTab().steps.length;
+        elStepCounter.textContent = `${state.stepIdx + 1}/${total}`;
+        elBtnPrev.disabled = state.stepIdx <= 0;
+        elBtnNext.disabled = state.stepIdx >= total - 1;
+      }
+
+      function selectTab(idx) {
+        stopAutoplay();
+        state.tabIdx = idx;
+        state.stepIdx = 0;
+        state.filterText = "";
+        elFilterInput.value = "";
+        state.syncSource = "tab";
+
+        renderHeader();
+        renderQuickPills();
+        renderStepper();
+        renderCodePane(true);
+        renderGraph();
+        renderInsights();
+        requestAnimationFrame(fitGraphToView);
+      }
+
+      function selectStep(idx, opts = { scrollCode: true }) {
+        const total = getCurrentTab().steps.length;
+        state.stepIdx = Math.max(0, Math.min(total - 1, idx));
+        renderQuickPills();
+        renderStepper();
+        renderCodePane(opts.scrollCode !== false);
+        renderGraph();
+        renderInsights();
+      }
+
+      function stopAutoplay() {
+        if (state.autoplayTimer) {
+          clearInterval(state.autoplayTimer);
+          state.autoplayTimer = null;
+        }
+        elBtnAutoplay.textContent = "▶ 自动演练";
+        elBtnAutoplay.classList.remove("active-toggle");
+      }
+
+      function toggleAutoplay() {
+        if (state.autoplayTimer) {
+          stopAutoplay();
+          return;
+        }
+        elBtnAutoplay.textContent = "⏸ 暂停演练";
+        elBtnAutoplay.classList.add("active-toggle");
+        state.autoplayTimer = setInterval(() => {
+          const total = getCurrentTab().steps.length;
+          if (state.stepIdx < total - 1) {
+            state.syncSource = "autoplay";
+            selectStep(state.stepIdx + 1);
+          } else {
+            state.syncSource = "autoplay";
+            selectStep(0);
+          }
+        }, 4200);
+      }
+
+      // Global search across all tabs
+      function runGlobalSearch(query) {
+        const q = query.trim().toLowerCase();
+        const results = [];
+
+        DATA.tabs.forEach((tab, tIdx) => {
+          tab.steps.forEach((step, sIdx) => {
+            const ins = step.insights || {};
+            const haystack = [
+              step.title,
+              step.shortTitle,
+              ins.mechanism,
+              ins.pitfalls,
+              ins.interview
+            ].filter(Boolean).join(" ").toLowerCase();
+
+            if (!q || haystack.includes(q)) {
+              results.push({
+                tIdx,
+                sIdx,
+                tabLabel: tab.label,
+                title: `Step ${sIdx + 1} · ${step.title}`,
+                snippet: ins.mechanism || step.title
+              });
+            }
+          });
+
+          if (q) {
+            (tab.codeLines || []).forEach((line, lIdx) => {
+              if (line.toLowerCase().includes(q) && results.length < 40) {
+                const ln = lIdx + 1;
+                const matchedStep = tab.steps.findIndex((s) => s.lines && ln >= s.lines[0] && ln <= s.lines[1]);
+                results.push({
+                  tIdx,
+                  sIdx: matchedStep >= 0 ? matchedStep : 0,
+                  tabLabel: `${tab.label} · L${ln}`,
+                  title: tab.filePath || tab.label,
+                  snippet: line.trim()
+                });
+              }
+            });
+          }
+        });
+
+        if (!results.length) {
+          elSearchResults.innerHTML = `<div class="search-empty">未找到匹配「${escapeHtml(query)}」的内容</div>`;
+          return;
+        }
+
+        elSearchResults.innerHTML = "";
+        results.slice(0, 30).forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "search-item";
+          div.innerHTML = `
+            <div class="search-item-top">
+              <span class="search-item-title">${escapeHtml(item.title)}</span>
+              <span class="search-item-tag">${escapeHtml(item.tabLabel)}</span>
+            </div>
+            <div class="search-item-snippet">${escapeHtml(item.snippet)}</div>
+          `;
+          div.onclick = () => {
+            closeSearchModal();
+            if (item.tIdx !== state.tabIdx) {
+              selectTab(item.tIdx);
+            }
+            state.syncSource = "search";
+            selectStep(item.sIdx);
+          };
+          elSearchResults.appendChild(div);
+        });
+      }
+
+      function openSearchModal() {
+        elSearchModal.classList.add("open");
+        elGlobalSearchInput.value = "";
+        runGlobalSearch("");
+        setTimeout(() => elGlobalSearchInput.focus(), 30);
+      }
+
+      function closeSearchModal() {
+        elSearchModal.classList.remove("open");
+      }
+
+      // Bind Controls
+      elBtnPrev.onclick = () => { stopAutoplay(); state.syncSource = "stepper"; selectStep(state.stepIdx - 1); };
+      elBtnNext.onclick = () => { stopAutoplay(); state.syncSource = "stepper"; selectStep(state.stepIdx + 1); };
+      elBtnAutoplay.onclick = toggleAutoplay;
+
+      elBtnTheme.onclick = () => {
+        state.theme = state.theme === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", state.theme);
+        elBtnTheme.textContent = state.theme === "dark" ? "☀️ 浅色" : "🌙 深色";
+      };
+
+      elBtnMotion.onclick = () => {
+        state.motion = !state.motion;
+        elBtnMotion.classList.toggle("active-toggle", state.motion);
+        elCanvasStage.classList.toggle("no-motion", !state.motion);
+        renderGraph();
+      };
+
+      elBtnShowAll.onclick = () => {
+        state.showAll = !state.showAll;
+        elBtnShowAll.classList.toggle("active-toggle", state.showAll);
+        elBtnShowAll.textContent = state.showAll ? "聚焦当前" : "全部显示";
+        renderCodePane(false);
+        renderGraph();
+      };
+
+      elFilterInput.addEventListener("input", (e) => {
+        state.filterText = e.target.value;
+        renderCodePane(false);
+      });
+
+      elBtnCopy.onclick = async () => {
+        const text = (getCurrentTab().codeLines || []).join("\n");
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("已复制到剪贴板");
+        } catch (_) {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          showToast("已复制到剪贴板");
+        }
+      };
+
+      elInsightHeader.onclick = () => {
+        state.drawerCollapsed = !state.drawerCollapsed;
+        elInsightDrawer.classList.toggle("collapsed", state.drawerCollapsed);
+        elBtnToggleDrawer.textContent = state.drawerCollapsed ? "展开精讲 ▴" : "收起精讲 ▾";
+        requestAnimationFrame(fitGraphToView);
+      };
+
+      $("btnSearch").onclick = openSearchModal;
+      $("btnCloseSearch").onclick = closeSearchModal;
+      elSearchModal.addEventListener("click", (e) => {
+        if (e.target === elSearchModal) closeSearchModal();
+      });
+      elGlobalSearchInput.addEventListener("input", (e) => runGlobalSearch(e.target.value));
+
+      // Zoom & Pan interactions
+      $("btnZoomIn").onclick = () => {
+        state.scale = Math.min(2.2, state.scale * 1.18);
+        applyTransform();
+      };
+      $("btnZoomOut").onclick = () => {
+        state.scale = Math.max(0.3, state.scale / 1.18);
+        applyTransform();
+      };
+      $("btnFit").onclick = fitGraphToView;
+
+      elCanvasStage.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const rect = elCanvasStage.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.1 : 0.91;
+        const nextScale = Math.max(0.3, Math.min(2.4, state.scale * factor));
+        const ratio = nextScale / state.scale;
+        state.panX = cx - (cx - state.panX) * ratio;
+        state.panY = cy - (cy - state.panY) * ratio;
+        state.scale = nextScale;
+        applyTransform();
+      }, { passive: false });
+
+      elCanvasStage.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;
+        state.dragging = true;
+        state.dragStartX = e.clientX;
+        state.dragStartY = e.clientY;
+        state.dragOriginX = state.panX;
+        state.dragOriginY = state.panY;
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (!state.dragging) return;
+        state.panX = state.dragOriginX + (e.clientX - state.dragStartX);
+        state.panY = state.dragOriginY + (e.clientY - state.dragStartY);
+        applyTransform();
+      });
+      window.addEventListener("mouseup", () => { state.dragging = false; });
+      elCanvasStage.addEventListener("dblclick", fitGraphToView);
+
+      // Resizable split pane
+      const resizer = $("resizer");
+      const leftPane = $("leftPane");
+      const workspace = $("workspace");
+      let resizing = false;
+      resizer.addEventListener("mousedown", () => {
+        resizing = true;
+        resizer.classList.add("dragging");
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (!resizing) return;
+        const rect = workspace.getBoundingClientRect();
+        const pct = Math.max(25, Math.min(72, ((e.clientX - rect.left) / rect.width) * 100));
+        leftPane.style.width = `${pct}%`;
+      });
+      window.addEventListener("mouseup", () => {
+        if (!resizing) return;
+        resizing = false;
+        resizer.classList.remove("dragging");
+        fitGraphToView();
+      });
+
+      // Keyboard shortcuts
+      window.addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+          e.preventDefault();
+          openSearchModal();
+          return;
+        }
+        if (e.key === "Escape") {
+          closeSearchModal();
+          return;
+        }
+        if (document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+          return;
+        }
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          stopAutoplay();
+          state.syncSource = "keyboard";
+          selectStep(state.stepIdx - 1);
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          stopAutoplay();
+          state.syncSource = "keyboard";
+          selectStep(state.stepIdx + 1);
+        }
+      });
+
+      window.addEventListener("resize", () => requestAnimationFrame(fitGraphToView));
+
+      // Init
+      buildSvgDefs();
+      renderLegend();
+      selectTab(0);
+    })();
+  </script>
+</body>
+</html>
