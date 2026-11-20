@@ -625,7 +625,7 @@
       transition: opacity 0.25s ease;
     }
     .atlas-node.dimmed {
-      opacity: 0.28;
+      opacity: 0.46;
     }
     .atlas-node:hover {
       opacity: 1;
@@ -639,7 +639,7 @@
       transition: opacity 0.25s ease;
     }
     .atlas-edge.dimmed {
-      opacity: 0.2;
+      opacity: 0.34;
     }
 
     @keyframes dashFlow {
@@ -1218,7 +1218,24 @@
 
         let x1, y1, x2, y2, cx1, cy1, cx2, cy2;
 
-        if (Math.abs(vx) >= Math.abs(vy)) {
+        // Avoid passing through intermediate cards when skipping columns on the same row
+        const sameRowSkip = Math.abs(vy) < NODE_H * 0.4 && Math.abs(vx) > (NODE_W + GRID_GAP_X) * 1.35;
+        // Avoid passing through intermediate cards when skipping rows in the same column
+        const sameColSkip = Math.abs(vx) < NODE_W * 0.4 && Math.abs(vy) > (NODE_H + GRID_GAP_Y) * 1.35;
+
+        if (sameRowSkip) {
+          x1 = sx; y1 = src.y;
+          x2 = dx; y2 = dst.y;
+          const arch = 68;
+          cx1 = x1; cy1 = y1 - arch;
+          cx2 = x2; cy2 = y2 - arch;
+        } else if (sameColSkip) {
+          x1 = src.x + src.w; y1 = sy;
+          x2 = dst.x + dst.w; y2 = dy;
+          const arch = 68;
+          cx1 = x1 + arch; cy1 = y1;
+          cx2 = x2 + arch; cy2 = y2;
+        } else if (Math.abs(vx) >= Math.abs(vy)) {
           // Primarily horizontal
           if (vx >= 0) {
             x1 = src.x + src.w; y1 = sy;

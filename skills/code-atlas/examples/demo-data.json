@@ -2,7 +2,7 @@
   "project": {
     "name": "MiniRAG-Agent",
     "monogram": "MR",
-    "version": "v1.0.0",
+    "version": "v1.2.0",
     "commit": "demo8a2f1",
     "repoUrl": "https://github.com/tsumon/code-atlas-skill"
   },
@@ -12,45 +12,60 @@
       "label": "0. 项目目录",
       "mode": "tree",
       "filePath": "minirag-agent/",
-      "fileSubtitle": "完整中文备注目录树（Demo 示例）",
-      "graphTitle": "MiniRAG-Agent 完整项目目录树 · 6 大架构模块全景图",
+      "fileSubtitle": "v1.2.0 · 完整中文备注目录树",
+      "graphTitle": "MiniRAG-Agent 完整项目目录树 · 9 大架构模块全景图",
       "graphSubtitle": "左侧为完整中文备注目录树（支持搜索与一键复制），点击任意目录/文件与右侧架构块双向定位",
       "codeLines": [
-        "minirag-agent/                        # 示例项目根目录：混合检索 + ReAct Agent 架构",
+        "minirag-agent/                        # 企业级知识库与 ReAct 智能体示例骨架 (v1.2.0)",
+        "├── VERSION                           # 当前产品版本号 (1.2.0)",
+        "├── go.mod / go.sum                   # Go 1.24 依赖清单 (Gin / pgvector / Redis / MCP SDK)",
+        "├── Makefile                          # 开发、构建、迁移与单测快捷入口",
+        "├── .env.example                      # 标准集群环境变量模板 (PG / Redis / AES Key / OTEL)",
         "├── cmd/",
-        "│   └── server/",
-        "│       ├── main.go                   # 进程启动入口、加载 .env 与信号优雅停机",
-        "│       └── container.go              # DI 依赖注入容器：装配 DB / 向量库 / LLM 客户端",
-        "├── config/",
-        "│   └── config.yaml                   # 模型路由、分块参数与限流阈值默认配置",
+        "│   ├── server/",
+        "│   │   ├── main.go                   # HTTP/SSE 服务入口、dotenv 加载与双阶段优雅停机",
+        "│   │   └── container.go              # DI 依赖注入容器：集中装配 DB / 向量库 / LLM Router",
+        "│   └── worker/main.go                # 独立异步索引消费进程（文档解析与向量化）",
         "├── internal/",
         "│   ├── router/",
-        "│   │   ├── router.go                 # HTTP/SSE 路由注册与版本分组 (/api/v1)",
-        "│   │   └── chat_handler.go           # 流式对话控制器与参数校验",
+        "│   │   ├── router.go                 # /api/v1 路由分组注册与 Swagger 元信息挂载",
+        "│   │   ├── chat_handler.go           # 流式 SSE 对话控制器与上下文参数校验",
+        "│   │   └── kb_handler.go             # 知识库 CRUD、文档上传与重建索引接口",
         "│   ├── middleware/",
-        "│   │   ├── auth.go                   # JWT / API Key 鉴权与多租户 TenantID 注入",
-        "│   │   └── ratelimit.go              # 令牌桶限流与 Token 预算拦截",
+        "│   │   ├── auth.go                   # JWT / API Key 鉴权与多租户 TenantID 强制注入",
+        "│   │   ├── rbac.go                   # 角色权限校验（Owner / Editor / Viewer）",
+        "│   │   └── ratelimit.go              # 分布式令牌桶限流与单租户 Token 预算门控",
         "│   ├── rag/",
-        "│   │   ├── chunker.go                # Markdown 语义切片与父子文档映射",
-        "│   │   ├── hybrid_retriever.go       # 向量 HNSW + BM25 混合召回与 RRF 融合",
-        "│   │   └── reranker.go               # Cross-Encoder 精排与相关性阈值过滤",
+        "│   │   ├── hybrid_retriever.go       # 向量 HNSW + BM25 并发双路召回与 RRF 融合",
+        "│   │   ├── reranker.go               # Cross-Encoder 精排与相关性阈值防幻觉截断",
+        "│   │   └── citation.go               # 原文片段溯源标注与页码高亮映射",
         "│   ├── agent/",
-        "│   │   ├── loop.go                   # ReAct 思考-行动-观察主循环与最大步数保护",
-        "│   │   └── tools.go                  # 工具注册表（知识库检索 / SQL / Web Search）",
-        "│   └── store/",
-        "│       ├── pgvector.go               # PostgreSQL + pgvector 向量与元数据存储",
-        "│       └── redis_stream.go           # 对话上下文缓存与 SSE 断线续传队列",
-        "└── deploy/",
-        "    ├── docker-compose.yml            # 一键拉起 App + Postgres(pgvector) + Redis",
-        "    └── migrations/                   # SQL Schema 版本迁移脚本"
+        "│   │   ├── loop.go                   # ReAct 思考-行动-观察主循环与步数/耗时熔断",
+        "│   │   ├── planner.go                # 复杂多跳问题拆解与子任务规划器",
+        "│   │   └── memory.go                 # 滑动窗口 + 摘要压缩上下文管理器",
+        "│   ├── sandbox/",
+        "│   │   ├── executor.go               # 隔离沙箱执行器（资源配额 / 断网策略 / 超时强杀）",
+        "│   │   ├── vault.go                  # AES-GCM 凭据保险库与运行时最小权限注入",
+        "│   │   └── guardrails.go             # Prompt 注入检测、PII 脱敏与高危工具审批门控",
+        "│   ├── ingestion/",
+        "│   │   ├── parser.go                 # PDF / DOCX / Markdown 版面解析与表格提取",
+        "│   │   ├── chunker.go                # 语义切片、重叠滑窗与父子文档块索引",
+        "│   │   └── pgvector_store.go         # PostgreSQL + pgvector 事务一致的向量持久化",
+        "│   └── llm/",
+        "│       ├── router.go                 # 多厂商模型路由（主备切换 / 熔断降级 / 成本统计）",
+        "│       ├── mcp_client.go             # Model Context Protocol 工具发现与 STDIO/SSE 桥接",
+        "│       └── stream_hub.go             # Redis Stream 对话事件缓冲与断线续传中心",
+        "├── frontend/                         # Next.js 控制台、知识库管理与流式推理轨迹 UI",
+        "├── migrations/                       # SQL Schema 与 HNSW 向量索引版本迁移脚本",
+        "└── deploy/docker-compose.yml         # 一键编排 App + Worker + Postgres(pgvector) + Redis"
       ],
       "nodes": [
         {
           "id": "entry",
           "badge": "1",
-          "title": "进程入口与全局装配",
-          "subtitle": "cmd/server/ · config/",
-          "loc": "目录 L1-L7",
+          "title": "进程入口与全局配置",
+          "subtitle": "cmd/ · Makefile · .env",
+          "loc": "目录 L1-L10",
           "tag": "启动装配",
           "category": "entry",
           "col": 0,
@@ -59,10 +74,10 @@
         {
           "id": "router",
           "badge": "2",
-          "title": "路由网关与 SSE 控制器",
+          "title": "路由网关与控制器",
           "subtitle": "internal/router/",
-          "loc": "目录 L8-L11",
-          "tag": "流式接口",
+          "loc": "目录 L11-L15",
+          "tag": "SSE接口",
           "category": "entry",
           "col": 1,
           "row": 0
@@ -70,10 +85,10 @@
         {
           "id": "auth",
           "badge": "3",
-          "title": "鉴权、多租户与限流",
+          "title": "鉴权、RBAC 与限流",
           "subtitle": "internal/middleware/",
-          "loc": "目录 L12-L14",
-          "tag": "安全门禁",
+          "loc": "目录 L16-L19",
+          "tag": "多租户",
           "category": "security",
           "col": 2,
           "row": 0
@@ -81,9 +96,9 @@
         {
           "id": "rag",
           "badge": "4",
-          "title": "混合检索与精排引擎",
+          "title": "知识库与混合检索",
           "subtitle": "internal/rag/",
-          "loc": "目录 L15-L18",
+          "loc": "目录 L20-L23",
           "tag": "核心引擎",
           "category": "core",
           "col": 0,
@@ -92,106 +107,178 @@
         {
           "id": "agent",
           "badge": "5",
-          "title": "ReAct Agent 与工具编排",
+          "title": "ReAct 智体与规划",
           "subtitle": "internal/agent/",
-          "loc": "目录 L19-L21",
+          "loc": "目录 L24-L27",
           "tag": "推理循环",
-          "category": "queue",
+          "category": "core",
           "col": 1,
           "row": 1
         },
         {
-          "id": "store",
+          "id": "sandbox",
           "badge": "6",
-          "title": "向量存储、缓存与部署",
-          "subtitle": "internal/store/ · deploy/",
-          "loc": "目录 L22-L27",
-          "tag": "持久化",
-          "category": "storage",
+          "title": "沙箱与凭据保险库",
+          "subtitle": "internal/sandbox/",
+          "loc": "目录 L28-L31",
+          "tag": "零信任",
+          "category": "security",
           "col": 2,
           "row": 1
+        },
+        {
+          "id": "ingestion",
+          "badge": "7",
+          "title": "解析、分块与向量库",
+          "subtitle": "internal/ingestion/",
+          "loc": "目录 L32-L35",
+          "tag": "HNSW索引",
+          "category": "storage",
+          "col": 0,
+          "row": 2
+        },
+        {
+          "id": "llm",
+          "badge": "8",
+          "title": "模型路由与 MCP 生态",
+          "subtitle": "internal/llm/",
+          "loc": "目录 L36-L39",
+          "tag": "多模型/MCP",
+          "category": "queue",
+          "col": 1,
+          "row": 2
+        },
+        {
+          "id": "deploy",
+          "badge": "9",
+          "title": "前端、迁移与部署",
+          "subtitle": "frontend/ · migrations/ · deploy/",
+          "loc": "目录 L40-L42",
+          "tag": "全栈交付",
+          "category": "external",
+          "col": 2,
+          "row": 2
         }
       ],
       "edges": [
         { "from": "entry", "to": "router", "label": "DI装配" },
+        { "from": "entry", "to": "rag", "label": "容器注入" },
         { "from": "router", "to": "auth", "label": "鉴权拦截" },
-        { "from": "auth", "to": "agent", "label": "租户上下文" },
-        { "from": "agent", "to": "rag", "label": "工具召回" },
-        { "from": "rag", "to": "store", "label": "向量/BM25" },
-        { "from": "agent", "to": "store", "label": "SSE缓存", "dashed": true }
+        { "from": "router", "to": "agent", "label": "Agent调度" },
+        { "from": "auth", "to": "sandbox", "label": "权限边界", "dashed": true },
+        { "from": "agent", "to": "rag", "label": "检索/溯源" },
+        { "from": "agent", "to": "sandbox", "label": "隔离执行" },
+        { "from": "rag", "to": "ingestion", "label": "向量/BM25" },
+        { "from": "agent", "to": "llm", "label": "模型/MCP" },
+        { "from": "ingestion", "to": "llm", "label": "Embedding", "dashed": true },
+        { "from": "llm", "to": "deploy", "label": "流式前端", "dashed": true },
+        { "from": "sandbox", "to": "deploy", "label": "容器沙箱", "dashed": true }
       ],
       "steps": [
         {
-          "title": "进程入口与全局装配",
+          "title": "进程入口与全局配置",
           "shortTitle": "入口与配置",
-          "lines": [1, 7],
+          "lines": [1, 10],
           "nodeIds": ["entry"],
           "insights": {
-            "mechanism": "`cmd/server/main.go` 负责加载 `config/config.yaml` 并通过 `container.go` 一次性装配数据库连接池、向量索引客户端与 LLM Router，同时监听 `SIGTERM` 实现两阶段优雅停机。",
-            "pitfalls": "阅读大型仓库切忌从头到尾盲翻文件：先看 `main.go` + `container.go` 就能摸清全部依赖边界；优雅停机务必给正在输出的 SSE 流留出 Drain 超时窗口。",
-            "interview": "问：刚接手一个陌生的 Go/Python AI 项目，你怎么在 15 分钟内摸清骨架？\n答：先抓三处锚点：`main.go` 看启动顺序、`container` 看组件依赖图、`config.yaml` 与 `docker-compose.yml` 看外部中间件与运行时边界。"
+            "mechanism": "`cmd/server/main.go` 负责加载配置、初始化日志与双阶段优雅停机；`cmd/server/container.go` 通过显式依赖注入集中装配数据库、向量索引、LLM Router 与 MCP 客户端。",
+            "pitfalls": "阅读大型仓库先抓 `main.go` + `container.go` 顺藤摸瓜，不要从首行盲翻几百个文件；优雅停机务必为长连接 SSE 预留 Drain 窗口，防止发版瞬间大面积断流。",
+            "interview": "问：刚接手一个陌生的中大型 AI 仓库，怎么快速理清项目骨架与运行边界？\n答：先抓三处锚点：`cmd/server/main.go` 看进程启停，`container.go` 看全部组件装配关系，`.env.example` 与 `docker-compose.yml` 看外部中间件与默认阈值。"
           }
         },
         {
           "title": "路由网关与 SSE 控制器",
           "shortTitle": "路由与接口",
-          "lines": [8, 11],
+          "lines": [11, 15],
           "nodeIds": ["router"],
           "insights": {
-            "mechanism": "`internal/router/router.go` 统一挂载 `/api/v1` 分组，并将长耗时对话请求交给 `chat_handler.go` 通过 `text/event-stream` 逐块推流返回思考过程与答案。",
-            "pitfalls": "Nginx / 网关反代默认开启 `proxy_buffering`，会导致前端卡住几十秒才一次性吐出全部 SSE 内容；生产必须设置 `X-Accel-Buffering: no` 并定期发心跳帧。",
-            "interview": "问：为什么 Agent 流式对话普遍优先选 SSE 而不是 WebSocket？\n答：AI 问答天然是“单次请求 + 服务端单向流式下发”，SSE 基于标准 HTTP，复用鉴权与负载均衡更简单，断线重连和网关穿透成本远低于 WebSocket。"
+            "mechanism": "`internal/router/router.go` 统一挂载 `/api/v1` 路由组，`chat_handler.go` 接收用户提问并建立 `text/event-stream` 长连接，实时下发思考轨迹、工具调用与引用锚点。",
+            "pitfalls": "反代网关默认开启缓冲会让前端卡住数十秒才吐出整段响应；生产必须透传 `X-Accel-Buffering: no` 并每 15 秒发送 `: ping` 心跳保活。",
+            "interview": "问：AI 对话为什么普遍选 SSE 而不是 WebSocket？\n答：请求-流式回复是天然单向推流模型，SSE 基于标准 HTTP，复用鉴权、限流与七层负载均衡零成本，且原生支持 `Last-Event-ID` 断线续传。"
           }
         },
         {
-          "title": "鉴权、多租户与限流",
-          "shortTitle": "权限与限流",
-          "lines": [12, 14],
+          "title": "鉴权、RBAC 与多租户限流",
+          "shortTitle": "权限与访问",
+          "lines": [16, 19],
           "nodeIds": ["auth"],
           "insights": {
-            "mechanism": "`auth.go` 解析凭证后将 `TenantID` 写入 `context.Context`，后续所有 SQL 与向量查询强制附带租户过滤条件；`ratelimit.go` 按 RPM 与 Token 预算双维度拦截。",
-            "pitfalls": "最致命的线上事故是把 `TenantID` 漏传到向量检索层导致跨租户知识泄露——应在存储层强制校验 `ctx` 必须含非空 `TenantID`，而非依赖业务层自觉传参。",
-            "interview": "问：多租户 RAG 怎么防止数据串户，同时兼顾 HNSW 检索性能？\n答：中等规模可用元数据 pre-filter + 分区索引；大租户按 tenant 独立 collection/partition，避免过滤后召回率骤降。"
+            "mechanism": "`auth.go` 解析 JWT/API Key 后将不可变的 `TenantID` 写入 `context.Context`；`rbac.go` 拦截越权写入；`ratelimit.go` 叠加 RPM 与每日 Token 预算双维度熔断。",
+            "pitfalls": "最危险的线上事故是向量检索层漏加 `tenant_id` 过滤导致跨租户串库——必须采用 Fail-Closed 设计，在存储入口强制校验 `ctx` 存在非空租户 ID。",
+            "interview": "问：多租户知识库怎样同时做到严格隔离与高召回率？\n答：中小租户用 pre-filter + 复合索引 + 数据库 RLS 双保险；超大租户拆独立分区/Collection，防止后过滤导致 Top-K 召回空洞。"
           }
         },
         {
-          "title": "混合检索与精排引擎",
-          "shortTitle": "RAG 与精排",
-          "lines": [15, 18],
+          "title": "知识库与混合检索服务",
+          "shortTitle": "RAG 与知识",
+          "lines": [20, 23],
           "nodeIds": ["rag"],
           "insights": {
-            "mechanism": "`hybrid_retriever.go` 并发触发向量相似度与 BM25 全文检索，利用 RRF（Reciprocal Rank Fusion）合并两路候选，再由 `reranker.go` 精排截断 Top-K。",
-            "pitfalls": "纯向量检索对型号编码、专有名词、报错码极不敏感；而 Reranker 延迟高，必须先用 RRF 将粗排控制在 Top 30~50 再送入精排。",
-            "interview": "问：RRF 融合公式为什么比直接把向量分数和 BM25 分数加权相加更稳？\n答：两路得分量纲和分布完全不同（余弦相似度在 [-1,1]，BM25 无上界），RRF 只依赖排名 `1/(k + rank)`，免去了复杂的分数归一化调参。"
+            "mechanism": "`hybrid_retriever.go` 并发执行 HNSW 语义检索与 BM25 词法检索，用 RRF 融合去重；`reranker.go` 精排打分并按阈值截断；`citation.go` 将切片回映射到原文页码。",
+            "pitfalls": "纯向量检索对错误码、产品型号、缩写词极不敏感；而 Cross-Encoder 延迟高，必须先用 RRF 收敛至 Top 30 再送精排并配置超时降级。",
+            "interview": "问：RRF 融合为什么比直接把向量分与 BM25 分加权相加更稳？\n答：两路得分量纲和分布完全不同（余弦在 `[-1,1]`，BM25 无上界），RRF 只依赖排名 `1/(k+rank)`，免去了跨语料分数归一化的脆弱调参。"
           }
         },
         {
-          "title": "ReAct Agent 与工具编排",
+          "title": "ReAct 智体与规划循环",
           "shortTitle": "Agent 与工具",
-          "lines": [19, 21],
+          "lines": [24, 27],
           "nodeIds": ["agent"],
           "insights": {
-            "mechanism": "`loop.go` 维护 `Thought -> ToolCall -> Observation` 状态机，通过 `tools.go` 暴露结构化 JSON Schema，支持并行调用多个只读工具并在 `maxSteps` 内收敛。",
-            "pitfalls": "不加约束的 ReAct 极易陷入重复调用同一工具的死循环；必须做最大步数上限、相同参数调用去重，以及超长 Observation 摘要截断防撑爆上下文。",
-            "interview": "问：生产环境的 Agent 循环最容易在哪翻车，怎么兜底？\n答：三类高发故障：工具死循环、工具返回超大文本打爆上下文窗口、写操作误触发。对应兜底是步数/耗时熔断、工具输出截断/落盘引用、高危工具人工审批门控。"
+            "mechanism": "`loop.go` 驱动 `Thought -> ToolCall -> Observation` 状态机，配合 `planner.go` 拆解多跳查询，由 `memory.go` 在超预算前对历史轨迹做增量摘要压缩。",
+            "pitfalls": "未加约束的 ReAct 极易陷入重复调用同一工具的死循环；必须同时设 `maxSteps`、相同参数调用去重，以及大体积 Observation 截断防撑爆上下文窗口。",
+            "interview": "问：线上 Agent 循环最常见哪三类故障，怎么兜底？\n答：工具死循环、超长工具输出打爆上下文、写工具误触发。分别靠步数/耗时熔断、工具输出摘要落盘、高危工具审批门控兜底。"
           }
         },
         {
-          "title": "向量存储、缓存与部署",
-          "shortTitle": "存储与部署",
-          "lines": [22, 27],
-          "nodeIds": ["store"],
+          "title": "沙箱与凭据保险库",
+          "shortTitle": "沙箱与凭据",
+          "lines": [28, 31],
+          "nodeIds": ["sandbox"],
           "insights": {
-            "mechanism": "`pgvector.go` 将业务元数据与向量同库存储以获得事务一致性；`redis_stream.go` 缓存流式事件以支持前端刷新后按 `Last-Event-ID` 断点续读。",
-            "pitfalls": "向量索引与关系表分库存储时，文档删除极易产生“幽灵切片”（DB 删了但向量还在），务必用 Outbox 或同库事务保证删除幂等。",
-            "interview": "问：什么时候选 pgvector，什么时候上专用向量数据库（如 Milvus/Qdrant）？\n答：千万级以下向量且强依赖 SQL 过滤与事务一致性时，pgvector 运维成本最低；亿级规模、高并发写入或复杂分布式分片场景再上专用向量库。"
+            "mechanism": "`executor.go` 在受限容器/隔离进程中执行代码与脚本工具；`vault.go` 用 AES-GCM 加密外部凭据并在执行瞬间注入；`guardrails.go` 负责防 Prompt 注入与敏感信息脱敏。",
+            "pitfalls": "切忌把原始 API Key 或数据库密码拼进 System Prompt 或工具回显——一旦触发间接 Prompt 注入，模型会直接把凭据原样吐给攻击者。",
+            "interview": "问：如何防止恶意文档里的间接 Prompt Injection 劫持 Agent 调用高危工具？\n答：坚持“数据与指令隔离”：文档片段包裹在明确边界标签内、工具按只读/写操作分级、涉及外发数据或修改状态的工具强制人工确认或策略引擎校验。"
+          }
+        },
+        {
+          "title": "文档解析、分块与向量库",
+          "shortTitle": "解析与检索",
+          "lines": [32, 35],
+          "nodeIds": ["ingestion"],
+          "insights": {
+            "mechanism": "`parser.go` 提取 PDF 版面与跨页表格；`chunker.go` 采用父子块策略（小块做精准召回、父块回填完整语义）；`pgvector_store.go` 在单事务内落库元数据与向量。",
+            "pitfalls": "关系库与向量库分离时，文档更新/删除极易残留“幽灵切片”；采用同库事务或 Outbox 异步对账才能确保删改幂等。",
+            "interview": "问：为什么父子块（Parent-Child Chunking）能明显提升 RAG 质量？\n答：切片太小会导致上下文残缺、切片太大又稀释向量语义；用 256 token 子块精准命中、召回后替换为 1024 token 父块给 LLM，正好兼得两者优势。"
+          }
+        },
+        {
+          "title": "模型路由与 MCP 生态",
+          "shortTitle": "模型与 MCP",
+          "lines": [36, 39],
+          "nodeIds": ["llm"],
+          "insights": {
+            "mechanism": "`router.go` 按延迟/配额动态路由多厂商模型并在 429/5xx 时自动切备；`mcp_client.go` 统一接入外部 MCP 工具服务器；`stream_hub.go` 借助 Redis Stream 缓冲流式事件。",
+            "pitfalls": "MCP 外部工具 schema 过多（超过 40+ 个）会严重吃掉输入 Token 并降低选工具准确率，需要按意图动态检索/筛选工具子集后再注入模型。",
+            "interview": "问：同时挂载几十个 MCP 工具时，怎么避免上下文爆炸和选错工具？\n答：做一层 Tool RAG / 渐进式披露：只把高频核心工具放进初始定义，其余工具按用户意图先语义召回 Top 5~8 个 schema 再动态挂载。"
+          }
+        },
+        {
+          "title": "前端、迁移与全栈部署",
+          "shortTitle": "前端与部署",
+          "lines": [40, 42],
+          "nodeIds": ["deploy"],
+          "insights": {
+            "mechanism": "`frontend/` 渲染流式推理步骤、引用原文高亮与知识库管理面板；`migrations/` 管控表结构与 HNSW 索引参数演进；`docker-compose.yml` 一键编排全套依赖。",
+            "pitfalls": "pgvector 线上给千万级大表建 HNSW 索引会锁写且极耗内存，务必使用 `CREATE INDEX CONCURRENTLY` 并提前调大 `maintenance_work_mem`。",
+            "interview": "问：RAG 系统上线后怎么持续度量效果，而不是凭感觉调参？\n答：拆分“检索指标（Recall@K / MRR）”与“生成指标（忠实度 / 相关性 / 拒答准确率）”，沉淀回归评测集，每次改分块或换模型自动跑对比。"
           }
         }
       ]
     },
     {
       "id": "rag-flow",
-      "label": "1. RAG 混合检索",
+      "label": "1. RAG 与 HNSW",
       "mode": "code",
       "filePath": "internal/rag/hybrid_retriever.go",
       "fileSubtitle": "双路召回 + RRF 融合 + Cross-Encoder 精排核心链路",
@@ -200,19 +287,18 @@
       "codeLines": [
         "func (r *HybridRetriever) Search(ctx context.Context, req SearchReq) ([]Chunk, error) {",
         "    tenantID, ok := TenantFromCtx(ctx)",
-        "    if !ok { return nil, ErrMissingTenant }         // 1. 强校验多租户上下文",
+        "    if !ok { return nil, ErrMissingTenant }        // 1. Fail-Closed 租户校验",
         "",
-        "    vecCh := make(chan []ScoredChunk, 1)",
-        "    bm25Ch := make(chan []ScoredChunk, 1)",
-        "    go func() { vecCh <- r.vectorSearch(ctx, tenantID, req.Query, 40) }() // 2. HNSW 向量召回",
-        "    go func() { bm25Ch <- r.bm25Search(ctx, tenantID, req.Query, 40) }()  // 3. BM25 词法召回",
+        "    vecCh, bm25Ch := make(chan []Scored, 1), make(chan []Scored, 1)",
+        "    go func() { vecCh <- r.vectorSearch(ctx, tenantID, req.Query, 40) }() // 2. HNSW",
+        "    go func() { bm25Ch <- r.bm25Search(ctx, tenantID, req.Query, 40) }()  // 3. BM25",
         "",
-        "    fused := ReciprocalRankFusion(<-vecCh, <-bm25Ch, 60)                  // 4. RRF 无量纲融合",
+        "    fused := ReciprocalRankFusion(<-vecCh, <-bm25Ch, 60)  // 4. RRF 无量纲融合",
         "    candidates := fused[:min(len(fused), 30)]",
         "",
-        "    ranked, err := r.reranker.Rerank(ctx, req.Query, candidates)          // 5. Cross-Encoder 精排",
-        "    if err != nil { return candidates[:min(len(candidates), req.TopK)], nil } // 降级兜底",
-        "    return filterByScore(ranked, req.MinScore, req.TopK), nil             // 6. 阈值截断输出",
+        "    ranked, err := r.reranker.Rerank(ctx, req.Query, candidates) // 5. Cross-Encoder",
+        "    if err != nil { return candidates[:min(len(candidates), req.TopK)], nil }",
+        "    return filterByScore(ranked, req.MinScore, req.TopK), nil    // 6. 阈值截断",
         "}"
       ],
       "nodes": [
@@ -232,7 +318,7 @@
           "badge": "2",
           "title": "向量 HNSW 召回",
           "subtitle": "r.vectorSearch(..., 40)",
-          "loc": "L5-L7",
+          "loc": "L5-L6",
           "tag": "语义召回",
           "category": "storage",
           "col": 1,
@@ -243,7 +329,7 @@
           "badge": "3",
           "title": "BM25 词法召回",
           "subtitle": "r.bm25Search(..., 40)",
-          "loc": "L6-L8",
+          "loc": "L5-L7",
           "tag": "关键词",
           "category": "storage",
           "col": 2,
@@ -254,7 +340,7 @@
           "badge": "4",
           "title": "RRF 排名融合",
           "subtitle": "ReciprocalRankFusion(k=60)",
-          "loc": "L10-L11",
+          "loc": "L9-L10",
           "tag": "融合去重",
           "category": "core",
           "col": 0,
@@ -265,7 +351,7 @@
           "badge": "5",
           "title": "Cross-Encoder 精排",
           "subtitle": "r.reranker.Rerank(...)",
-          "loc": "L13-L14",
+          "loc": "L12-L13",
           "tag": "降级兜底",
           "category": "queue",
           "col": 1,
@@ -276,7 +362,7 @@
           "badge": "6",
           "title": "相关性阈值截断",
           "subtitle": "filterByScore(MinScore)",
-          "loc": "L15-L16",
+          "loc": "L14-L15",
           "tag": "最终上下文",
           "category": "external",
           "col": 2,
@@ -298,53 +384,203 @@
           "lines": [1, 3],
           "nodeIds": ["r-tenant"],
           "insights": {
-            "mechanism": "在进入任何检索子系统前，直接从 `ctx` 强制提取 `tenantID`，缺失立即返回 `ErrMissingTenant`，彻底杜绝无过滤条件的全表扫描。",
-            "pitfalls": "切忌把 `tenantID` 设计为可选空字符串（空串代表查全库），一旦上游漏传就会演变成严重的数据越权事故。",
-            "interview": "问：代码层面怎么保证多租户隔离不会因为新人写漏 `WHERE tenant_id = ?` 而失效？\n答：采用 Fail-Closed 原则——在底层 DAO / Retriever 入口强制从 `ctx` 解析租户 ID，缺省直接报错，配合数据库 RLS（行级安全策略）做双保险。"
+            "mechanism": "进入检索前直接从 `ctx` 强制提取 `tenantID`，缺失即返回 `ErrMissingTenant`，从代码契约层面杜绝无条件全库扫描。",
+            "pitfalls": "切忌把 `tenantID` 设计为可选空字符串（空串查全库），一旦上游中间件漏挂就会酿成跨租户数据泄露。",
+            "interview": "问：如何从架构上防止新人写漏 `WHERE tenant_id = ?`？\n答：底层 DAO/Retriever 强制从 `ctx` 取租户 ID 并 Fail-Closed，再叠加数据库行级安全策略（RLS）做双保险。"
           }
         },
         {
           "title": "双路并发召回（HNSW + BM25）",
           "shortTitle": "双路并发",
-          "lines": [5, 8],
+          "lines": [5, 7],
           "nodeIds": ["r-vec", "r-bm25"],
           "insights": {
-            "mechanism": "使用两个带缓冲 channel 并发执行向量检索与 BM25 检索，总耗时取 `max(t_vec, t_bm25)` 而非两者之和。",
-            "pitfalls": "线上真实代码应使用 `errgroup.WithContext` 并设置单路超时，避免其中一路卡死导致整个请求挂起或 goroutine 泄漏。",
-            "interview": "问：单路召回数量（如 Top 40）怎么拍板？\n答：在离线评测集上画 Recall@K 曲线，找到召回率进入平台期的拐点（通常 30~50），既不漏掉关键文档，也不给下游 Reranker 造成过高延迟。"
+            "mechanism": "并行发起向量近邻搜索与 BM25 词法匹配，总耗时由 `max(t_vec, t_bm25)` 决定，兼顾语义泛化与精确字面命中。",
+            "pitfalls": "线上应使用 `errgroup.WithContext` 搭配独立子超时，避免单路慢查询拖垮整条链路或泄漏 goroutine。",
+            "interview": "问：粗排 Top-K 设 40 是怎么定的？\n答：在离线标注集上测 Recall@K 拐点，通常 30~50 进入收益平台期，既保召回又控制下游 Reranker 延迟。"
           }
         },
         {
           "title": "RRF 排名融合与截断",
           "shortTitle": "RRF 融合",
-          "lines": [10, 11],
+          "lines": [9, 10],
           "nodeIds": ["r-rrf"],
           "insights": {
-            "mechanism": "按 `sum(1 / (60 + rank_i))` 对双路结果去重并重新排序，同时出现在向量和关键词两路前列的高相关切片会自然浮到最顶部。",
-            "pitfalls": "同一文档不同切片容易扎堆占满 Top 30，复杂场景可叠加 MMR（最大边际相关性）或按 `doc_id` 限制单文档最大候选数。",
-            "interview": "问：RRF 里的常数 `k=60` 调大调小有什么影响？\n答：`k` 越小，排名第 1 与第 5 的差距越悬殊，系统更偏向头部高置信度结果；`k` 越大，排名靠后的结果话语权提升，多路共识效应更明显。"
+            "mechanism": "按 `sum(1 / (60 + rank_i))` 合并两路候选，同时在语义和关键词均排前列的片段会显著抬升，随后截断 Top 30。",
+            "pitfalls": "同一长文档的相邻切片容易扎堆占满名额，可叠加按 `doc_id` 限流或 MMR 去重保障信息多样性。",
+            "interview": "问：RRF 常数 `k=60` 调大调小有什么影响？\n答：`k` 越小越偏重头部极高排名结果，`k` 越大则多路共同命中的中段候选权重提升。"
           }
         },
         {
-          "title": "Cross-Encoder 精排与优雅降级",
-          "shortTitle": "精排与降级",
-          "lines": [13, 14],
+          "title": "Cross-Encoder 精排与降级",
+          "shortTitle": "精排降级",
+          "lines": [12, 13],
           "nodeIds": ["r-rerank"],
           "insights": {
-            "mechanism": "将 Query 与 30 条候选拼接送入 Cross-Encoder 做深层交互打分；若精排服务超时或异常，不中断对话，直接回退使用 RRF Top-K。",
-            "pitfalls": "Reranker 往往是整条 RAG 链路里 P99 延迟最高的环节，务必设置独立短超时（如 400~800ms）与降级开关。",
-            "interview": "问：为什么不直接用 Cross-Encoder 检索全库，而要“双塔粗排 + 交叉精排”？\n答：双塔可以离线预计算文档向量并用 ANN 索引毫秒级检索；Cross-Encoder 必须把 Query 和每篇文档拼在一起在线前向推理，复杂度 `O(N)`，只能用于几十条候选的精排。"
+            "mechanism": "将 Query 与 30 条候选拼接送入交叉编码器深层交互打分；若精排节点超时或故障，自动回退 RRF Top-K 保证问答可用。",
+            "pitfalls": "Reranker 通常是整条链路 P99 延迟大头，务必设置独立短超时（400~800ms）与熔断降级开关。",
+            "interview": "问：为什么不直接拿 Cross-Encoder 扫全库？\n答：双塔可离线建向量索引毫秒检索；Cross-Encoder 需在线拼接 Query 与文档前向推理，复杂度 `O(N)`，只适合对几十条粗排候选精排。"
           }
         },
         {
           "title": "阈值过滤与防幻觉兜底",
           "shortTitle": "阈值截断",
-          "lines": [15, 16],
+          "lines": [14, 15],
           "nodeIds": ["r-filter"],
           "insights": {
-            "mechanism": "`filterByScore` 剔除低于 `MinScore` 的低相关噪音片段，避免把无关文档硬塞给 LLM 诱发“强行胡编”的幻觉。",
-            "pitfalls": "不同模型/业务语料下 Reranker 分数分布差异很大，`MinScore` 切忌写死拍脑袋，应基于线上负样本分布定期校准。",
-            "interview": "问：所有候选都被阈值滤空了，系统该怎么响应用户？\n答：明确触发“知识库无相关依据”分支——要么直接诚实拒答，要么按策略引导用户切换联网搜索/通用问答，切忌把低分噪音硬喂给模型。"
+            "mechanism": "`filterByScore` 过滤掉低于 `MinScore` 的弱相关片段，避免向 LLM 喂入噪音诱发强行胡编。",
+            "pitfalls": "不同精排模型分数分布差异巨大，`MinScore` 需基于业务负样本 ROC 曲线校准而非拍脑袋写死。",
+            "interview": "问：候选全部被阈值滤空时应该怎么处理？\n答：走明确的“知识库未命中”分支——直接诚实拒答或按策略提示切换联网检索，切忌把低分噪音硬塞给模型。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "react-agent",
+      "label": "2. ReAct Agent",
+      "mode": "code",
+      "filePath": "internal/agent/loop.go",
+      "fileSubtitle": "ReAct 推理循环、工具安全门控与上下文压缩",
+      "graphTitle": "ReAct Agent 推理与工具执行闭环",
+      "graphSubtitle": "从用户意图出发，展示模型决策、沙箱门控、观察回填到收敛输出的完整状态机",
+      "codeLines": [
+        "func (a *ReActAgent) Run(ctx context.Context, query string, emit StreamFn) error {",
+        "    msgs := a.memory.BuildPrompt(ctx, query)                  // 1. 组装系统提示与历史摘要",
+        "    for step := 1; step <= a.cfg.MaxSteps; step++ {           // 2. 最大步数熔断边界",
+        "        resp, err := a.llm.StreamStep(ctx, msgs, a.tools, emit)",
+        "        if err != nil { return err }",
+        "        if len(resp.ToolCalls) == 0 { return nil }            // 3. 无工具调用即收敛结束",
+        "",
+        "        for _, tc := range resp.ToolCalls {",
+        "            if err := a.guard.Verify(ctx, tc); err != nil {   // 4. 高危工具审批与安全门控",
+        "                msgs = append(msgs, ToolBlockedMsg(tc, err))",
+        "                continue",
+        "            }",
+        "            obs := a.sandbox.Execute(ctx, tc)                 // 5. 沙箱隔离执行与超时强杀",
+        "            msgs = append(msgs, a.memory.CompactObs(tc, obs)) // 6. 超长输出摘要截断回填",
+        "        }",
+        "    }",
+        "    return ErrMaxStepsExceeded",
+        "}"
+      ],
+      "nodes": [
+        {
+          "id": "a-prompt",
+          "badge": "1",
+          "title": "上下文与记忆组装",
+          "subtitle": "memory.BuildPrompt()",
+          "loc": "L1-L2",
+          "tag": "状态初始化",
+          "category": "entry",
+          "col": 0,
+          "row": 0
+        },
+        {
+          "id": "a-llm",
+          "badge": "2",
+          "title": "LLM 流式规划决策",
+          "subtitle": "llm.StreamStep()",
+          "loc": "L3-L6",
+          "tag": "核心循环",
+          "category": "core",
+          "col": 1,
+          "row": 0
+        },
+        {
+          "id": "a-guard",
+          "badge": "3",
+          "title": "安全与审批门控",
+          "subtitle": "guard.Verify(tc)",
+          "loc": "L8-L12",
+          "tag": "护栏校验",
+          "category": "security",
+          "col": 2,
+          "row": 0
+        },
+        {
+          "id": "a-exec",
+          "badge": "4",
+          "title": "沙箱隔离执行",
+          "subtitle": "sandbox.Execute(tc)",
+          "loc": "L13",
+          "tag": "隔离运行",
+          "category": "queue",
+          "col": 1,
+          "row": 1
+        },
+        {
+          "id": "a-compact",
+          "badge": "5",
+          "title": "观察压缩与回填",
+          "subtitle": "memory.CompactObs()",
+          "loc": "L14-L17",
+          "tag": "防爆上下文",
+          "category": "storage",
+          "col": 0,
+          "row": 1
+        }
+      ],
+      "edges": [
+        { "from": "a-prompt", "to": "a-llm", "label": "初始上下文" },
+        { "from": "a-llm", "to": "a-guard", "label": "ToolCall" },
+        { "from": "a-guard", "to": "a-exec", "label": "放行执行" },
+        { "from": "a-exec", "to": "a-compact", "label": "原始输出" },
+        { "from": "a-compact", "to": "a-llm", "label": "下一轮推理", "dashed": true }
+      ],
+      "steps": [
+        {
+          "title": "上下文与历史记忆组装",
+          "shortTitle": "记忆组装",
+          "lines": [1, 2],
+          "nodeIds": ["a-prompt"],
+          "insights": {
+            "mechanism": "`memory.BuildPrompt` 将 System Prompt、历史对话压缩摘要与最近原样轮次按 Token 预算拼装，保证输入稳定在模型最佳注意力区间。",
+            "pitfalls": "无脑把全部多轮历史拼进上下文会导致成本飙升和“中间遗忘”（Lost in the Middle），必须区分近期完整轮次与远期摘要。",
+            "interview": "问：多轮 Agent 对话怎么做好 Prompt Cache 命中率？\n答：把静态 System Prompt、工具定义与固定前缀放最前面且保持字节稳定，只把动态时间戳与当前轮用户消息追加在末尾。"
+          }
+        },
+        {
+          "title": "LLM 流式决策与收敛判断",
+          "shortTitle": "流式决策",
+          "lines": [3, 6],
+          "nodeIds": ["a-llm"],
+          "insights": {
+            "mechanism": "在 `MaxSteps` 保护下流式请求模型：若返回纯文本无 `ToolCalls`，说明已完成推理直接结束；否则进入工具执行分支。",
+            "pitfalls": "部分模型会在单轮同时输出自然语言解释与多个并行 `ToolCalls`，解析层切勿假设二者互斥。",
+            "interview": "问：达到 `MaxSteps` 还没收敛时，怎么给用户最好的体验？\n答：不要直接抛冷冰冰的 500 错误，而是追加一条“请基于目前已收集到的全部信息总结回答并指出未完成项”的收尾调用。"
+          }
+        },
+        {
+          "title": "高危工具审批与安全门控",
+          "shortTitle": "安全门控",
+          "lines": [8, 12],
+          "nodeIds": ["a-guard"],
+          "insights": {
+            "mechanism": "`guard.Verify` 在工具真正执行前校验权限范围、参数合法性及写操作审批状态；被拦截时将原因封装为 `ToolBlockedMsg` 回传给模型自我修正。",
+            "pitfalls": "拦截后直接中断整个 Agent 往往体验很差，把清晰可读的拒绝原因作为 Observation 返回给模型，反而能让它换用合法只读方案。",
+            "interview": "问：Agent 的工具权限应该由 Prompt 约束还是由代码门控？\n答：Prompt 只能作为软引导，所有安全边界（租户隔离、路径白名单、写操作审批）必须落在确定性的代码拦截层。"
+          }
+        },
+        {
+          "title": "沙箱隔离执行",
+          "shortTitle": "沙箱执行",
+          "lines": [13, 13],
+          "nodeIds": ["a-exec"],
+          "insights": {
+            "mechanism": "`sandbox.Execute` 在受控环境内运行工具调用，强制施加 CPU/内存配额、网络出站白名单与单步执行超时。",
+            "pitfalls": "多个只读 `ToolCalls` 可以并发执行以压低总延迟，但存在依赖或写副作用的工具必须串行执行。",
+            "interview": "问：沙箱执行超时或崩溃后，Agent 状态如何保持一致？\n答：工具执行设计为幂等或可回滚，超时强杀后向模型返回结构化超时 Observation，让模型决定缩小范围重试或放弃。"
+          }
+        },
+        {
+          "title": "观察输出压缩与循环回填",
+          "shortTitle": "压缩回填",
+          "lines": [14, 17],
+          "nodeIds": ["a-compact"],
+          "insights": {
+            "mechanism": "`memory.CompactObs` 检测工具返回体积，超阈值时截断并保留头尾关键行或落盘引用，再回填进 `msgs` 进入下一轮 ReAct 推理。",
+            "pitfalls": "一条 SQL 或网页抓取返回几万字符会瞬间把上下文打爆甚至触发 400 超长报错，必须在写入消息列表前做硬性长度上限兜底。",
+            "interview": "问：截断工具输出时，直接砍掉后半段为什么不够好？\n答：编译报错和堆栈尾部往往才是根因；更好做法是保留头尾摘要 + 完整内容存临时文件并告知路径，必要时让 Agent 按行定向读取。"
           }
         }
       ]
