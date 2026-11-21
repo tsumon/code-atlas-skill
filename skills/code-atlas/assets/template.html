@@ -716,6 +716,207 @@
     }
     .insight-card-text strong { color: var(--text-primary); font-weight: 600; }
 
+    /* Drawer Mode Switcher Pills (精讲 / 数据流转 / 1题自测) */
+    .drawer-mode-pills {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 7px;
+      padding: 2px;
+      margin-left: 4px;
+      flex-shrink: 0;
+    }
+    .dm-pill {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.14s ease;
+    }
+    .dm-pill:hover { color: var(--text-primary); }
+    .dm-pill.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .dm-pill.solved { color: var(--cat-storage); }
+    .dm-pill.active.solved { color: #ffffff; }
+
+    /* DataFlow JSON pre */
+    .df-struct {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      margin-bottom: 4px;
+    }
+    .df-pre {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.48;
+      background: var(--bg-code);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 7px 9px;
+      color: var(--text-code);
+      overflow: auto;
+      max-height: 126px;
+      white-space: pre;
+    }
+
+    /* Inline Quiz Body */
+    .insight-body.quiz-layout {
+      grid-template-columns: 1.35fr 1fr;
+    }
+    .quiz-q {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .quiz-opts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .quiz-opt {
+      text-align: left;
+      padding: 6px 9px;
+      border-radius: 7px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-panel-alt);
+      color: var(--text-secondary);
+      font-size: 11.5px;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .quiz-opt:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+    .quiz-opt.correct {
+      background: rgba(34, 197, 94, 0.14);
+      border-color: var(--cat-storage);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .quiz-opt.wrong {
+      background: rgba(244, 63, 94, 0.14);
+      border-color: var(--cat-security);
+      color: var(--text-primary);
+    }
+    .quiz-feedback {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Interview Overview Modal */
+    .brief-modal {
+      width: min(820px, 94vw);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-strong);
+      border-radius: 13px;
+      box-shadow: var(--shadow-modal);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+    }
+    .brief-body {
+      overflow-y: auto;
+      padding: 14px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .brief-sec-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pitch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .pitch-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--accent-cyan);
+      border-radius: 9px;
+      padding: 10px 12px;
+    }
+    .pitch-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .pitch-title { font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
+    .pitch-time {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 1px 6px;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+    .pitch-text { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+    .pitch-text code, .qa-summary code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.11);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .qa-list { display: flex; flex-direction: column; gap: 7px; }
+    .qa-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9px;
+      padding: 8px 12px;
+    }
+    .qa-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .qa-summary::-webkit-details-marker { display: none; }
+    .qa-ans {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-subtle);
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .qa-ans code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.11);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
     /* Search Modal */
     .modal-backdrop {
       position: fixed;
@@ -839,6 +1040,7 @@
         <span class="step-counter" id="stepCounter">1/1</span>
         <button class="ctrl-btn primary" id="btnNext" title="下一步 (→)">下一步 ▶</button>
         <button class="ctrl-btn" id="btnAutoplay" title="自动逐步演练">▶ 自动演练</button>
+        <button class="ctrl-btn" id="btnBrief" style="display:none;" title="3 分钟项目口述与面试压轴题">🎤 面试</button>
         <button class="ctrl-btn" id="btnSearch" title="全局搜索 (⌘K / Ctrl+K)">🔍 搜索</button>
         <button class="ctrl-btn" id="btnShare" title="复制当前步骤直达链接">🔗</button>
         <button class="ctrl-btn" id="btnTheme" title="切换深浅色主题">☀️ 浅色</button>
@@ -905,26 +1107,14 @@
         <div class="insight-title-group">
           <span class="insight-step-title" id="insightStepTitle"></span>
           <span class="insight-loc-pill" id="insightLocPill"></span>
+          <div class="drawer-mode-pills" id="drawerModePills"></div>
         </div>
         <div class="insight-actions">
           <button class="ctrl-btn" id="btnExportNotes" title="导出全部专题精讲与面试题为 Markdown 笔记">📝 导出笔记</button>
           <button class="ctrl-btn" id="btnToggleDrawer">收起精讲 ▾</button>
         </div>
       </div>
-      <div class="insight-body" id="insightBody">
-        <article class="insight-card mech">
-          <div class="insight-card-title">⚙ 核心源码机制</div>
-          <div class="insight-card-text" id="insightMech"></div>
-        </article>
-        <article class="insight-card pitfall">
-          <div class="insight-card-title">⚠ 线上避坑与边界</div>
-          <div class="insight-card-text" id="insightPitfall"></div>
-        </article>
-        <article class="insight-card interview">
-          <div class="insight-card-title">🎯 面试高频追问与答法</div>
-          <div class="insight-card-text" id="insightInterview"></div>
-        </article>
-      </div>
+      <div class="insight-body" id="insightBody"></div>
     </section>
   </div>
 
@@ -937,6 +1127,18 @@
         <button class="ctrl-btn" id="btnCloseSearch">ESC</button>
       </div>
       <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <!-- Interview Overview Modal (3-min Pitch + Capstone Q&A) -->
+  <div class="modal-backdrop" id="briefModal">
+    <div class="brief-modal" role="dialog" aria-modal="true" aria-label="面试总览">
+      <div class="search-modal-head">
+        <span style="font-weight:700;font-size:13.5px;">🎤 面试总览 · 3 分钟讲透全项目 &amp; 高频压轴题</span>
+        <span style="flex:1"></span>
+        <button class="ctrl-btn" id="btnCloseBrief">ESC</button>
+      </div>
+      <div class="brief-body" id="briefBody"></div>
     </div>
   </div>
 
@@ -967,6 +1169,8 @@
         tabIdx: 0,
         stepIdx: 0,
         activeFileId: null,
+        drawerMode: "insights",
+        quizAnswers: {},
         filterText: "",
         showAnnotations: false,
         motion: true,
@@ -1011,6 +1215,7 @@
       const elBtnPrev = $("btnPrev");
       const elBtnNext = $("btnNext");
       const elBtnAutoplay = $("btnAutoplay");
+      const elBtnBrief = $("btnBrief");
       const elBtnShare = $("btnShare");
       const elBtnTheme = $("btnTheme");
       const elBtnMotion = $("btnMotion");
@@ -1022,12 +1227,13 @@
       const elBtnToggleDrawer = $("btnToggleDrawer");
       const elInsightStepTitle = $("insightStepTitle");
       const elInsightLocPill = $("insightLocPill");
-      const elInsightMech = $("insightMech");
-      const elInsightPitfall = $("insightPitfall");
-      const elInsightInterview = $("insightInterview");
+      const elDrawerModePills = $("drawerModePills");
+      const elInsightBody = $("insightBody");
       const elSearchModal = $("searchModal");
       const elGlobalSearchInput = $("globalSearchInput");
       const elSearchResults = $("searchResults");
+      const elBriefModal = $("briefModal");
+      const elBriefBody = $("briefBody");
       const elToast = $("toast");
 
       function showToast(msg) {
@@ -1538,8 +1744,67 @@
           });
         });
 
+        const swimlanesLayer = [];
         const edgesLayer = [];
         const nodesLayer = [];
+
+        // Optional soft swimlanes & phase column framing (zero clutter when omitted)
+        const allNodes = Object.values(layout);
+        if (allNodes.length && (Array.isArray(tab.lanes) || Array.isArray(tab.phases))) {
+          let gMinX = Infinity, gMaxX = -Infinity, gMinY = Infinity, gMaxY = -Infinity;
+          allNodes.forEach((n) => {
+            gMinX = Math.min(gMinX, n.x);
+            gMaxX = Math.max(gMaxX, n.x + n.w);
+            gMinY = Math.min(gMinY, n.y);
+            gMaxY = Math.max(gMaxY, n.y + n.h);
+          });
+
+          if (Array.isArray(tab.phases)) {
+            tab.phases.forEach((ph) => {
+              const colNodes = allNodes.filter((n) => (typeof n.col === "number" ? n.col : 0) === ph.col);
+              if (!colNodes.length) return;
+              const cx = Math.min(...colNodes.map((n) => n.x)) - 14;
+              const cw = Math.max(...colNodes.map((n) => n.x + n.w)) - cx + 14;
+              const py = gMinY - 46;
+              const phH = gMaxY - py + 18;
+              swimlanesLayer.push(`
+                <g class="atlas-phase">
+                  <rect x="${cx}" y="${py}" width="${cw}" height="${phH}" rx="12"
+                    fill="var(--bg-panel-alt)" fill-opacity="0.32"
+                    stroke="var(--border-subtle)" stroke-dasharray="4 4" stroke-width="1" />
+                  <text x="${cx + cw / 2}" y="${py + 20}" text-anchor="middle"
+                    fill="var(--text-muted)" font-size="11" font-weight="600"
+                    font-family="var(--font-sans)">${escapeHtml(ph.label)}</text>
+                </g>
+              `);
+            });
+          }
+
+          if (Array.isArray(tab.lanes)) {
+            tab.lanes.forEach((lane) => {
+              const rowNodes = allNodes.filter((n) => (typeof n.row === "number" ? n.row : 0) === lane.row);
+              if (!rowNodes.length) return;
+              const ly = Math.min(...rowNodes.map((n) => n.y)) - 14;
+              const lh = Math.max(...rowNodes.map((n) => n.y + n.h)) - ly + 14;
+              const lx = gMinX - 42;
+              const lw = gMaxX - lx + 16;
+              const cat = CATEGORIES[lane.color] || CATEGORIES.core;
+              swimlanesLayer.push(`
+                <g class="atlas-lane">
+                  <rect x="${lx}" y="${ly}" width="${lw}" height="${lh}" rx="12"
+                    fill="${cat.bg}" fill-opacity="0.22"
+                    stroke="${cat.color}" stroke-opacity="0.24" stroke-width="1" />
+                  <rect x="${lx}" y="${ly}" width="26" height="${lh}" rx="12"
+                    fill="${cat.bg}" fill-opacity="0.55" />
+                  <text x="${lx + 13}" y="${ly + lh / 2}" text-anchor="middle" dominant-baseline="central"
+                    transform="rotate(-90 ${lx + 13} ${ly + lh / 2})"
+                    fill="${cat.color}" font-size="10.5" font-weight="700"
+                    font-family="var(--font-sans)">${escapeHtml(lane.label)}</text>
+                </g>
+              `);
+            });
+          }
+        }
 
         edgeGeoms.forEach(({ edge, d, mx, my }) => {
           const edgeKey = edge.id || `${edge.from}->${edge.to}`;
@@ -1636,7 +1901,7 @@
           `);
         });
 
-        elViewportGroup.innerHTML = edgesLayer.join("") + nodesLayer.join("");
+        elViewportGroup.innerHTML = swimlanesLayer.join("") + edgesLayer.join("") + nodesLayer.join("");
 
         elViewportGroup.querySelectorAll(".atlas-node").forEach((g) => {
           g.addEventListener("click", (ev) => {
@@ -1662,11 +1927,13 @@
         if (!nodes.length) return;
 
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        const hasLanes = Array.isArray(tab.lanes) && tab.lanes.length > 0;
+        const hasPhases = Array.isArray(tab.phases) && tab.phases.length > 0;
         nodes.forEach((n) => {
-          minX = Math.min(minX, n.x);
-          minY = Math.min(minY, n.y - 36);
-          maxX = Math.max(maxX, n.x + n.w);
-          maxY = Math.max(maxY, n.y + n.h);
+          minX = Math.min(minX, n.x - (hasLanes ? 48 : 0));
+          minY = Math.min(minY, n.y - (hasPhases ? 54 : 36));
+          maxX = Math.max(maxX, n.x + n.w + (hasLanes ? 18 : 0));
+          maxY = Math.max(maxY, n.y + n.h + (hasPhases ? 20 : 0));
         });
 
         const rect = elCanvasStage.getBoundingClientRect();
@@ -1698,10 +1965,195 @@
         elInsightStepTitle.textContent = `Step ${state.stepIdx + 1} · ${step.title}`;
         elInsightLocPill.textContent = `${fileObj.path} : ${rangeTxt}`;
 
+        const hasDataFlow = !!(step.dataFlow && (step.dataFlow.input || step.dataFlow.transform || step.dataFlow.output));
+        const hasQuiz = !!(step.quiz && step.quiz.question && Array.isArray(step.quiz.options));
+
+        // Gracefully fall back to default insights if current step lacks selected sub-mode
+        if (state.drawerMode === "dataFlow" && !hasDataFlow) state.drawerMode = "insights";
+        if (state.drawerMode === "quiz" && !hasQuiz) state.drawerMode = "insights";
+
+        const qKey = `${state.tabIdx}:${state.stepIdx}`;
+        const picked = state.quizAnswers[qKey];
+        const isSolved = hasQuiz && picked === step.quiz.answerIndex;
+
+        // Render lightweight mode pills only when optional sub-modes exist on this step
+        if (hasDataFlow || hasQuiz) {
+          elDrawerModePills.style.display = "inline-flex";
+          elDrawerModePills.innerHTML = "";
+          const modes = [{ id: "insights", label: "精讲" }];
+          if (hasDataFlow) modes.push({ id: "dataFlow", label: "⇄ 数据流转" });
+          if (hasQuiz) modes.push({ id: "quiz", label: isSolved ? "✓ 已答对" : "✓ 1 题自测", solved: isSolved });
+
+          modes.forEach((m) => {
+            const btn = document.createElement("button");
+            btn.className = "dm-pill" + (state.drawerMode === m.id ? " active" : "") + (m.solved ? " solved" : "");
+            btn.textContent = m.label;
+            btn.onclick = (e) => {
+              e.stopPropagation();
+              state.drawerMode = m.id;
+              if (state.drawerCollapsed) {
+                state.drawerCollapsed = false;
+                elInsightDrawer.classList.remove("collapsed");
+                elBtnToggleDrawer.textContent = "收起精讲 ▾";
+              }
+              renderInsights();
+            };
+            elDrawerModePills.appendChild(btn);
+          });
+        } else {
+          elDrawerModePills.style.display = "none";
+          elDrawerModePills.innerHTML = "";
+        }
+
+        elInsightBody.classList.toggle("quiz-layout", state.drawerMode === "quiz");
+
+        if (state.drawerMode === "dataFlow" && hasDataFlow) {
+          const df = step.dataFlow;
+          const renderSide = (side, fallback) => {
+            if (!side) return `<div class="insight-card-text">${fallback}</div>`;
+            if (typeof side === "string") return `<div class="insight-card-text">${formatRichText(side)}</div>`;
+            const st = side.struct ? `<div class="df-struct">${escapeHtml(side.struct)}</div>` : "";
+            const sample = side.sample ? `<pre class="df-pre">${escapeHtml(typeof side.sample === "string" ? side.sample : JSON.stringify(side.sample, null, 2))}</pre>` : "";
+            const note = side.note ? `<div class="insight-card-text">${formatRichText(side.note)}</div>` : "";
+            return st + sample + note;
+          };
+          elInsightBody.innerHTML = `
+            <article class="insight-card mech">
+              <div class="insight-card-title">📥 输入结构与样本</div>
+              ${renderSide(df.input, "无输入样例")}
+            </article>
+            <article class="insight-card pitfall">
+              <div class="insight-card-title">⚡ 加工与变换规则</div>
+              <div class="insight-card-text">${formatRichText(df.transform || "")}</div>
+            </article>
+            <article class="insight-card interview">
+              <div class="insight-card-title">📤 传出结构与样本</div>
+              ${renderSide(df.output, "无输出样例")}
+            </article>
+          `;
+          return;
+        }
+
+        if (state.drawerMode === "quiz" && hasQuiz) {
+          const q = step.quiz;
+          const labels = ["A", "B", "C", "D", "E"];
+          const optsHtml = q.options.map((opt, idx) => {
+            let cls = "quiz-opt";
+            if (picked !== undefined) {
+              if (idx === q.answerIndex) cls += " correct";
+              else if (idx === picked) cls += " wrong";
+            }
+            return `<button class="${cls}" data-opt="${idx}">${labels[idx] || idx + 1}. ${escapeHtml(opt)}</button>`;
+          }).join("");
+
+          const fbHtml = picked === undefined
+            ? `<div class="quiz-feedback" style="color:var(--text-muted)">点击左侧选项立即检验理解（纯自愿，不强制打卡）。</div>`
+            : `<div class="quiz-feedback"><strong>${picked === q.answerIndex ? "✅ 回答正确！" : "❌ 再看一眼关键点："}</strong><br/>${formatRichText(q.explanation || "")}</div>`;
+
+          elInsightBody.innerHTML = `
+            <article class="insight-card mech">
+              <div class="quiz-q">${escapeHtml(q.question)}</div>
+              <div class="quiz-opts">${optsHtml}</div>
+            </article>
+            <article class="insight-card pitfall">
+              <div class="insight-card-title">💡 解析与源码对照</div>
+              ${fbHtml}
+            </article>
+          `;
+
+          elInsightBody.querySelectorAll(".quiz-opt").forEach((btn) => {
+            btn.onclick = () => {
+              state.quizAnswers[qKey] = parseInt(btn.getAttribute("data-opt"), 10);
+              renderInsights();
+            };
+          });
+          return;
+        }
+
         const ins = step.insights || {};
-        elInsightMech.innerHTML = formatRichText(ins.mechanism || "暂无说明。");
-        elInsightPitfall.innerHTML = formatRichText(ins.pitfalls || "暂无说明。");
-        elInsightInterview.innerHTML = formatRichText(ins.interview || "暂无说明。");
+        elInsightBody.innerHTML = `
+          <article class="insight-card mech">
+            <div class="insight-card-title">⚙ 核心源码机制</div>
+            <div class="insight-card-text">${formatRichText(ins.mechanism || "暂无说明。")}</div>
+          </article>
+          <article class="insight-card pitfall">
+            <div class="insight-card-title">⚠ 线上避坑与边界</div>
+            <div class="insight-card-text">${formatRichText(ins.pitfalls || "暂无说明。")}</div>
+          </article>
+          <article class="insight-card interview">
+            <div class="insight-card-title">🎯 面试高频追问与答法</div>
+            <div class="insight-card-text">${formatRichText(ins.interview || "暂无说明。")}</div>
+          </article>
+        `;
+      }
+
+      function renderInterviewBriefModal() {
+        const brief = DATA.interviewBrief;
+        if (!brief) {
+          elBtnBrief.style.display = "none";
+          return;
+        }
+        elBtnBrief.style.display = "inline-flex";
+
+        const sections = [];
+        if (Array.isArray(brief.pitchSegments) && brief.pitchSegments.length) {
+          const cards = brief.pitchSegments.map((seg) => `
+            <div class="pitch-card">
+              <div class="pitch-top">
+                <span class="pitch-title">${escapeHtml(seg.title)}</span>
+                ${seg.time ? `<span class="pitch-time">${escapeHtml(seg.time)}</span>` : ""}
+              </div>
+              <div class="pitch-text">${formatRichText(seg.summary)}</div>
+            </div>
+          `).join("");
+          sections.push(`
+            <div>
+              <div class="brief-sec-title">⏱ 3 分钟向面试官讲透全项目</div>
+              <div class="pitch-grid">${cards}</div>
+            </div>
+          `);
+        }
+
+        if (Array.isArray(brief.questions) && brief.questions.length) {
+          const items = brief.questions.map((item, idx) => {
+            const hasJump = typeof item.tabIdx === "number" && item.tabIdx >= 0 && item.tabIdx < DATA.tabs.length;
+            const jumpBtn = hasJump
+              ? `<button class="ctrl-btn" data-jump-tab="${item.tabIdx}" data-jump-step="${item.stepIdx || 0}" style="height:24px;font-size:11px;">→ 定位源码</button>`
+              : "";
+            return `
+              <details class="qa-item">
+                <summary class="qa-summary">
+                  <span>${idx + 1}. ${formatRichText(item.q)}</span>
+                  ${jumpBtn}
+                </summary>
+                <div class="qa-ans">${formatRichText(item.a)}</div>
+              </details>
+            `;
+          }).join("");
+          sections.push(`
+            <div>
+              <div class="brief-sec-title">🎯 高频压轴面试题（点击展开参考答法，可一键定位源码）</div>
+              <div class="qa-list">${items}</div>
+            </div>
+          `);
+        }
+
+        elBriefBody.innerHTML = sections.join("");
+        elBriefBody.querySelectorAll("[data-jump-tab]").forEach((btn) => {
+          btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const tIdx = parseInt(btn.getAttribute("data-jump-tab"), 10);
+            const sIdx = parseInt(btn.getAttribute("data-jump-step"), 10);
+            elBriefModal.classList.remove("open");
+            if (tIdx !== state.tabIdx) {
+              selectTab(tIdx, sIdx);
+            } else {
+              state.syncSource = "brief";
+              selectStep(sIdx);
+            }
+          };
+        });
       }
 
       function renderStepper() {
@@ -1774,11 +2226,13 @@
         if (!nodes.length) return;
 
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        const hasLanes = Array.isArray(tab.lanes) && tab.lanes.length > 0;
+        const hasPhases = Array.isArray(tab.phases) && tab.phases.length > 0;
         nodes.forEach((n) => {
-          minX = Math.min(minX, n.x);
-          minY = Math.min(minY, n.y - 68);
-          maxX = Math.max(maxX, n.x + n.w);
-          maxY = Math.max(maxY, n.y + n.h);
+          minX = Math.min(minX, n.x - (hasLanes ? 48 : 0));
+          minY = Math.min(minY, n.y - (hasPhases ? 68 : 68));
+          maxX = Math.max(maxX, n.x + n.w + (hasLanes ? 18 : 0));
+          maxY = Math.max(maxY, n.y + n.h + (hasPhases ? 20 : 0));
         });
         const pad = 36;
         const vbX = Math.floor(minX - pad);
@@ -1841,6 +2295,17 @@
             out.push(`- **🎯 面试高频追问与答法**：\n  ${(ins.interview || "").replace(/\n/g, "\n  ")}`, "");
           });
         });
+
+        if (DATA.interviewBrief) {
+          out.push(`---`, "", `## 🎤 面试总览（3 分钟口述与压轴题）`, "");
+          (DATA.interviewBrief.pitchSegments || []).forEach((seg) => {
+            out.push(`- **${seg.title}**（${seg.time || ""}）：${seg.summary}`);
+          });
+          out.push("");
+          (DATA.interviewBrief.questions || []).forEach((item, i) => {
+            out.push(`### Q${i + 1}. ${item.q}`, "", item.a, "");
+          });
+        }
 
         const blob = new Blob([out.join("\n")], { type: "text/markdown;charset=utf-8" });
         const url = URL.createObjectURL(blob);
@@ -2011,6 +2476,10 @@
       elSearchModal.addEventListener("click", (e) => { if (e.target === elSearchModal) closeSearchModal(); });
       elGlobalSearchInput.addEventListener("input", (e) => runGlobalSearch(e.target.value));
 
+      elBtnBrief.onclick = () => { elBriefModal.classList.add("open"); };
+      $("btnCloseBrief").onclick = () => { elBriefModal.classList.remove("open"); };
+      elBriefModal.addEventListener("click", (e) => { if (e.target === elBriefModal) elBriefModal.classList.remove("open"); });
+
       // Zoom & Pan
       $("btnZoomIn").onclick = () => { state.scale = Math.min(2.2, state.scale * 1.18); applyTransform(); };
       $("btnZoomOut").onclick = () => { state.scale = Math.max(0.3, state.scale / 1.18); applyTransform(); };
@@ -2073,7 +2542,7 @@
           openSearchModal();
           return;
         }
-        if (e.key === "Escape") { closeSearchModal(); return; }
+        if (e.key === "Escape") { closeSearchModal(); elBriefModal.classList.remove("open"); return; }
         if (document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
         if (e.key === "ArrowLeft") {
           e.preventDefault();
@@ -2093,6 +2562,7 @@
       // Init
       buildSvgDefs();
       renderLegend();
+      renderInterviewBriefModal();
       loadStateFromHash();
       selectTab(state.tabIdx, state.stepIdx);
     })();

@@ -119,3 +119,35 @@ The renderer automatically applies **Port Spreading** (distributing anchor point
 | `insights.mechanism` | string | Yes | **核心源码机制** (supports `` `code` `` & `**bold**`) |
 | `insights.pitfalls` | string | Yes | **线上避坑与边界** |
 | `insights.interview` | string | Yes | **面试高频追问与答法** (`问：...\n答：...`) |
+| `dataFlow` | object | Optional | In-place **`⇄ 数据流转`** tab (`{ input: { struct, sample }, transform, output: { struct, sample } }`) |
+| `quiz` | object | Optional | In-place **`✓ 1 题自测`** tab (`{ question, options: [...], answerIndex, explanation }`) |
+
+---
+
+## Optional Progressive-Disclosure Enhancements (Zero Default Clutter)
+
+### Soft Swimlanes & Phases (on any `tab`)
+```json
+"phases": [
+  { "col": 0, "label": "Phase 1 · 接入与核心" },
+  { "col": 1, "label": "Phase 2 · 调度与编排" },
+  { "col": 2, "label": "Phase 3 · 安全与交付" }
+],
+"lanes": [
+  { "row": 0, "label": "入口网关", "color": "entry" },
+  { "row": 1, "label": "智能引擎", "color": "core" },
+  { "row": 2, "label": "存储生态", "color": "storage" }
+]
+```
+
+### Top-Level `interviewBrief` (powers the low-profile `🎤 面试` modal)
+```json
+"interviewBrief": {
+  "pitchSegments": [
+    { "time": "0:00-0:40", "title": "项目定位与双形态启动", "summary": "..." }
+  ],
+  "questions": [
+    { "q": "多路混合检索局部失败怎么处理？", "a": "...", "tabIdx": 1, "stepIdx": 1 }
+  ]
+}
+```

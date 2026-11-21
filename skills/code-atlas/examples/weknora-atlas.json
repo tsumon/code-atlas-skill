@@ -15,6 +15,16 @@
       "fileSubtitle": "v0.9.0 · 1b3a1febf 完整中文备注目录树（6,405 文件）",
       "graphTitle": "WeKnora 完整项目目录树 · 9 大架构模块全景图",
       "graphSubtitle": "基于 Tencent/WeKnora v0.9.0 真实源码扫描生成，点击任意目录行或右侧架构块双向定位",
+      "phases": [
+        { "col": 0, "label": "Phase 1 · 装配与检索基础" },
+        { "col": 1, "label": "Phase 2 · 路由与智体编排" },
+        { "col": 2, "label": "Phase 3 · 安全门禁与交付" }
+      ],
+      "lanes": [
+        { "row": 0, "label": "接入网关层", "color": "entry" },
+        { "row": 1, "label": "核心智体层", "color": "core" },
+        { "row": 2, "label": "存储生态层", "color": "storage" }
+      ],
       "codeLines": [
         "WeKnora/                              # Tencent/WeKnora 企业级知识库与智体框架 (v0.9.0 · 1b3a1febf)",
         "├── VERSION                           # 当前产品版本号 (0.9.0)",
@@ -500,6 +510,38 @@
             "mechanism": "设 `DefaultMaxCandidates = 200` 封顶精排账单与延迟；当高阈值过滤掉全部结果时自动按 `degradeFactor = 0.7` 退让；若用户显式 `@` 指定了文档/标签，则 `FallbackMinScore` 返回 `-Inf` 避免把权威文档全滤空。",
             "pitfalls": "BGE / Cohere 等不同 Rerank 模型打分区间不同，部分模型会输出负 Logits——因此“不过滤”的哨兵值必须是 `math.Inf(-1)` 而不是 `0`！",
             "interview": "问：为什么用户 `@` 了具体文档提问时，不能直接套用全局精排阈值？\n答：用户已明确缩小权威范围，若全局阈值过高把该文档全滤空会导致“明明指定了文档却答不知道”；用 `-Inf` 保底可确保至少保留该文档内最相关片段。"
+          },
+          "dataFlow": {
+            "input": {
+              "struct": "reranking.Options + []*types.SearchResult",
+              "sample": {
+                "candidates_in": 260,
+                "explicit_scope": true,
+                "threshold": 0.45,
+                "max_candidates": 200
+              }
+            },
+            "transform": "1. 按检索分截断至 `DefaultMaxCandidates (200)` 控延迟与费用\n2. 若全部候选 `< 0.45` 且高于 `degradeFloor (0.3)`，按 `0.45 * 0.7 = 0.315` 自动降级重试\n3. 显式 `@` 文档时 `FallbackMinScore = -Inf`，确保至少保留最优片段",
+            "output": {
+              "struct": "*reranking.Result (Results + Diagnostics)",
+              "sample": {
+                "rerank_status": "degraded_ok",
+                "effective_threshold": 0.315,
+                "fallback_min_score": "-Inf",
+                "kept_count": 8
+              }
+            }
+          },
+          "quiz": {
+            "question": "为什么 FallbackMinScore(explicitScope=true) 返回 math.Inf(-1) 而不是 0？",
+            "options": [
+              "因为 Go 的 float64 不支持 0 比较",
+              "部分 Rerank 模型会输出负分 Logits，用 0 仍会误杀合法候选",
+              "为了让 JSON 序列化更短",
+              "只是为了标记数组越界"
+            ],
+            "answerIndex": 1,
+            "explanation": "Cross-Encoder / BGE 等模型在未做 Sigmoid 时可能输出负数得分；用 `math.Inf(-1)` 才能在数学上保证任何真实分数都能通过保底线。"
           }
         },
         {
@@ -737,6 +779,36 @@
             "mechanism": "`executeToolCallsParallel` 用 `errgroup`（`SetLimit(8)`）并发跑只读工具；遇到 `!CanRunConcurrently` 的写操作时，先 `g.Wait()` 排空前置读、串行执行写，再重建 `errgroup` 继续后续并发。",
             "pitfalls": "无脑把全部 ToolCall 丢进 goroutine 并发，会导致“先写文件再读文件”出现竞态条件；同时并发数不设上限容易瞬间打爆下游数据库连接池或 API 限流。",
             "interview": "问：并发工具执行时，单个工具内部发生 `panic` 怎么办？\n答：在每个 goroutine 内层做好 `recover()` 封装为失败的 `ToolCall`（如 `panickedToolCall`），既不让整个服务端进程崩溃，也能把错误反馈给模型尝试替代路径。"
+          },
+          "dataFlow": {
+            "input": {
+              "struct": "response.ToolCalls ([]types.LLMToolCall)",
+              "sample": [
+                { "idx": 0, "name": "search_knowledge", "concurrent": true },
+                { "idx": 1, "name": "read_file", "concurrent": true },
+                { "idx": 2, "name": "write_sandbox_file", "concurrent": false }
+              ]
+            },
+            "transform": "1. `[0, 1]` 均为只读工具，放入 `errgroup(limit=8)` 并发执行\n2. 扫描到 `[2]` 非并发安全，立即 `g.Wait()` 排空前两个读任务\n3. 串行执行 `[2]`，若触发人工审批则保留 `results[:2]` 并挂起返回",
+            "output": {
+              "struct": "[]types.ToolCall (保序结果) | *types.PromptSuspension",
+              "sample": {
+                "ordered_results": 3,
+                "barrier_waits": 1,
+                "suspended": false
+              }
+            }
+          },
+          "quiz": {
+            "question": "并行批次执行到第 3 个写工具时触发人工审批挂起，前面 2 个已完成的只读工具结果会怎样？",
+            "options": [
+              "全部丢弃，审批通过后重新跑一遍",
+              "因为写屏障已先 g.Wait() 排空，前面结果通过 appendToolOutcomes 持久化保留",
+              "直接抛 HTTP 500 中断整个会话",
+              "保存在 goroutine 局部栈里无限期阻塞 HTTP 连接"
+            ],
+            "answerIndex": 1,
+            "explanation": "屏障先等待前置并发读全部完成后才执行写操作，命中挂起时 `results[:i]` 已全部就绪，落盘保留可避免恢复时重复调用外部工具。"
           }
         },
         {
@@ -966,9 +1038,103 @@
             "mechanism": "`CommandApprovalRequest` 透出完整待执行命令、脚本源码与 `TargetFact` 元数据；若脚本是二进制或过大无法完整展示（`ScriptsIncomplete: true`），自动审校器强制拒批；用户决策只能将 `write` 收窄为 `read`。",
             "pitfalls": "如果 Agent 先把恶意逻辑写进 `run.sh` 再执行 `bash run.sh`，光审查命令字符串完全看不出风险！WeKnora 专门提取 `Scripts []ScriptFact` 连同脚本正文一并呈交审校。",
             "interview": "问：给 Coding Agent 做命令审批（HITL / Auto-Reviewer）时，怎么防“写脚本绕过命令检查”？\n答：一是解析命令引用到的工作区脚本并将其正文附带给审校者（`Scripts`）；二是当脚本不可读/二进制/超长导致 `ScriptsIncomplete` 时坚持 Fail-Closed，严禁自动放行。"
+          },
+          "dataFlow": {
+            "input": {
+              "struct": "sandbox.CommandApprovalRequest",
+              "sample": {
+                "tool": "shell_exec",
+                "command": "bash ./scripts/cleanup.sh",
+                "grant_access": "write",
+                "scripts_incomplete": true
+              }
+            },
+            "transform": "1. 提取命令引用的工作区脚本正文放入 `Scripts[]`\n2. 检查 `ScriptsIncomplete == true`（二进制或超长不可见）\n3. 自动审校坚持 Fail-Closed 直接拒批，或由人工将 `write` 收窄为 `read`",
+            "output": {
+              "struct": "sandbox.CommandApprovalDecision",
+              "sample": {
+                "approved": false,
+                "access": "read",
+                "risk_level": "high",
+                "reason": "workspace script could not be inspected"
+              }
+            }
+          },
+          "quiz": {
+            "question": "在 WeKnora 的双层 SSRF 防御中，为什么保存配置时校验过 URL 后，仍必须在 net.Dialer.Control 再校验一次？",
+            "options": [
+              "因为 Go 的 url.Parse 不支持 HTTPS",
+              "防范 DNS Rebinding：域名校验时返回公网 IP，真正建连时切换为 169.254.169.254",
+              "为了加快 TCP 三次握手速度",
+              "为了兼容 HTTP/3 QUIC"
+            ],
+            "answerIndex": 1,
+            "explanation": "DNS 解析结果在 TTL 过期后可瞬时变更，只有在内核真正建立 TCP Socket 的 `DialControl` 回调里校验已解析的真实 IP，才能把校验与建连原子绑定。"
           }
         }
       ]
     }
-  ]
+  ],
+  "interviewBrief": {
+    "pitchSegments": [
+      {
+        "time": "0:00 - 0:40",
+        "title": "1. 项目定位与双形态启动",
+        "summary": "WeKnora 是 Go 主服务 + Python `docreader` 微服务 + Vue 前端的企业级知识库与智体平台。同一份代码通过编译期 `Edition == \"lite\"` 开关和 Uber Dig 容器装配，同时覆盖 PG/Redis/Milvus 集群版与 SQLite 桌面 Lite 版。"
+      },
+      {
+        "time": "0:40 - 1:30",
+        "title": "2. 组合检索与统一精排管线",
+        "summary": "用 `CompositeRetrieveEngine` 并发调度 10 类检索后端，并约定**部分失败不丢弃成功结果**；下游收敛至统一 `reranking` 包，做 200 条上限截断、阈值自适应降级（`×0.7`）、显式作用域 `-Inf` 保底与扁平倒排加速的 MMR 去重。"
+      },
+      {
+        "time": "1:30 - 2:20",
+        "title": "3. 无状态 ReAct 引擎与读写屏障",
+        "summary": "`AgentEngine` 跨轮无状态便于水平扩展，内置动态 `ContextTokenScale` 校准与渐进式 Skills 披露；执行层拦截 `finish_reason=length` 截断调用防脏写，并以 `errgroup(8)` + 写操作屏障实现安全并发与 HITL 挂起恢复。"
+      },
+      {
+        "time": "2:20 - 3:00",
+        "title": "4. 纵深安全与零信任沙箱",
+        "summary": "鉴权将人类 JWT (`RequireRole` + 灰度开关 + 1 分钟审计去重) 与机器 `APIKeyGate` 解耦；沙箱用 `Validate + net.Dialer.Control` 双层防 DNS Rebinding 与云元数据 SSRF，高危脚本审校坚持 `ScriptsIncomplete` 必拒的 Fail-Closed 原则。"
+      }
+    ],
+    "questions": [
+      {
+        "q": "多路混合检索里，某一路（比如 ES 或 Milvus）抖动报错了，系统如何优雅降级？",
+        "a": "WeKnora 在 `composite.go` 实现了部分失败契约：并发执行各检索腿时，单腿报错绝不清空已成功的 `results`，而是通过 `errors.Join(partialErrs...)` 将结果与局部错误一并返回，上层既能继续生成回答又能精确埋点报警。",
+        "tabIdx": 1,
+        "stepIdx": 1
+      },
+      {
+        "q": "为什么用户 `@` 了具体文档提问时，`FallbackMinScore` 要返回 `math.Inf(-1)` 而不是 `0`？",
+        "a": "一方面用户显式指定了权威文档，不能被全局高阈值全部滤空导致答非所问；另一方面部分 Rerank 模型会输出负 Logits，用 `0` 仍会误杀候选，只有 `-Inf` 才能真正代表“保底保留最优结果”。",
+        "tabIdx": 1,
+        "stepIdx": 2
+      },
+      {
+        "q": "MMR 去重为什么要自己建扁平倒排数组 `buildMMRPostings`，而不是直接两两算向量余弦？",
+        "a": "粗排切片未必携带原始高维浮点向量；而基于 Token Jaccard 的扁平倒排表不仅零额外 Embedding 开销，每次选中新片段后还只需增量更新共享 Token 的候选，跳过完全不重合的切片并大幅降低 GC 压力。",
+        "tabIdx": 1,
+        "stepIdx": 4
+      },
+      {
+        "q": "模型输出触达 `max_tokens` 截断了工具调用参数，怎么防止写出半截坏文件？",
+        "a": "在 `act.go` 中检查 `isLengthFinishReason(response.FinishReason)`，只要发生长度截断就通过 `failTruncatedToolCalls` 整批拒绝执行，并返回工具中立的提示让模型拆成小块重新发起调用。",
+        "tabIdx": 2,
+        "stepIdx": 2
+      },
+      {
+        "q": "Agent 一轮同时返回多个读工具和写工具调用，如何兼顾并发速度与状态一致性？",
+        "a": "采用 `executeToolCallsParallel` 的读写屏障策略：只读工具进 `errgroup`（限流 8）并发跑；遇到 `!CanRunConcurrently` 的写操作先 `g.Wait()` 排空前置读，再串行执行写；若中途触发审批挂起，先把已完成的前置结果落盘保存。",
+        "tabIdx": 2,
+        "stepIdx": 3
+      },
+      {
+        "q": "为什么防御租户自定义 URL 的 SSRF 不能只靠保存时的 URL 校验？",
+        "a": "攻击者可用 DNS Rebinding（校验时解析公网 IP，真正请求时 TTL=0 切到 `169.254.169.254` 云元数据）。WeKnora 在 `url_guard.go` 叠了第二层 `net.Dialer.Control` 钩子，在 TCP 建连瞬间校验已解析的真实 IP，并永久封禁 Link-Local 及 IPv4-mapped IPv6。",
+        "tabIdx": 3,
+        "stepIdx": 2
+      }
+    ]
+  }
 }

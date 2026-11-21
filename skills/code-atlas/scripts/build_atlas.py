@@ -226,6 +226,49 @@ def validate_atlas_data(
                         if not insights.get(req_key):
                             errors.append(f"{sp}.insights.{req_key} is required.")
 
+                quiz = step.get("quiz")
+                if quiz is not None:
+                    if not isinstance(quiz, dict):
+                        errors.append(f"{sp}.quiz must be an object.")
+                    else:
+                        opts = quiz.get("options")
+                        ans = quiz.get("answerIndex")
+                        if not quiz.get("question"):
+                            errors.append(f"{sp}.quiz.question is required.")
+                        if not isinstance(opts, list) or len(opts) < 2:
+                            errors.append(f"{sp}.quiz.options must have at least 2 options.")
+                        elif not isinstance(ans, int) or not (0 <= ans < len(opts)):
+                            errors.append(f"{sp}.quiz.answerIndex {ans!r} is out of range 0..{len(opts) - 1}.")
+
+        for key_name, idx_key in (("phases", "col"), ("lanes", "row")):
+            arr = tab.get(key_name)
+            if arr is not None:
+                if not isinstance(arr, list):
+                    errors.append(f"{prefix}.{key_name} must be an array.")
+                else:
+                    for i, item in enumerate(arr):
+                        if not isinstance(item, dict) or not isinstance(item.get(idx_key), int) or not item.get("label"):
+                            errors.append(f"{prefix}.{key_name}[{i}] requires int `{idx_key}` and `label`.")
+
+    brief = data.get("interviewBrief")
+    if brief is not None:
+        if not isinstance(brief, dict):
+            errors.append("`interviewBrief` must be an object.")
+        else:
+            qs = brief.get("questions", [])
+            if isinstance(qs, list):
+                for q_idx, item in enumerate(qs):
+                    if not isinstance(item, dict) or not item.get("q") or not item.get("a"):
+                        errors.append(f"interviewBrief.questions[{q_idx}] requires `q` and `a`.")
+                        continue
+                    t_ref = item.get("tabIdx")
+                    s_ref = item.get("stepIdx", 0)
+                    if t_ref is not None:
+                        if not isinstance(t_ref, int) or not (0 <= t_ref < len(tabs)):
+                            errors.append(f"interviewBrief.questions[{q_idx}].tabIdx {t_ref!r} out of range.")
+                        elif not isinstance(s_ref, int) or not (0 <= s_ref < len(tabs[t_ref].get("steps", []))):
+                            errors.append(f"interviewBrief.questions[{q_idx}].stepIdx {s_ref!r} out of range.")
+
     return errors, warnings
 
 
