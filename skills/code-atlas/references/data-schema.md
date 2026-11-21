@@ -58,10 +58,14 @@ Plan **4 to 6 tabs** per repository:
   "path": "internal/rag/hybrid_retriever.go",
   "subtitle": "双路召回与 RRF 融合",
   "startLine": 45,
-  "codeLines": [ "..." ]
+  "codeLines": [ "..." ],
+  "annotations": {
+    "3": "大白话解释：这一行在做什么，为什么必须这么写"
+  }
 }
 ```
 - When `files` is provided, each step specifies `"fileId": "retriever"`.
+- Optional `annotations` (`{ "<1-based-line>": "大白话解释" }`) powers the lightweight **`💬 白话注释`** toggle in the left code pane (default OFF to keep raw code clean; 1 click reveals plain-language notes above tricky lines without adding extra panels).
 - Clicking a step or graph node automatically switches the left file tab and scrolls to the exact highlighted block.
 - When `project.repoUrl` is a GitHub URL, the `↗ GitHub 原文` link automatically resolves to `blob/<commit>/<path>#L<realStart>-L<realEnd>`.
 

@@ -528,6 +528,27 @@
     .code-line.active-line .line-num { color: var(--accent-cyan); font-weight: 600; }
     .line-content { white-space: pre; color: var(--text-code); }
 
+    .plain-note-row {
+      display: flex;
+      align-items: baseline;
+      margin: 3px 12px 2px 48px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(34, 197, 94, 0.1);
+      border-left: 2.5px solid var(--cat-storage);
+      color: var(--text-comment);
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      line-height: 1.5;
+      white-space: normal;
+      max-width: calc(100% - 62px);
+    }
+    .plain-note-row.dimmed-line { opacity: 0.48; }
+    .plain-note-row.filter-hidden { display: none; }
+    [data-theme="light"] .plain-note-row {
+      background: rgba(22, 163, 74, 0.08);
+    }
+
     .tok-tree { color: var(--text-tree); }
     .tok-dir { color: var(--text-dir); font-weight: 600; }
     .tok-comment { color: var(--text-comment); }
@@ -832,6 +853,7 @@
         <div class="file-tabs" id="fileTabs"></div>
         <div class="filter-bar">
           <input type="text" class="filter-input" id="filterInput" placeholder="过滤目录、文件名、接口或中文备注（如 rag / agent / POST）" />
+          <button class="ctrl-btn" id="btnAnnotations" style="display:none;" title="开关逐行大白话注释">💬 白话注释</button>
           <button class="ctrl-btn" id="btnCopy">📋 复制内容</button>
         </div>
         <div class="meta-bar">
@@ -1342,7 +1364,12 @@
             "    if len(partialErrs) > 0 { return results, fmt.Errorf(\"partial: %w\", errors.Join(partialErrs...)) }",
             "    return results, nil",
             "}"
-          ]
+          ],
+          "annotations": {
+            "6": "并发同时查多个检索引擎（向量/关键词等），谁先返回就先汇总，不串行干等",
+            "13": "就算某一路检索夹带局部报错，也先把错攒起来，不直接打断整个并发查询",
+            "23": "关键契约：哪怕有分支失败，仍然把成功分支查到的 results 原样带回给上层降级使用"
+          }
         },
         {
           "id": "rerank",
@@ -1369,7 +1396,12 @@
             "// Rerank 失败时不返回 error：原样透传召回结果并标记 model_error，实现无感降级",
             "func Rerank(ctx context.Context, model rerank.Reranker, query string,",
             "    results []*types.SearchResult, opts Options) *Result { ... }"
-          ]
+          ],
+          "annotations": {
+            "4": "如果配置的阈值太苛刻把候选全滤空了，自动把阈值乘以 0.7 放松一次再捞一遍",
+            "6": "精排按条数计费且耗延迟，这里硬封顶最多只送 200 条给精排模型",
+            "11": "有些 Rerank 模型会打负分，所以用负无穷 -Inf 表示“用户 @ 了具体文档时绝不把它全滤空”"
+          }
         },
         {
           "id": "mmr",
@@ -1401,7 +1433,12 @@
             "    }",
             "    return selected",
             "}"
-          ]
+          ],
+          "annotations": {
+            "5": "把所有候选文本预先建成扁平倒排表，避免后面每选一条就跟全部剩余文本两两比对",
+            "10": "在“相关度高”和“跟已选片段不重复”之间做权衡，选出综合得分最高的下一条",
+            "13": "只去更新跟刚选中那条有共同词的候选片段，完全不重合的片段直接跳过，极大省 CPU"
+          }
         }
       ],
       "nodes": [
@@ -1628,7 +1665,12 @@
             "    }",
             "    tools := e.buildToolsForLLM()",
             "}"
-          ]
+          ],
+          "annotations": {
+            "5": "不管本轮是正常结束还是中途报错，defer 保证沙箱句柄和临时工具一定会被回收",
+            "11": "引擎不记跨轮内存，但会接过上一轮算出来的 Token 换算误差比例，越聊估算越准",
+            "15": "只把 Skill 的名字和简介塞进系统提示词（按需展开），省下大量无谓 Token"
+          }
         },
         {
           "id": "act",
@@ -1671,7 +1713,12 @@
             "        g.Go(func() error { /* 并发执行只读工具并安全恢复 panic */ return nil })",
             "    }",
             "}"
-          ]
+          ],
+          "annotations": {
+            "7": "模型话说到一半被字数上限切停了，参数极可能残缺——整批拒绝执行，防写坏文件",
+            "23": "最多同时跑 8 个并发只读工具，既提速又不把下游数据库/API 打爆",
+            "26": "一碰到会改状态的写工具，先等前面所有读工具全部跑完再单独串行执行，防止读写竞态"
+          }
         }
       ],
       "nodes": [
@@ -1898,7 +1945,12 @@
             "        c.Abort()",
             "    }",
             "}"
-          ]
+          ],
+          "annotations": {
+            "5": "机器 API Key 走独立白名单门禁（APIKeyGate），不套人类角色阶梯，直接放行",
+            "11": "灰度期只记录越权告警不真拦，确认没误伤存量业务再把 EnableRBAC 切成 true",
+            "16": "拒审日志内置 1 分钟防刷去重，防止扫描器每秒发几千次越权把审计表写爆"
+          }
         },
         {
           "id": "urlguard",
@@ -1927,7 +1979,12 @@
             "    case \"http\", \"https\": /* 继续解析并校验所有目标 IP */",
             "    }",
             "}"
-          ]
+          ],
+          "annotations": {
+            "5": "就算私有部署允许访问内网，云厂商元数据地址 169.254.169.254 也永远封死，防偷云服务器密钥",
+            "9": "真正起决定性作用的防线：在 TCP 拨号最后一毫秒检查真实 IP，彻底堵死 DNS 重绑定攻击",
+            "17": "先在保存配置时挡掉 file://、gopher:// 这类危险协议，第一时间给管理员明确提示"
+          }
         },
         {
           "id": "approval",
@@ -1953,7 +2010,12 @@
             "    Access    string // 仅允许从 write 收窄为 read",
             "    RiskLevel string",
             "}"
-          ]
+          ],
+          "annotations": {
+            "8": "防止 Agent 先把危险代码写进 run.sh 再调 bash run.sh 绕过检查，这里把脚本全文一起送审",
+            "9": "只要脚本是二进制或大到没法看清全文，自动审校器必须直接拒绝（宁可误杀绝不放过）",
+            "15": "审批权限只能从“写”往下收窄成“只读”，绝不允许审批环节意外放大权限"
+          }
         }
       ],
       "nodes": [
@@ -2139,6 +2201,7 @@
         stepIdx: 0,
         activeFileId: null,
         filterText: "",
+        showAnnotations: false,
         motion: true,
         showAll: false,
         theme: "dark",
@@ -2164,6 +2227,7 @@
       const elQuickPills = $("quickPills");
       const elFileTabs = $("fileTabs");
       const elFilterInput = $("filterInput");
+      const elBtnAnnotations = $("btnAnnotations");
       const elBtnCopy = $("btnCopy");
       const elMetaFile = $("metaFile");
       const elGhSourceLink = $("ghSourceLink");
@@ -2241,7 +2305,8 @@
           path: tab.filePath || tab.label,
           subtitle: tab.fileSubtitle || "",
           startLine: tab.startLine || 1,
-          codeLines: tab.codeLines || []
+          codeLines: tab.codeLines || [],
+          annotations: tab.annotations || null
         }];
       }
 
@@ -2577,6 +2642,13 @@
         const q = state.filterText.trim().toLowerCase();
 
         elBtnCopy.textContent = tab.mode === "tree" ? "📋 复制目录树" : "📋 复制源码";
+        const noteMap = (tab.mode !== "tree" && fileObj.annotations && typeof fileObj.annotations === "object")
+          ? fileObj.annotations : null;
+        const hasNotes = !!(noteMap && Object.keys(noteMap).length > 0);
+        elBtnAnnotations.style.display = hasNotes ? "inline-flex" : "none";
+        elBtnAnnotations.classList.toggle("active-toggle", hasNotes && state.showAnnotations);
+        elBtnAnnotations.textContent = state.showAnnotations ? "💬 白话：开" : "💬 白话注释";
+
         const displayEnd = baseOffset + lines.length;
         elMetaFile.textContent = `${fileObj.path}${fileObj.subtitle ? " · " + fileObj.subtitle : ""} (L${baseOffset + 1}-L${displayEnd})`;
 
@@ -2613,7 +2685,8 @@
           const ln = idx + 1;
           const shownNum = baseOffset + ln;
           const isActive = isStepFileVisible && ln >= startL && ln <= endL;
-          const matchesFilter = !q || raw.toLowerCase().includes(q);
+          const plainNote = (hasNotes && state.showAnnotations) ? noteMap[String(ln)] : null;
+          const matchesFilter = !q || raw.toLowerCase().includes(q) || (plainNote && plainNote.toLowerCase().includes(q));
 
           if (isStepFileVisible && ln === startL && !q) {
             const banner = document.createElement("div");
@@ -2621,6 +2694,15 @@
             banner.textContent = `↔ Step ${state.stepIdx + 1} · ${step.title} (${displayRange})`;
             frag.appendChild(banner);
             activeAnchorEl = banner;
+          }
+
+          if (plainNote) {
+            const noteEl = document.createElement("div");
+            noteEl.className = "plain-note-row"
+              + (!isActive && !q && !state.showAll && isStepFileVisible ? " dimmed-line" : "")
+              + (!matchesFilter ? " filter-hidden" : "");
+            noteEl.textContent = `↳ ${plainNote}`;
+            frag.appendChild(noteEl);
           }
 
           const row = document.createElement("div");
@@ -3139,6 +3221,11 @@
         state.filterText = e.target.value;
         renderCodePane(false);
       });
+
+      elBtnAnnotations.onclick = () => {
+        state.showAnnotations = !state.showAnnotations;
+        renderCodePane(false);
+      };
 
       elBtnCopy.onclick = () => {
         const fileObj = getActiveFile(getCurrentTab(), getCurrentStep());

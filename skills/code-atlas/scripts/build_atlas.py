@@ -84,6 +84,19 @@ def validate_atlas_data(
             else:
                 line_count = len(code_lines)
 
+            annotations = fobj.get("annotations") if is_multi else tab.get("annotations")
+            if annotations is not None:
+                if not isinstance(annotations, dict):
+                    errors.append(f"{fp}.annotations must be an object mapping line numbers to text.")
+                elif line_count > 0:
+                    for k, v in annotations.items():
+                        if not str(k).isdigit() or not (1 <= int(k) <= line_count):
+                            errors.append(
+                                f"{fp}.annotations key {k!r} must be a 1-based line number in 1..{line_count}."
+                            )
+                        if not isinstance(v, str) or not v.strip():
+                            errors.append(f"{fp}.annotations[{k!r}] must be a non-empty string.")
+
             rel_path = fobj.get("path", "")
             real_disk_lines: int | None = None
             if repo_root is not None and mode == "code":

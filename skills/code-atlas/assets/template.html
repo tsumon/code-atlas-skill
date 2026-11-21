@@ -528,6 +528,27 @@
     .code-line.active-line .line-num { color: var(--accent-cyan); font-weight: 600; }
     .line-content { white-space: pre; color: var(--text-code); }
 
+    .plain-note-row {
+      display: flex;
+      align-items: baseline;
+      margin: 3px 12px 2px 48px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(34, 197, 94, 0.1);
+      border-left: 2.5px solid var(--cat-storage);
+      color: var(--text-comment);
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      line-height: 1.5;
+      white-space: normal;
+      max-width: calc(100% - 62px);
+    }
+    .plain-note-row.dimmed-line { opacity: 0.48; }
+    .plain-note-row.filter-hidden { display: none; }
+    [data-theme="light"] .plain-note-row {
+      background: rgba(22, 163, 74, 0.08);
+    }
+
     .tok-tree { color: var(--text-tree); }
     .tok-dir { color: var(--text-dir); font-weight: 600; }
     .tok-comment { color: var(--text-comment); }
@@ -832,6 +853,7 @@
         <div class="file-tabs" id="fileTabs"></div>
         <div class="filter-bar">
           <input type="text" class="filter-input" id="filterInput" placeholder="过滤目录、文件名、接口或中文备注（如 rag / agent / POST）" />
+          <button class="ctrl-btn" id="btnAnnotations" style="display:none;" title="开关逐行大白话注释">💬 白话注释</button>
           <button class="ctrl-btn" id="btnCopy">📋 复制内容</button>
         </div>
         <div class="meta-bar">
@@ -946,6 +968,7 @@
         stepIdx: 0,
         activeFileId: null,
         filterText: "",
+        showAnnotations: false,
         motion: true,
         showAll: false,
         theme: "dark",
@@ -971,6 +994,7 @@
       const elQuickPills = $("quickPills");
       const elFileTabs = $("fileTabs");
       const elFilterInput = $("filterInput");
+      const elBtnAnnotations = $("btnAnnotations");
       const elBtnCopy = $("btnCopy");
       const elMetaFile = $("metaFile");
       const elGhSourceLink = $("ghSourceLink");
@@ -1048,7 +1072,8 @@
           path: tab.filePath || tab.label,
           subtitle: tab.fileSubtitle || "",
           startLine: tab.startLine || 1,
-          codeLines: tab.codeLines || []
+          codeLines: tab.codeLines || [],
+          annotations: tab.annotations || null
         }];
       }
 
@@ -1384,6 +1409,13 @@
         const q = state.filterText.trim().toLowerCase();
 
         elBtnCopy.textContent = tab.mode === "tree" ? "📋 复制目录树" : "📋 复制源码";
+        const noteMap = (tab.mode !== "tree" && fileObj.annotations && typeof fileObj.annotations === "object")
+          ? fileObj.annotations : null;
+        const hasNotes = !!(noteMap && Object.keys(noteMap).length > 0);
+        elBtnAnnotations.style.display = hasNotes ? "inline-flex" : "none";
+        elBtnAnnotations.classList.toggle("active-toggle", hasNotes && state.showAnnotations);
+        elBtnAnnotations.textContent = state.showAnnotations ? "💬 白话：开" : "💬 白话注释";
+
         const displayEnd = baseOffset + lines.length;
         elMetaFile.textContent = `${fileObj.path}${fileObj.subtitle ? " · " + fileObj.subtitle : ""} (L${baseOffset + 1}-L${displayEnd})`;
 
@@ -1420,7 +1452,8 @@
           const ln = idx + 1;
           const shownNum = baseOffset + ln;
           const isActive = isStepFileVisible && ln >= startL && ln <= endL;
-          const matchesFilter = !q || raw.toLowerCase().includes(q);
+          const plainNote = (hasNotes && state.showAnnotations) ? noteMap[String(ln)] : null;
+          const matchesFilter = !q || raw.toLowerCase().includes(q) || (plainNote && plainNote.toLowerCase().includes(q));
 
           if (isStepFileVisible && ln === startL && !q) {
             const banner = document.createElement("div");
@@ -1428,6 +1461,15 @@
             banner.textContent = `↔ Step ${state.stepIdx + 1} · ${step.title} (${displayRange})`;
             frag.appendChild(banner);
             activeAnchorEl = banner;
+          }
+
+          if (plainNote) {
+            const noteEl = document.createElement("div");
+            noteEl.className = "plain-note-row"
+              + (!isActive && !q && !state.showAll && isStepFileVisible ? " dimmed-line" : "")
+              + (!matchesFilter ? " filter-hidden" : "");
+            noteEl.textContent = `↳ ${plainNote}`;
+            frag.appendChild(noteEl);
           }
 
           const row = document.createElement("div");
@@ -1946,6 +1988,11 @@
         state.filterText = e.target.value;
         renderCodePane(false);
       });
+
+      elBtnAnnotations.onclick = () => {
+        state.showAnnotations = !state.showAnnotations;
+        renderCodePane(false);
+      };
 
       elBtnCopy.onclick = () => {
         const fileObj = getActiveFile(getCurrentTab(), getCurrentStep());

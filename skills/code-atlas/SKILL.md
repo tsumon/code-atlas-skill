@@ -47,6 +47,7 @@ Read [`references/data-schema.md`](./references/data-schema.md) for the complete
 Quality checklist while authoring `atlas-data.json`:
 - **Aligned tree annotations**: In Tab 0 (`mode: "tree"`), pad file/dir paths with spaces so inline `# 中文备注` comments line up cleanly.
 - **Multi-file cross-module walkthroughs**: Use `tab.files[]` + `step.fileId` + `step.realLines` for real multi-file call chains.
+- **Restrained plain-language annotations**: On `mode: "code"` files, add optional `annotations` (`{ "<line>": "..." }`) only on genuinely tricky lines (3–6 per file) so readers can toggle **`💬 白话注释`** on demand without cluttering default raw code.
 - **Complete step coverage**: Every node on the right canvas should be reachable via at least one step.
 - **Rich 3-column insights for EVERY step**:
   - `insights.mechanism` (**核心源码机制**): Cite exact files, structs/classes, functions, and data flow using inline `` `code` ``.
